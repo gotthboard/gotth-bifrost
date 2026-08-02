@@ -4,7 +4,7 @@
 
 ### 2026-08-01 21:10 CDT — Establish BFW as the product acronym
 
-Commit: current commit; hash assigned by Git after commit
+Commit: `a7d12f806e78fc8cbf305ffd422aa8f4a5e394c7`
 
 Affected files:
 
