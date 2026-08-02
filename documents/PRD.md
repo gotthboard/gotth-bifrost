@@ -93,6 +93,45 @@ count.
   `agent-filesystem` and `agent-exec` have passed their supported-platform
   transport, identity, path/process safety, sandbox/containment, recovery,
   lifecycle, SDK, audit/redaction, and independent admission gates.
+- **BFW-PRD-025:** The web UI shall run as an independent unprivileged service
+  and shall use the same versioned, authenticated core API as the `bfw` CLI. It
+  shall not edit configuration files, invoke platform plugins directly, run
+  firewall commands, hold platform/root privilege, or become configuration
+  authority.
+- **BFW-PRD-026:** A plugin UI contribution shall be part of its signed package
+  and shall declare its plugin/version identity, UI/API compatibility,
+  routes/navigation, schemas/views, typed action bindings, required
+  permissions, localization metadata, and content-addressed asset digests.
+- **BFW-PRD-027:** The core shall verify signature, provenance, compatibility,
+  permissions, schemas, migrations, and asset digests before publishing a
+  sanitized, authorization-filtered UI catalog. `bfw-web` shall never discover
+  pages directly from a running plugin process.
+- **BFW-PRD-028:** Common plugin pages shall use a versioned declarative UI
+  contract and shared BFW components for forms, tables, status panels,
+  validation, confirmation, accessibility, and error presentation.
+- **BFW-PRD-029:** Every plugin UI action shall bind to a typed core API action
+  and pass normal identity, authorization, validation, confirmation, audit,
+  idempotency, generation, and rollback admission. Browser reachability or UI
+  visibility shall not grant action authority.
+- **BFW-PRD-030:** A custom frontend bundle, when declarative UI is insufficient,
+  shall be signed, content-addressed, permission-declared, and isolated in a
+  separate-origin sandbox with strict CSP and a narrow capability-based message
+  protocol. It shall have no direct access to BFW credentials, cookies,
+  canonical state, host files, plugin sockets, privileged APIs, the trusted DOM,
+  or arbitrary network requests.
+- **BFW-PRD-031:** Plugin backend, UI manifest, schemas, migrations, and assets
+  shall be compatibility-checked and activated, upgraded, or rolled back as one
+  versioned release. A partially activated UI/backend pair shall fail closed.
+- **BFW-PRD-032:** Disabled, removed, incompatible, or untrusted plugins shall
+  contribute no active UI routes. An unhealthy admitted plugin may expose only
+  a clearly degraded, read-only diagnostic surface while mutating actions are
+  denied.
+- **BFW-PRD-033:** The `bfw` CLI shall provide a local recovery path through the
+  same core contracts when the web service or plugin UI is unavailable. The CLI
+  shall be a client, not a direct firewall-state editor.
+- **BFW-PRD-034:** Web-service, UI-renderer, or plugin-UI failure, restart, or
+  upgrade shall not interrupt packet processing, erase last-known-good policy,
+  or weaken core admission and audit behavior.
 
 ## Bootstrap acceptance criteria
 

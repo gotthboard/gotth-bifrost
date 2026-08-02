@@ -2,6 +2,37 @@
 
 ## Unreleased
 
+### 2026-08-01 21:31 CDT — Define independent web and plugin UI contributions
+
+Commit: current commit; hash assigned by Git after commit
+
+Affected files:
+
+- `README.md`
+- `documents/PRD.md`
+- `documents/ARCHITECTURE.md`
+- `documents/IMPLEMENTATION-SPEC.md`
+
+Explanation:
+
+Make the web UI an independent unprivileged client of the core API and define
+OPNsense-style plugin UI contributions through signed manifests, declarative
+shared components, a sanitized UI catalog, typed action bindings, isolated rich
+extensions, atomic UI/backend release handling, and `bfw` CLI recovery.
+
+Verification:
+
+- `go mod edit -json`
+- `git diff --check`
+- requirement trace inspection for BFW-PRD-025 through BFW-PRD-034
+- UI trust-boundary review for direct plugin, credential, DOM, asset, network,
+  and authorization bypasses
+
+Risks / non-goals:
+
+- This admits architecture and requirements only. It adds no web runtime,
+  frontend bundle, plugin UI, firewall mutation, or deployed service.
+
 ### 2026-08-01 21:25 CDT — Correct the full product name to Bifrost
 
 Commit: `4f4bbe36006997ffb4c3affd6ca8ed5baf5e266a`

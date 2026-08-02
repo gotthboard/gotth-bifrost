@@ -52,7 +52,10 @@ operator / API
 - **reconciler:** idempotent apply/verify loop with explicit drift handling
 - **management API:** authenticated authorization boundary; no direct shell
   execution
-- **web UI:** API client only; it never becomes configuration authority
+- **web UI service:** independent unprivileged API client and plugin UI renderer;
+  it never becomes configuration authority
+- **CLI:** `bfw` uses the same API contracts and provides local recovery without
+  directly mutating firewall state
 - **evidence plane:** audit events, metrics, logs, diagnostics, and support
   bundles with secret redaction
 
@@ -95,6 +98,84 @@ Candidate plugin classes:
 
 Core configuration, admission, audit, package verification, and recovery remain
 non-optional. Plugins cannot replace or weaken them.
+
+## Management and plugin UI architecture
+
+The management path is intentionally one-way through the core:
+
+```text
+browser
+  -> HTTPS bfw-web role
+  -> versioned authenticated core API
+  -> core validation, authorization, confirmation, audit, and admission
+  -> supervised plugin
+  -> native OS or service API
+
+local operator
+  -> bfw CLI
+  -> the same core API and admission path
+```
+
+`bfwd` and `bfw-web` are provisional role names until public executable and
+service naming is admitted. The architectural boundary is not provisional: the
+web service is unprivileged, separately restartable, and incapable of direct
+firewall, filesystem, keyring, execution-provider, or plugin-socket access.
+
+### UI contribution package
+
+A signed plugin release may contain a UI contribution manifest with:
+
+- plugin id, plugin version, UI contract version, and compatible core API range
+- namespaced navigation groups and routes
+- declarative configuration and result schemas
+- forms, tables, status panels, validation, confirmation, and error mappings
+- typed core action identifiers and required display/action permissions
+- localization and accessibility metadata
+- content-addressed asset names, digests, sizes, media types, and CSP class
+- optional custom-bundle declaration and sandbox capability request
+
+The core verifies the same package signature, provenance, compatibility,
+permissions, migrations, and asset digests used for backend admission. It then
+publishes a sanitized UI catalog filtered by the authenticated operator's
+display permissions and the admitted plugin state. The web service never asks a
+plugin executable which pages or scripts to load.
+
+Declarative UI is the default. Shared BFW components render ordinary DNS, DHCP,
+VPN, monitoring, and package pages consistently and keep validation,
+confirmation, accessibility, localization, and error behavior in the trusted
+shell. For example, a DHCP package can contribute Leases, Pools, Reservations,
+and Options views whose forms bind to typed actions such as
+`dhcp.pool.update`; the browser cannot edit a daemon configuration file or call
+the DHCP process.
+
+### Rich extension isolation
+
+A feature such as a topology viewer, high-rate graph, or packet-capture viewer
+may require custom frontend code. Such code is never inserted into the trusted
+DOM or granted the web application's origin. Its signed, content-addressed
+bundle runs in a separate-origin sandboxed frame with a restrictive CSP and a
+versioned capability-based message channel.
+
+The sandbox denies BFW cookies and tokens, keyring access, canonical state,
+filesystem paths, plugin sockets, top navigation, trusted-DOM access, arbitrary
+network requests, and undeclared browser capabilities. The host sends only
+typed, bounded, authorization-filtered data and accepts only typed action
+proposals, which still pass through the core API. A bundle signature proves
+provenance; it does not grant permissions.
+
+### Lifecycle and degradation
+
+The plugin backend, UI manifest, schemas, migrations, and assets form one
+versioned release unit. Staging verifies all parts before activation; activation
+publishes the new backend generation and UI catalog atomically; rollback restores
+the last compatible pair. Content-addressed assets prevent path substitution
+and make cached content verifiable.
+
+Disabled, removed, incompatible, or untrusted plugins have no active UI routes.
+An unhealthy but admitted plugin may retain a clearly degraded read-only status
+and diagnostic page so operators can repair it; mutating actions are denied.
+Web or UI failure never affects native packet policy. The `bfw` CLI and local
+console recovery remain available when the web service is down.
 
 ## Credential authority
 

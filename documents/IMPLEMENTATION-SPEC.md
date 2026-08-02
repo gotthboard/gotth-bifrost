@@ -75,6 +75,15 @@ interface design; provisional working names do not create compatibility.
   APIs, including denial defaults and cross-platform process semantics
 - define typed, bounded, separately admitted data transfer between keyring,
   filesystem, and execution providers
+- define the independent unprivileged web-service and `bfw` CLI contracts over
+  one authenticated, versioned core API
+- define the signed plugin UI manifest, declarative schema/component contract,
+  sanitized UI catalog, route namespace, permissions, asset digest model, and
+  compatibility negotiation
+- define custom-bundle separate-origin sandbox, CSP, capability-message,
+  data-bound, and denial contracts
+- define atomic backend/UI/schema/migration/asset activation and rollback plus
+  disabled, incompatible, unhealthy, and web-failure behavior
 - define last-known-good, confirmation timer, rollback, and interrupted-upgrade
   behavior
 - define independent correctness oracles for compiled and applied policy
@@ -117,3 +126,13 @@ host mutation, daemonization, and web administration remain later slices.
 | BFW-PRD-022 | shell, PATH/env, credential, network, privilege, raw-handle denial and native-API boundary tests |
 | BFW-PRD-023 | cross-provider confused-deputy, stale-generation, type/bounds, ref-reuse, and correlation tests |
 | BFW-PRD-024 | cross-platform filesystem/exec compatibility, safety, lifecycle, SDK, and independent admission record |
+| BFW-PRD-025 | privilege, direct-access, restart-isolation, and shared-core-API tests for web and CLI clients |
+| BFW-PRD-026 | signed UI-manifest schema, compatibility, namespace, permission, localization, and asset-digest tests |
+| BFW-PRD-027 | provenance/schema/migration/asset verification plus sanitized authorization-filtered catalog tests |
+| BFW-PRD-028 | declarative form/table/status/validation/confirmation/accessibility/error golden tests |
+| BFW-PRD-029 | typed-action admission, identity, confirmation, audit, idempotency, generation, and rollback tests |
+| BFW-PRD-030 | hostile custom-bundle tests for origin, CSP, cookie/token, DOM, network, filesystem, socket, and capability escape |
+| BFW-PRD-031 | staged activation, crash interruption, version skew, cache integrity, atomic publish, and rollback tests |
+| BFW-PRD-032 | disabled/removed/incompatible/untrusted route denial and unhealthy read-only diagnostic tests |
+| BFW-PRD-033 | web-down local CLI recovery tests proving the same core admission path is used |
+| BFW-PRD-034 | web/UI crash, restart, and upgrade tests proving packet policy and core authority remain intact |
