@@ -17,6 +17,31 @@ count.
   public command, package, configuration, and protocol namespace shall be
   `bfw`. The repository remains named `Bifrost`.
 
+## Repository role
+
+- **BFW-PRD-035:** `danny/Bifrost` shall be the Bifrost meta repository. It
+  shall own canonical product requirements, architecture, implementation and
+  release coordination, component/dependency mapping, compatibility contracts,
+  release composition, and system-level verification evidence—not product
+  runtime code.
+- **BFW-PRD-036:** Runtime, CLI, web, platform, and optional capability
+  implementations shall live in separately versioned component repositories.
+  The meta repository shall pin admitted component revisions and verify their
+  compatibility without copying or forking their source trees.
+- **BFW-PRD-037:** Routing shall be owned by a separately versioned
+  `bfw-routing` plugin rather than the Bifrost core. Its domain shall include
+  static routes, gateways, policy routing, route health, ECMP where supported,
+  and admitted dynamic-routing integration.
+- **BFW-PRD-038:** `bfw-routing` shall emit typed, deterministic,
+  idempotent routing plans and apply/verify them only through core admission and
+  supported platform adapters. It shall not own global authorization,
+  credentials, executable lifecycle, interface/VLAN authority, packet-filter
+  policy, or release admission.
+- **BFW-PRD-039:** Every Bifrost release shall identify exact component
+  revisions, contract and schema versions, platform compatibility, migration
+  order, signatures/provenance, verification evidence, and rollback pairing in
+  a machine-readable release composition admitted by this meta repository.
+
 ## Initial requirements
 
 - **BFW-PRD-001:** Bifrost shall compile one canonical policy model into
@@ -141,7 +166,8 @@ count.
   plugin model, and planning-only status.
 - Canonical PRD, architecture, and implementation specification exist under
   `documents/` in the required order.
-- Go module identity is established without executable firewall code.
+- Meta-repository role and component map are explicit without a product Go
+  module or executable firewall code.
 
 ## Non-goals for this slice
 

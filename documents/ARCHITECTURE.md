@@ -11,6 +11,22 @@ another product acronym. Internal working names such as `bifrostd` or
 `bifrost-web` remain provisional until executable, service, API, package, and
 upgrade naming is admitted as one compatibility contract.
 
+## Meta-repository boundary
+
+`danny/Bifrost` is the product meta repository. It owns:
+
+- the canonical PRD, architecture, and implementation/release plan
+- the component and external-dependency map
+- cross-component API, schema, authority, lifecycle, and compatibility rules
+- exact release composition and migration/rollback ordering
+- system-level integration, security, recovery, and platform evidence
+
+It does not own executable product code. The core daemon, `bfw` CLI, web
+service, routing plugin, platform backends, optional service plugins, SDKs, and
+installers live in separately versioned repositories. Once admitted, their
+exact revisions are pinned here by release metadata or Git submodules; source
+is not copied into the meta repository.
+
 ## Control and data planes
 
 The native operating-system networking stack is the data plane. Bifrost's
@@ -35,7 +51,8 @@ operator / API
 - **configuration core:** canonical schemas, revisions, migrations, validation,
   and rollback
 - **policy compiler:** pure desired-state conversion into reviewable,
-  platform-neutral firewall, NAT, and routing plans
+  platform-neutral firewall and NAT plans; routing-domain compilation belongs
+  to `bfw-routing`
 - **platform adapters:** narrow Linux, FreeBSD, Windows, and later platform
   translation and apply/verify surfaces
 - **plugin catalog:** signed manifests, package provenance, compatibility,
@@ -82,14 +99,17 @@ Bifrost portable core
   -> native OS/service API
 ```
 
-The Bifrost contract owns domain meaning: schemas, desired state, policy IR,
-permissions, idempotency, transaction results, and rollback consequences. The
-`rpc-plugin-system` substrate owns executable lifecycle and trust facts. It must
-not become firewall-policy authority.
+The Bifrost core contract owns shared configuration and transaction envelopes,
+permissions, idempotency, result framing, and rollback coordination. Each
+domain contract owns its schemas, desired state, typed plan semantics, and
+domain-specific rollback consequences; `bfw-routing` owns the routing domain.
+The `rpc-plugin-system` substrate owns executable lifecycle and trust facts. It
+must not become firewall-policy or routing authority.
 
 Candidate plugin classes:
 
-- platform firewall/routing/interface backends
+- platform firewall and interface backends
+- `bfw-routing` routing-domain plugin and its platform apply/verify adapters
 - DHCP and DNS services
 - VPN providers
 - IDS/IPS and traffic-analysis services
@@ -98,6 +118,36 @@ Candidate plugin classes:
 
 Core configuration, admission, audit, package verification, and recovery remain
 non-optional. Plugins cannot replace or weaken them.
+
+## Routing plugin boundary
+
+`bfw-routing` is the routing-domain plugin. It owns:
+
+- static route and gateway desired state
+- route selection, metrics, tables/VRFs, and policy-routing domain validation
+- gateway and route-health observations
+- ECMP modeling where the admitted platform supports it
+- integration contracts for separately supervised dynamic-routing services
+- deterministic route-plan generation and applied-state verification
+- routing-specific UI schemas, typed actions, audit facts, and rollback effects
+
+It does not own interface/VLAN creation, DNS or DHCP, packet-filter/NAT policy,
+credentials, process execution, global authorization, plugin lifecycle, or
+release admission. Those remain separate Bifrost or provider boundaries.
+
+```text
+operator / bfw / web
+  -> core validates and admits desired routing change
+  -> bfw-routing compiles a typed deterministic routing plan
+  -> admitted platform adapter applies native route operations
+  -> bfw-routing and core verify observed state
+  -> core commits or rolls back the configuration revision
+```
+
+The core may coordinate a transaction containing firewall, interface, and
+routing steps, but it does not reimplement the routing domain. `bfw-routing`
+must declare ordering, preconditions, reversibility, partial-failure semantics,
+and last-known-good consequences so the core can admit the whole transaction.
 
 ## Management and plugin UI architecture
 

@@ -2,6 +2,38 @@
 
 ## Unreleased
 
+### 2026-08-01 22:00 CDT — Make Bifrost the meta repo and route through a plugin
+
+Commit: current commit; hash assigned by Git after commit
+
+Affected files:
+
+- `README.md`
+- `components/README.md`
+- `documents/PRD.md`
+- `documents/ARCHITECTURE.md`
+- `documents/IMPLEMENTATION-SPEC.md`
+- `go.mod` (removed)
+
+Explanation:
+
+Define `danny/Bifrost` as the product meta repository rather than a runtime Go
+module. Move routing ownership into the planned separately versioned
+`bfw-routing` plugin and define meta-level component pinning, release
+composition, compatibility, verification, and rollback responsibilities.
+
+Verification:
+
+- `git diff --check`
+- absence check for a root product Go module or runtime source
+- requirement trace inspection for BFW-PRD-035 through BFW-PRD-039
+- component-map and routing-boundary review
+
+Risks / non-goals:
+
+- No component repository is created or pinned in this slice.
+- No routing implementation, platform mutation, or deployed service is added.
+
 ### 2026-08-01 21:31 CDT — Define independent web and plugin UI contributions
 
 Commit: `327a2f23237ed94c26ff817f3139f0c414bfcace`

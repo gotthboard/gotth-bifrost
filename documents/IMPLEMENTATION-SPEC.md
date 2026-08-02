@@ -1,6 +1,6 @@
 # Bifrost (BFW) Implementation Specification
 
-Status: repository bootstrap complete; implementation deferred
+Status: meta-repository bootstrap complete; component implementation deferred
 
 ## Phase 0 dependency gate
 
@@ -44,9 +44,10 @@ mutation before this gate passes.
 ## Bootstrap slice
 
 1. Create the private `danny/Bifrost` repository and `main` branch.
-2. Establish the Go module path.
-3. Record product, architecture, safety, and recovery boundaries.
-4. Verify clean Git state and exact local/remote ref equality.
+2. Establish it as the product meta repository with no product Go module.
+3. Record product, component, architecture, safety, and recovery boundaries.
+4. Define planned component/dependency ownership and pinning rules.
+5. Verify clean Git state and exact local/remote ref equality.
 
 All future public CLI commands, package/configuration keys, protocol labels,
 and compatibility identifiers use the lowercase `bfw` namespace. Final daemon
@@ -84,6 +85,11 @@ interface design; provisional working names do not create compatibility.
   data-bound, and denial contracts
 - define atomic backend/UI/schema/migration/asset activation and rollback plus
   disabled, incompatible, unhealthy, and web-failure behavior
+- define the meta-repository release composition schema, immutable component
+  pins, compatibility evidence, migration order, and rollback pairing
+- define the `bfw-routing` domain model, typed plan, platform-adapter,
+  apply/verify, ordering, failure, recovery, UI, and audit contracts without
+  implementing them in this repository
 - define last-known-good, confirmation timer, rollback, and interrupted-upgrade
   behavior
 - define independent correctness oracles for compiled and applied policy
@@ -136,3 +142,8 @@ host mutation, daemonization, and web administration remain later slices.
 | BFW-PRD-032 | disabled/removed/incompatible/untrusted route denial and unhealthy read-only diagnostic tests |
 | BFW-PRD-033 | web-down local CLI recovery tests proving the same core admission path is used |
 | BFW-PRD-034 | web/UI crash, restart, and upgrade tests proving packet policy and core authority remain intact |
+| BFW-PRD-035 | repository-content and release-governance checks proving the meta repo contains no product runtime |
+| BFW-PRD-036 | component ownership, immutable pin, no-source-copy, and independent-versioning checks |
+| BFW-PRD-037 | routing ownership tests proving no routing implementation or domain policy resides in core |
+| BFW-PRD-038 | routing plan determinism, admission, idempotency, platform apply/oracle, boundary, and rollback tests |
+| BFW-PRD-039 | signed release composition, exact revision, compatibility, migration-order, evidence, and rollback-pair checks |
