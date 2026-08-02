@@ -149,6 +149,134 @@ routing steps, but it does not reimplement the routing domain. `bfw-routing`
 must declare ordering, preconditions, reversibility, partial-failure semantics,
 and last-known-good consequences so the core can admit the whole transaction.
 
+## Capability plugin catalog
+
+The catalog is an ownership and planning map, not an ambient service bus. A
+plugin calls no peer plugin as an authority. It proposes typed effects to the
+core; the core validates the actor, dependency graph, permissions, generations,
+ordering, failure behavior, and whole-transaction rollback before dispatching
+each step to its owning component.
+
+| Class | Planned plugins | Ownership summary |
+| --- | --- | --- |
+| Foundation | `bfw-firewall`, `bfw-network`, `bfw-routing`, `bfw-wireguard`, `bfw-reverse-proxy`, `bfw-ha` | packet/NAT policy; links/interfaces; routes; WireGuard peers/tunnels; proxy ingress; failover coordination |
+| Network services | `bfw-dns`, `bfw-dhcp`, `bfw-ntp`, `bfw-ddns`, `bfw-acme`, `bfw-mdns` | separately supervised core network services and their bounded configuration/status |
+| Advanced network | `bfw-frr`, `bfw-ipsec`, `bfw-openvpn`, `bfw-qos`, `bfw-multiwan`, `bfw-cellular` | dynamic routing, alternate VPNs, shaping, uplink policy/failover, and modem integration |
+| Security/access | `bfw-ids`, `bfw-dns-filter`, `bfw-threat-intel`, `bfw-captive-portal`, `bfw-radius`, `bfw-upnp` | inspection, filtering, signed feeds, guest access, AAA integration, and constrained dynamic mappings |
+| Operations | `bfw-monitoring`, `bfw-logging`, `bfw-backup`, `bfw-support`, `bfw-notifications`, `bfw-updater` | metrics, event export, protected recovery artifacts, diagnostics, alert delivery, and signed updates |
+
+Every entry declares plugin id and version, supported platforms, dependencies
+and conflicts, permissions, schemas, UI/API versions, health and degradation,
+migrations, activation and rollback, last-known-good effects, artifacts and
+signatures, and verification evidence. A missing or unhealthy dependency blocks
+mutation. Read-only bounded diagnostics may remain visible under the normal UI
+catalog rules.
+
+### WireGuard plugin boundary
+
+`bfw-wireguard` owns WireGuard interface and peer desired state, endpoints,
+public keys, AllowedIPs, persistent keepalive, handshake and transfer status,
+per-device enrollment and revocation, key-rotation workflow, VPN-specific UI,
+and VPN rollback consequences. It supports site-to-site and per-device remote
+access; the common VPN contract remains open to later IPsec and OpenVPN plugins.
+
+WireGuard authenticates devices by key rather than human users. OIDC can prove
+the identity and assurance of an enrollment actor, but the core records a
+separate device identity and approval. Each device has a unique key, address,
+AllowedIPs, owner/audit link, creation and expiry, and revocation state. Private
+and preshared keys are `agent-keyring` material and do not enter ordinary
+configuration, QR-code caches, logs, UI state, plugin state, or support bundles.
+One-time delivery must be bounded and non-replayable.
+
+Activation is a coordinated transaction:
+
+```text
+admitted WireGuard peer/tunnel intent
+  -> bfw-wireguard validates peer and tunnel semantics
+  -> bfw-routing validates route ownership, overlap, loops, and reachability
+  -> bfw-firewall validates forwarding, exposure, NAT, and kill-switch effects
+  -> platform adapters stage/apply their owned native changes
+  -> core verifies all observed state and commits, or rolls back the whole plan
+```
+
+Endpoint reachability, AllowedIPs ownership, overlapping prefixes, MTU,
+failover, partial activation, and rollback are explicit. A tunnel becoming
+healthy cannot silently authorize forwarded traffic.
+
+### Reverse-proxy plugin boundary
+
+`bfw-reverse-proxy` provides a Caddy-style ingress and reverse-proxy domain.
+Caddy is the preferred first service adapter because it offers a useful secure
+configuration model and automatic certificate workflows, but the Bifrost
+contract describes proxy routes, listeners, upstreams, health, TLS policy,
+service publication, observations, and rollback rather than exposing Caddy's
+configuration as the canonical product API.
+
+The proxy plugin may request typed effects from `bfw-dns`, `bfw-acme`, and
+`bfw-firewall`. It does not modify their state directly. Account keys, DNS API
+tokens, private keys, and upstream credentials remain in `agent-keyring`.
+Generated adapter configuration uses `agent-filesystem`; admitted adapter
+execution uses `agent-exec` only where a native/service API is insufficient.
+
+Forwarded identity is a separate trust contract. The proxy strips
+client-supplied identity headers by default and may add authenticated identity
+facts only for an exact admitted upstream, protected path, header set, network
+path, key/certificate generation, and expiry. Merely installing or enabling the
+proxy does not satisfy the OIDC forwarded-header exception in BFW-PRD-047.
+
+TLS issuance failure, upstream-health uncertainty, partial route publication,
+or incompatible Caddy/adapter behavior fails closed for the affected route
+without weakening unrelated last-known-good routes. Firewall exposure and DNS
+publication are committed only with verified proxy readiness or rolled back.
+
+### High-availability plugin boundary
+
+`bfw-ha` supplies Keepalived-style high availability without making
+Keepalived the portable product contract. Linux may use an admitted
+Keepalived/VRRP adapter; FreeBSD may use CARP; other platforms require an
+equivalent adapter whose semantics are explicitly mapped and tested. A platform
+without safe address-ownership and fencing semantics reports the feature as
+unsupported rather than emulating it weakly.
+
+The plugin owns cluster membership intent, authenticated peer observations,
+virtual-address role intent, priority/preemption policy, health inputs,
+configuration/state synchronization plans, transition ordering, HA UI, and
+failover audit facts. The network, routing, firewall, service, keyring, and
+release authorities retain their domains. `bfw-ha` cannot seize an address,
+route, firewall role, or credential by calling a native command directly.
+
+Before an active-role transition the core proves:
+
+- peer and node identity plus current generation
+- compatible Bifrost release composition and configuration revision
+- declared quorum/witness or fencing policy and peer-loss behavior
+- required replicated configuration and state checkpoints
+- virtual-address ownership preconditions and duplicate-owner detection
+- dependent routing, firewall, proxy/VPN/service readiness
+- deterministic step order, confirmation where needed, and rollback/recovery
+
+Split brain, stale state, ambiguous ownership, or loss of required fencing is a
+fail-closed condition. The system preserves local packet safety even when it
+cannot provide service availability. State synchronization must be typed and
+bounded; it must not become general filesystem replication or a credential
+export channel.
+
+### Remaining plugin boundaries
+
+- DNS, DHCP, NTP, DDNS, ACME, and mDNS are separate services so failure,
+  upgrade, and platform support remain independently bounded.
+- FRR contributes dynamic routes through the routing contract; it never writes
+  canonical routes around `bfw-routing`.
+- QoS and multi-WAN coordinate with firewall and routing through typed plans;
+  sticky-connection state and health are explicit rather than hidden coupling.
+- IDS/IPS and threat feeds propose signed/versioned observations or policy
+  inputs; they cannot silently mutate firewall policy.
+- UPnP/NAT-PMP/PCP is disabled by default and constrained by interface, client,
+  protocol, port, lifetime, and audit policy.
+- Monitoring, logging, backup, support, notifications, and updates must redact
+  secrets and require explicit authority for external destinations or state
+  changes.
+
 ## Management and plugin UI architecture
 
 The management path is intentionally one-way through the core:

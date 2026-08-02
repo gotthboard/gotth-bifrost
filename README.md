@@ -83,6 +83,49 @@ It produces typed routing plans under core admission and applies them through
 supported native platform adapters. Interface/VLAN ownership and packet-filter
 policy remain separate contracts.
 
+The initial capability catalog is intentionally split by ownership boundary:
+
+- `bfw-firewall`: packet-filter, NAT, aliases, schedules, and state policy
+- `bfw-network`: interfaces, VLANs, bridges, bonds/LAGs, MTU, and link state
+- `bfw-routing`: static and policy routing, gateways, ECMP, and route health
+- `bfw-dns`, `bfw-dhcp`, `bfw-ntp`, `bfw-ddns`, `bfw-acme`, and `bfw-mdns`:
+  separately supervised core network services
+- `bfw-wireguard`: site-to-site and per-device remote-access WireGuard
+- `bfw-reverse-proxy`: Caddy-style reverse proxy, ingress, TLS, and service
+  publication with Caddy as the preferred first adapter
+- `bfw-ha`: Keepalived-style high availability, virtual addresses, health,
+  state/configuration synchronization, and failover with platform-native
+  VRRP/CARP or equivalent adapters
+- `bfw-frr`, `bfw-ipsec`, `bfw-openvpn`, `bfw-qos`, `bfw-multiwan`, and
+  `bfw-cellular`: advanced routing, VPN, traffic, and uplink capabilities
+- `bfw-ids`, `bfw-dns-filter`, `bfw-threat-intel`, `bfw-captive-portal`,
+  `bfw-radius`, and `bfw-upnp`: separately admitted security and access
+  capabilities
+- `bfw-monitoring`, `bfw-logging`, `bfw-backup`, `bfw-support`,
+  `bfw-notifications`, and `bfw-updater`: operational integrations
+
+Names are planning identifiers until their repositories and public contracts
+are admitted. Catalog membership grants no runtime authority. Every plugin must
+declare typed dependencies and conflicts, UI contributions, platform support,
+permissions, health, migration, rollback, and last-known-good consequences.
+
+WireGuard enrollment may use OIDC to authenticate an operator or user, but a
+WireGuard peer remains a per-device cryptographic identity. Private and
+preshared keys remain in `agent-keyring`; routing and firewall/NAT effects are
+separately admitted through their owning plugins.
+
+`bfw-reverse-proxy` owns proxy routes, upstreams, health, TLS policy, and
+service-publication UI. It does not become Bifrost identity authority, firewall
+authority, DNS authority, or credential storage. Forwarded identity headers
+remain denied unless the core admits an explicit authenticated proxy trust
+contract.
+
+`bfw-ha` coordinates failover but does not silently grant itself ownership of
+firewall, routing, interface, service, or credential state. A node may assume a
+virtual address or active role only after peer identity, configuration and
+release compatibility, health, quorum/fencing policy, and required replicated
+state are proven. Split brain and uncertain ownership fail closed.
+
 `rpc-plugin-system` is the intended lifecycle and isolation substrate, but its
 current v1 Unix-socket/Linux-hardening contract is not yet a cross-platform
 Bifrost dependency. Bifrost keeps its domain contracts transport-neutral while

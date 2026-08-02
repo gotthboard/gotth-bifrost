@@ -2,6 +2,47 @@
 
 ## Unreleased
 
+### 2026-08-01 22:19 CDT — Define the initial capability plugin catalog
+
+Commit: current commit; hash assigned by Git after commit
+
+Affected files:
+
+- `README.md`
+- `components/README.md`
+- `documents/PRD.md`
+- `documents/ARCHITECTURE.md`
+- `documents/IMPLEMENTATION-SPEC.md`
+
+Explanation:
+
+Promote the discussed WireGuard and full capability-plugin catalog into the
+Bifrost meta-repository plan. Add a Caddy-style `bfw-reverse-proxy` plugin with
+Caddy as the preferred first adapter, and a cross-platform `bfw-ha` plugin that
+provides Keepalived-style behavior through admitted VRRP, CARP, or equivalent
+platform adapters. Define all foundation, network-service, advanced-network,
+security/access, and operations plugin planning identifiers, typed dependency
+rules, phased sequencing, provider boundaries, UI integration, and
+requirement-to-verification traces.
+
+Verification:
+
+- `git diff --check`
+- requirement trace inspection for BFW-PRD-051 through BFW-PRD-068
+- catalog consistency and duplicate-plugin-name checks
+- WireGuard key/enrollment and routing/firewall boundary review
+- reverse-proxy credential, DNS/ACME/firewall, and forwarded-identity boundary review
+- HA peer identity, quorum/fencing, split-brain, state-sync, and domain-authority review
+- meta-repository no-runtime check
+
+Risks / non-goals:
+
+- No component repository, plugin executable, Caddy or Keepalived service,
+  WireGuard tunnel, firewall rule, route, virtual address, or deployed runtime
+  is created in this slice.
+- Catalog names remain planning identifiers until their repository and public
+  interface contracts are independently admitted.
+
 ### 2026-08-01 22:02 CDT — Make OIDC a first-class web identity contract
 
 Commit: `1d38dc4224f47d5518fa255d3cf0baa11b44b483`

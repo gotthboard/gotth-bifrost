@@ -94,10 +94,48 @@ interface design; provisional working names do not create compatibility.
   and token validation, key rotation, explicit claim mapping, assurance/step-up,
   keyring use, opaque local sessions, logout/revocation, outage, audit, and
   local-console recovery contracts
+- define the canonical capability-plugin catalog schema, typed dependency and
+  conflict graph, platform-support declarations, degradation rules, health,
+  migration, rollback, UI, evidence, and release-admission states
+- define `bfw-firewall`, `bfw-network`, and `bfw-routing` as separate domain
+  authorities and specify atomic cross-domain transaction coordination
+- define `bfw-wireguard` peer/tunnel, per-device enrollment, keyring,
+  routing/firewall coordination, site-to-site validation, status, and rollback
+  contracts while retaining a generic later-VPN extension contract
+- define `bfw-reverse-proxy` routes, listeners, upstream health, TLS, Caddy
+  adapter, DNS/ACME/firewall dependencies, forwarded-identity trust, UI, staged
+  publication, verification, and rollback contracts
+- define `bfw-ha` cluster identity, platform VRRP/CARP/equivalent adapters,
+  virtual-address ownership, quorum/fencing, priority/preemption, state/config
+  synchronization, dependent-service readiness, split-brain handling, UI,
+  transition, and recovery contracts
+- define bounded ownership contracts for every network-service,
+  advanced-network, security/access, and operations plugin in the catalog
 - define last-known-good, confirmation timer, rollback, and interrupted-upgrade
   behavior
 - define independent correctness oracles for compiled and applied policy
 - decompose the first narrow vertical slice
+
+## Planned capability sequence
+
+This is a dependency order, not permission to create every repository at once:
+
+1. `bfw-firewall`
+2. `bfw-network`
+3. `bfw-routing`
+4. `bfw-dns`
+5. `bfw-dhcp`
+6. `bfw-wireguard`
+7. `bfw-acme` and `bfw-ddns`, followed by `bfw-reverse-proxy`
+8. `bfw-monitoring`, `bfw-logging`, and `bfw-backup`
+9. `bfw-ha` and `bfw-multiwan`
+10. `bfw-ids`, `bfw-frr`, and the remaining catalog plugins as their contracts
+    and user need justify them
+
+Each component begins with its own PRD, architecture, implementation spec,
+contract tests, platform matrix, and narrow vertical slice. The meta repository
+admits and pins it only after independent verification. This sequence does not
+override the Phase 0 substrate gate.
 
 ## First candidate vertical slice
 
@@ -162,3 +200,21 @@ host mutation, daemonization, and web administration remain later slices.
 | BFW-PRD-048 | provider/JWKS outage tests for new-login denial and bounded existing-session behavior |
 | BFW-PRD-049 | isolated local-console recovery and no-remote-fallback tests during identity/network failures |
 | BFW-PRD-050 | redacted authentication, mapping, session, logout, denial, recovery, and policy-change audit tests |
+| BFW-PRD-051 | catalog schema, ownership, dependency/conflict, platform, permission, health, UI, migration/rollback, and no-authority-by-presence checks |
+| BFW-PRD-052 | firewall/network/routing ownership and atomic cross-domain transaction tests |
+| BFW-PRD-053 | per-service configuration/status/platform/UI/failure/rollback contract suites |
+| BFW-PRD-054 | WireGuard site-to-site and per-device remote-access contract plus generic VPN compatibility tests |
+| BFW-PRD-055 | unique-device identity, keyring-only secret, one-time delivery, expiry, revocation, and no-key-sharing tests |
+| BFW-PRD-056 | AllowedIPs, overlap, loop, reachability, MTU, firewall/NAT, kill-switch, failover, partial-activation, and rollback tests |
+| BFW-PRD-057 | reverse-proxy route/upstream/health/TLS/Caddy-adapter/UI/apply/verify/rollback contract tests |
+| BFW-PRD-058 | proxy authority-denial, keyring, DNS/ACME/firewall dependency, header stripping, and forwarded-identity trust tests |
+| BFW-PRD-059 | HA membership, VRRP/CARP/equivalent adapter, virtual-address, synchronization, failover, recovery, UI, and audit tests |
+| BFW-PRD-060 | HA peer identity, release/config compatibility, quorum/fencing, stale-state, duplicate-owner, split-brain, ordering, and rollback tests |
+| BFW-PRD-061 | advanced-network plugin ownership, coordination, and no-authority-collapse tests |
+| BFW-PRD-062 | security/access ownership tests plus default-disabled and bounded UPnP/NAT-PMP/PCP tests |
+| BFW-PRD-063 | operations-plugin redaction, destination, retention, signature, recovery, and external-side-effect tests |
+| BFW-PRD-064 | typed dependency version/admission tests and missing/unhealthy/incompatible dependency mutation denial |
+| BFW-PRD-065 | exact platform matrix, semantic-gap, unsupported-feature, and explicitly admitted degraded-mode tests |
+| BFW-PRD-066 | meta-planning dependency-order and change-admission checks |
+| BFW-PRD-067 | signed UI contribution, typed action, and no-secondary-management-plane tests for every managed plugin |
+| BFW-PRD-068 | provider scope, generation, confused-deputy, privilege, secret, path, process, and network non-expansion tests |

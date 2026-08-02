@@ -85,6 +85,90 @@ count.
   auditable without recording tokens, secrets, unnecessary claims, or sensitive
   provider payloads.
 
+## Capability plugin catalog
+
+- **BFW-PRD-051:** The meta repository shall maintain a canonical catalog of
+  planned Bifrost capability plugins, their ownership boundaries, typed
+  dependencies and conflicts, supported platforms, permissions, health model,
+  UI contribution, migration/rollback behavior, and release-admission status.
+  Catalog presence alone shall grant no authority and shall not imply that a
+  component repository or runtime exists.
+- **BFW-PRD-052:** `bfw-firewall` shall own packet-filter, NAT, alias, schedule,
+  and state-policy semantics; `bfw-network` shall own interfaces, VLANs,
+  bridges, bonds/LAGs, MTU, DHCP-client, and link-state semantics; and
+  `bfw-routing` shall own routing semantics. Cross-domain changes shall use one
+  core-admitted transaction without collapsing these authorities.
+- **BFW-PRD-053:** DNS, DHCP, NTP, dynamic DNS, ACME, and mDNS shall be
+  separately versioned plugins (`bfw-dns`, `bfw-dhcp`, `bfw-ntp`, `bfw-ddns`,
+  `bfw-acme`, and `bfw-mdns`) with bounded service configuration, status,
+  platform-adapter, UI, failure, and rollback contracts.
+- **BFW-PRD-054:** `bfw-wireguard` shall be the first VPN plugin and shall
+  support site-to-site tunnels and per-device remote access while leaving the
+  common VPN contract open to later `bfw-ipsec` and `bfw-openvpn` plugins.
+- **BFW-PRD-055:** WireGuard private and preshared keys shall remain governed by
+  `agent-keyring`. OIDC may authenticate an enrollment actor, but every remote
+  device shall receive a distinct peer identity, address, AllowedIPs,
+  lifecycle, expiry/revocation state, and audit correlation; reusable private
+  keys shall not be shared among users or devices.
+- **BFW-PRD-056:** WireGuard activation shall validate AllowedIPs ownership,
+  overlapping networks, route conflicts and loops, endpoint reachability, MTU,
+  firewall/NAT and kill-switch effects, failover behavior, and rollback before
+  admitting a tunnel. Routing and firewall effects remain owned by their
+  respective plugins.
+- **BFW-PRD-057:** `bfw-reverse-proxy` shall provide a Caddy-style reverse
+  proxy and ingress capability with Caddy as the preferred first adapter. It
+  shall own proxy routes, upstreams, health checks, TLS policy, service
+  publication, observed state, UI contributions, and proxy-specific rollback.
+- **BFW-PRD-058:** `bfw-reverse-proxy` shall not become firewall, DNS,
+  credential, or identity authority. Certificate and provider credentials
+  shall use `agent-keyring`; DNS, ACME, and firewall exposure shall use typed
+  dependencies; forwarded identity headers shall remain denied unless an
+  explicit authenticated reverse-proxy trust contract is admitted by the core.
+- **BFW-PRD-059:** `bfw-ha` shall provide Keepalived-style high availability
+  using admitted VRRP, CARP, or platform-equivalent adapters for virtual
+  addresses, peer/node health, active/standby roles, state and configuration
+  synchronization, failover, recovery, and HA-specific UI and audit evidence.
+- **BFW-PRD-060:** An HA role transition shall require authenticated peer
+  identity, compatible configuration and release composition, current health,
+  declared quorum/fencing and priority/preemption policy, required replicated
+  state, deterministic ordering, and rollback evidence. Split brain, stale
+  ownership, or uncertain virtual-address ownership shall fail closed.
+- **BFW-PRD-061:** Advanced networking shall remain separated into
+  `bfw-frr`, `bfw-ipsec`, `bfw-openvpn`, `bfw-qos`, `bfw-multiwan`, and
+  `bfw-cellular`, coordinating with but not replacing the routing, firewall,
+  network, credential, or lifecycle authorities.
+- **BFW-PRD-062:** Security and access capabilities shall remain separated into
+  `bfw-ids`, `bfw-dns-filter`, `bfw-threat-intel`, `bfw-captive-portal`,
+  `bfw-radius`, and `bfw-upnp`. UPnP/NAT-PMP/PCP shall be disabled by default
+  and constrained by explicit interface, client, protocol, port, lifetime, and
+  audit policy.
+- **BFW-PRD-063:** Operational capabilities shall remain separated into
+  `bfw-monitoring`, `bfw-logging`, `bfw-backup`, `bfw-support`,
+  `bfw-notifications`, and `bfw-updater`, with redaction, destination,
+  retention, signature, compatibility, recovery, and external-side-effect
+  contracts appropriate to each plugin.
+- **BFW-PRD-064:** A plugin dependency shall be a typed, versioned,
+  core-admitted contract rather than direct plugin-to-plugin authority. Missing,
+  unhealthy, incompatible, or unauthorized dependencies shall block mutation
+  and expose bounded diagnostic evidence without silently degrading safety.
+- **BFW-PRD-065:** Every capability plugin shall declare exact platform support
+  and platform-specific semantic gaps. Unsupported or weaker native semantics
+  shall fail closed or require an explicitly admitted degraded mode; feature
+  names shall not imply parity across Linux, FreeBSD, Windows, or macOS.
+- **BFW-PRD-066:** Initial implementation priority after Phase 0 shall be
+  firewall, network/interfaces, routing, DNS, DHCP, WireGuard, ACME/DDNS,
+  reverse proxy, monitoring/logging/backup, HA/multi-WAN, then IDS/IPS and
+  dynamic routing. The sequence may change only through an explicit
+  meta-repository planning and dependency decision.
+- **BFW-PRD-067:** Every catalog plugin that exposes management functionality
+  shall use the signed UI-contribution and typed-action contracts in
+  BFW-PRD-025 through BFW-PRD-034; it shall not create a second management or
+  authorization plane.
+- **BFW-PRD-068:** Capability plugins shall use `agent-keyring`,
+  `agent-filesystem`, and `agent-exec` only through separately admitted,
+  generation-bound provider authority. A plugin category or adapter choice
+  shall not widen credential, path, process, network, or privilege scope.
+
 ## Initial requirements
 
 - **BFW-PRD-001:** Bifrost shall compile one canonical policy model into
