@@ -1,4 +1,4 @@
-# Bifrost Firewall (BFW) Implementation Specification
+# Bifrost (BFW) Implementation Specification
 
 Status: repository bootstrap complete; implementation deferred
 
@@ -92,7 +92,7 @@ host mutation, daemonization, and web administration remain later slices.
 
 | Requirement | Planned verification |
 | --- | --- |
-| BFW-PRD-000 | naming lint for full name, `BFW` acronym, `bfw` public namespace, and absence of competing shorthand |
+| BFW-PRD-000 | naming lint for full name Bifrost, `BFW` firewall shorthand, `bfw` public namespace, and absence of competing shorthand |
 | BFW-PRD-001 | canonical IR golden tests plus per-platform compiler and isolated apply/oracle tests |
 | BFW-PRD-002 | schema, migration, audit, and rollback tests |
 | BFW-PRD-003 | partial-failure and last-known-good recovery tests |

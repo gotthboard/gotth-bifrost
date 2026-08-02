@@ -1,4 +1,4 @@
-# Bifrost Firewall (BFW) Product Requirements
+# Bifrost (BFW) Product Requirements
 
 Status: initial planning baseline
 
@@ -12,10 +12,10 @@ count.
 
 ## Product identity
 
-- **BFW-PRD-000:** The full product name shall be **Bifrost Firewall**, its
-  canonical acronym shall be **BFW**, and its lowercase public command,
-  package, configuration, and protocol namespace shall be `bfw`. The repository
-  remains named `Bifrost`.
+- **BFW-PRD-000:** The full product name shall be **Bifrost**, its canonical
+  firewall shorthand shall be **BFW** (Bifrost Firewall), and its lowercase
+  public command, package, configuration, and protocol namespace shall be
+  `bfw`. The repository remains named `Bifrost`.
 
 ## Initial requirements
 

@@ -2,6 +2,34 @@
 
 ## Unreleased
 
+### 2026-08-01 21:25 CDT — Correct the full product name to Bifrost
+
+Commit: current commit; hash assigned by Git after commit
+
+Affected files:
+
+- `README.md`
+- `documents/PRD.md`
+- `documents/ARCHITECTURE.md`
+- `documents/IMPLEMENTATION-SPEC.md`
+
+Explanation:
+
+Correct the formal product name to **Bifrost**. Retain **BFW** as the canonical
+firewall shorthand (Bifrost Firewall), `bfw` as the lowercase public namespace,
+and `BFW-PRD-*` as the planning-requirement namespace.
+
+Verification:
+
+- `go mod edit -json`
+- `git diff --check`
+- naming and requirement-trace inspection
+
+Risks / non-goals:
+
+- The repository and requirement identifiers do not change.
+- No runtime code, package, executable, or installed service is renamed.
+
 ### 2026-08-01 21:10 CDT — Establish BFW as the product acronym
 
 Commit: `a7d12f806e78fc8cbf305ffd422aa8f4a5e394c7`

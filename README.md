@@ -1,6 +1,6 @@
-# Bifrost Firewall (BFW)
+# Bifrost (BFW)
 
-Bifrost Firewall, canonically shortened to **BFW**, is a planned open-source,
+**Bifrost**, with the firewall shorthand **BFW**, is a planned open-source,
 cross-platform network firewall and routing platform written in Go, in the same
 broad product category as OPNsense.
 
@@ -11,13 +11,14 @@ working firewall, router, or security boundary yet.
 
 ## Naming
 
-- Full product name: **Bifrost Firewall**
-- Canonical acronym: **BFW**
+- Full product name: **Bifrost**
+- Canonical firewall shorthand: **BFW** (Bifrost Firewall)
 - Lowercase command, package, configuration, and protocol namespace: `bfw`
 - Repository name: `Bifrost`
 
-The acronym `BFW` is the short product name, not a separate component or
-edition. Future public interfaces must use `bfw` consistently and must not
+The shorthand `BFW` identifies Bifrost's firewall product and is not the formal
+full name, a separate component, or an edition. Future public interfaces must
+use `bfw` consistently and must not
 introduce competing `bfr`, `bif`, or ambiguous `bifrost` shorthand namespaces.
 
 ## Intended capabilities

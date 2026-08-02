@@ -1,15 +1,15 @@
-# Bifrost Firewall (BFW) Architecture
+# Bifrost (BFW) Architecture
 
 Status: initial boundary architecture
 
 ## Naming boundary
 
-**Bifrost Firewall** is the product name; **BFW** is its canonical acronym and
-`bfw` is the lowercase public namespace. Component names must compose beneath
-that namespace rather than inventing another product acronym. Internal working
-names such as `bifrostd` or `bifrost-web` remain provisional until executable,
-service, API, package, and upgrade naming is admitted as one compatibility
-contract.
+**Bifrost** is the full product name; **BFW** is its canonical firewall
+shorthand (Bifrost Firewall), and `bfw` is the lowercase public namespace.
+Component names must compose beneath that namespace rather than inventing
+another product acronym. Internal working names such as `bifrostd` or
+`bifrost-web` remain provisional until executable, service, API, package, and
+upgrade naming is admitted as one compatibility contract.
 
 ## Control and data planes
 
