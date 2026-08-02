@@ -4,7 +4,7 @@
 
 ### 2026-08-01 21:25 CDT — Correct the full product name to Bifrost
 
-Commit: current commit; hash assigned by Git after commit
+Commit: `4f4bbe36006997ffb4c3affd6ca8ed5baf5e266a`
 
 Affected files:
 
