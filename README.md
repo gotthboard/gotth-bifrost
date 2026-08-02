@@ -1,7 +1,7 @@
 # Bifrost
 
-Bifrost is a planned open-source network firewall and routing platform written
-in Go, in the same broad product category as OPNsense.
+Bifrost is a planned open-source, cross-platform network firewall and routing
+platform written in Go, in the same broad product category as OPNsense.
 
 The goal is a security-first appliance that combines deterministic packet and
 policy control with a clear API, auditable configuration, safe upgrades, and a
@@ -10,7 +10,7 @@ working firewall, router, or security boundary yet.
 
 ## Intended capabilities
 
-- stateful firewall policy over Linux `nftables`
+- stateful firewall policy through native platform engines
 - routing, VLANs, bridges, bonds, and interface management
 - NAT, port forwarding, and policy-based routing
 - DHCP, DNS forwarding, and network-service supervision
@@ -19,14 +19,16 @@ working firewall, router, or security boundary yet.
 - versioned configuration with validation, audit history, and rollback
 - metrics, structured logs, packet captures, and diagnostics
 - authenticated web UI and API
+- signed plugin/package repository with compatibility and permission admission
 - signed, transactional upgrades with recovery support
 
 ## Design posture
 
 - Go owns orchestration, validation, APIs, state reconciliation, and service
   supervision.
-- The Linux kernel remains the packet-processing authority; Bifrost will use
-  established kernel facilities rather than inventing a userspace packet path.
+- The host operating system remains the packet-processing authority; Bifrost
+  will use established facilities such as Linux `nftables`, FreeBSD `pf`, and
+  Windows Filtering Platform rather than inventing a userspace packet path.
 - Generated firewall rules must be deterministic, reviewable, and applied
   transactionally.
 - Invalid or incomplete configuration fails closed.
@@ -36,6 +38,30 @@ working firewall, router, or security boundary yet.
   logs or Git.
 - Upgrades and migrations require preflight validation and a tested rollback
   path.
+
+## Plugin model
+
+Bifrost is intended to be extensible in the style of OPNsense: a small trusted
+core coordinates independently versioned platform backends and optional
+service plugins.
+
+- The portable core owns configuration, validation, policy IR, authorization,
+  audit, compatibility, and rollback.
+- Platform plugins translate admitted plans into native OS firewall, routing,
+  interface, and service transactions.
+- Optional plugins may add VPN, DHCP, DNS, IDS/IPS, dynamic DNS, ACME,
+  monitoring, backup, and similar capabilities.
+- Plugins are separate supervised executables, not in-process libraries.
+- Packages and manifests must be signed, versioned, permission-declared, and
+  admitted before activation.
+- A plugin crash must not remove the last known-good policy or open an
+  unfiltered traffic path.
+
+`rpc-plugin-system` is the intended lifecycle and isolation substrate, but its
+current v1 Unix-socket/Linux-hardening contract is not yet a cross-platform
+Bifrost dependency. Bifrost keeps its domain contracts transport-neutral while
+the substrate gains Unix and Windows transports, platform peer identity,
+protocol negotiation, and an externally consumable SDK.
 
 ## Current status
 
@@ -48,8 +74,8 @@ Canonical design work proceeds in this order:
 2. [`documents/ARCHITECTURE.md`](documents/ARCHITECTURE.md)
 3. [`documents/IMPLEMENTATION-SPEC.md`](documents/IMPLEMENTATION-SPEC.md)
 
-Implementation begins only after the supported platform, userspace contracts,
-recovery design, and acceptance tests are explicit.
+Implementation begins only after the supported platform matrix, plugin and
+userspace contracts, recovery design, and acceptance tests are explicit.
 
 ## Initial non-goals
 

@@ -11,10 +11,16 @@ Status: repository bootstrap complete; implementation deferred
 
 ## Required design work before runtime code
 
-- pin supported distribution, kernel, Go, CPU architecture, and image targets
+- pin supported OS releases, kernels/runtime APIs, Go, CPU architectures, and
+  image/installer targets
 - define canonical configuration schema and migration rules
 - define management identity, authorization, session, and recovery contracts
-- define `nftables` and netlink runtime-boundary behavior and hard limits
+- define the platform-neutral policy IR and native backend contracts
+- define `nftables`/netlink, FreeBSD `pf`, and Windows Filtering Platform
+  runtime-boundary behavior and hard limits for admitted targets
+- define signed plugin manifests, package provenance, compatibility,
+  permissions, migrations, activation, removal, and rollback
+- define the required cross-platform `rpc-plugin-system` substrate evolution
 - define last-known-good, confirmation timer, rollback, and interrupted-upgrade
   behavior
 - define independent correctness oracles for compiled and applied policy
@@ -23,16 +29,16 @@ Status: repository bootstrap complete; implementation deferred
 ## First candidate vertical slice
 
 The preferred first runtime slice is an offline, pure configuration validator
-and deterministic policy compiler for a deliberately tiny firewall schema. It
-must produce reviewable output and golden tests without modifying the host
-network. Host mutation, daemonization, and web administration remain later
-slices.
+and platform-neutral policy compiler for a deliberately tiny firewall schema.
+It must produce one canonical IR plus deterministic golden outputs for at least
+two platform adapters without modifying the host network. Plugin execution,
+host mutation, daemonization, and web administration remain later slices.
 
 ## Requirement-to-verification map
 
 | Requirement | Planned verification |
 | --- | --- |
-| BFR-PRD-001 | compiler golden tests plus isolated network-namespace apply/oracle tests |
+| BFR-PRD-001 | canonical IR golden tests plus per-platform compiler and isolated apply/oracle tests |
 | BFR-PRD-002 | schema, migration, audit, and rollback tests |
 | BFR-PRD-003 | partial-failure and last-known-good recovery tests |
 | BFR-PRD-004 | authorization, exposure, confirmation-timer, and console-recovery tests |
@@ -40,3 +46,7 @@ slices.
 | BFR-PRD-006 | signature, preflight, interruption, and rollback tests |
 | BFR-PRD-007 | secret-storage, export, logging, and redaction tests |
 | BFR-PRD-008 | pinned build and integration matrix |
+| BFR-PRD-009 | process isolation, generation, authority-boundary, and failure-isolation tests |
+| BFR-PRD-010 | signature, provenance, permission, migration, activation, and rollback tests |
+| BFR-PRD-011 | protocol negotiation and backward/forward compatibility matrix |
+| BFR-PRD-012 | crash/restart/upgrade tests proving last-known-good policy remains active |
