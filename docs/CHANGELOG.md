@@ -4,7 +4,7 @@
 
 ### 2026-08-01 21:05 CDT — Assign credentials to agent-keyring
 
-Commit: current commit; hash assigned by Git after commit
+Commit: `9cca949db349c65e352f134f57775ebb82b4d07a`
 
 Affected files:
 
