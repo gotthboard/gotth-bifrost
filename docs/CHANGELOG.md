@@ -4,7 +4,7 @@
 
 ### 2026-08-01 22:19 CDT — Define the initial capability plugin catalog
 
-Commit: current commit; hash assigned by Git after commit
+Commit: `28b4120039c659023d0be9fdb1e0becff6b974a0`
 
 Affected files:
 
