@@ -41,6 +41,49 @@ count.
   revisions, contract and schema versions, platform compatibility, migration
   order, signatures/provenance, verification evidence, and rollback pairing in
   a machine-readable release composition admitted by this meta repository.
+- **BFW-PRD-040:** OpenID Connect shall be a first-class web-UI authentication
+  method compatible with standards-compliant providers such as Authentik,
+  without making any one provider a required Bifrost dependency.
+- **BFW-PRD-041:** Browser login shall use OIDC Authorization Code with PKCE,
+  exact registered redirect URIs, TLS outside explicit loopback development,
+  cryptographically random state and nonce, and bounded login transactions.
+- **BFW-PRD-042:** OIDC validation shall fail closed on issuer, discovery,
+  signature/algorithm, JWKS, audience, authorized-party, nonce, state,
+  expiration, not-before, authentication-time, or required-assurance mismatch.
+  Key rotation shall be supported without accepting unknown or stale trust.
+- **BFW-PRD-043:** OIDC shall authenticate identity only. The Bifrost core shall
+  own explicit issuer/subject and claim-to-role mapping, deny unmapped privilege
+  by default, and prohibit automatic administrator access based only on a group
+  or claim name supplied by an identity provider.
+- **BFW-PRD-044:** OIDC client secrets, private keys, refresh tokens, and other
+  reusable credential material shall be governed by `agent-keyring` and shall
+  not appear in ordinary configuration, environment, command arguments, logs,
+  exports, browser storage, UI manifests, or plugin inputs.
+- **BFW-PRD-045:** After successful OIDC validation and core role mapping, the
+  browser shall receive only a short-lived opaque Bifrost session cookie with
+  Secure, HttpOnly, appropriate SameSite, rotation, inactivity, absolute-expiry,
+  logout, and CSRF protections. Raw OIDC tokens shall not become browser API
+  bearer credentials.
+- **BFW-PRD-046:** OIDC tokens and provider sessions shall not be forwarded to
+  plugins. Plugins may receive only bounded actor, authorization, assurance,
+  and audit-correlation facts admitted by the core for the requested action.
+- **BFW-PRD-047:** OIDC configuration shall pin allowed issuers, client ids,
+  redirect origins, signing algorithms, claim mappings, assurance requirements,
+  and provider-specific compatibility facts. Forwarded identity headers shall
+  be denied unless a separate authenticated reverse-proxy trust contract is
+  explicitly admitted.
+- **BFW-PRD-048:** Identity-provider or JWKS unavailability shall fail closed
+  for new logins. Existing sessions may continue only until their already
+  admitted bounded expiry and shall not gain new claims or privilege while
+  provider state is unavailable.
+- **BFW-PRD-049:** Bifrost shall retain a separately protected local-console
+  recovery identity and recovery workflow that remains usable during OIDC,
+  DNS, certificate, or management-network failure. It shall not silently become
+  a general remote-password fallback.
+- **BFW-PRD-050:** Authentication, claim mapping, session issuance/rotation,
+  logout, denial, recovery, and administrative identity-policy changes shall be
+  auditable without recording tokens, secrets, unnecessary claims, or sensitive
+  provider payloads.
 
 ## Initial requirements
 

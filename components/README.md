@@ -13,6 +13,7 @@ contain copied component source.
 | `bfw-web` | independent unprivileged web/API presentation service and trusted UI shell | planned; repository not created |
 | `bfw-routing` | routing domain, deterministic route plans, platform apply/verify adapters, routing UI contribution, and routing rollback effects | planned; repository not created |
 | `bfw-plugin-sdk` | versioned Bifrost domain, plugin, UI-manifest, and compatibility contracts | planned; repository not created |
+| identity/authentication component | generic OIDC relying-party integration, claim mapping inputs, and opaque Bifrost session exchange; final repository boundary/name not selected | planned; repository not created |
 | platform backends | native firewall, interface, and other OS-specific adapters for admitted platforms | planned; repository boundaries not yet selected |
 | optional plugins | DHCP, DNS, VPN, IDS/IPS, ACME, dynamic DNS, monitoring, backup, HA, and other separately admitted capabilities | planned; repositories not created |
 

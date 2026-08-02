@@ -2,6 +2,39 @@
 
 ## Unreleased
 
+### 2026-08-01 22:02 CDT — Make OIDC a first-class web identity contract
+
+Commit: current commit; hash assigned by Git after commit
+
+Affected files:
+
+- `README.md`
+- `components/README.md`
+- `documents/PRD.md`
+- `documents/ARCHITECTURE.md`
+- `documents/IMPLEMENTATION-SPEC.md`
+
+Explanation:
+
+Define standards-based OIDC login as a first-class Bifrost web capability with
+Authentik as an intended provider. Separate authentication from core
+authorization, place reusable provider credentials in `agent-keyring`, issue
+opaque bounded Bifrost sessions, deny token propagation to plugins, and retain
+a protected local-console recovery path.
+
+Verification:
+
+- `git diff --check`
+- requirement trace inspection for BFW-PRD-040 through BFW-PRD-050
+- OIDC trust, claim-mapping, token/secret, session, outage, and recovery-boundary
+  review
+- meta-repository no-runtime check
+
+Risks / non-goals:
+
+- No identity component repository, Authentik application, client secret,
+  runtime login flow, user, or deployed service is created in this slice.
+
 ### 2026-08-01 22:00 CDT — Make Bifrost the meta repo and route through a plugin
 
 Commit: `37d12d0aa224a928030358a94e6b76f07f6837ce`

@@ -90,6 +90,10 @@ interface design; provisional working names do not create compatibility.
 - define the `bfw-routing` domain model, typed plan, platform-adapter,
   apply/verify, ordering, failure, recovery, UI, and audit contracts without
   implementing them in this repository
+- define the OIDC provider profile, Authorization Code + PKCE flow, discovery
+  and token validation, key rotation, explicit claim mapping, assurance/step-up,
+  keyring use, opaque local sessions, logout/revocation, outage, audit, and
+  local-console recovery contracts
 - define last-known-good, confirmation timer, rollback, and interrupted-upgrade
   behavior
 - define independent correctness oracles for compiled and applied policy
@@ -147,3 +151,14 @@ host mutation, daemonization, and web administration remain later slices.
 | BFW-PRD-037 | routing ownership tests proving no routing implementation or domain policy resides in core |
 | BFW-PRD-038 | routing plan determinism, admission, idempotency, platform apply/oracle, boundary, and rollback tests |
 | BFW-PRD-039 | signed release composition, exact revision, compatibility, migration-order, evidence, and rollback-pair checks |
+| BFW-PRD-040 | generic OIDC conformance plus Authentik integration tests without provider-specific authority |
+| BFW-PRD-041 | authorization-code/PKCE, redirect, TLS, state, nonce, and bounded-transaction tests |
+| BFW-PRD-042 | hostile issuer/JWKS/algorithm/audience/azp/nonce/time/assurance and key-rotation tests |
+| BFW-PRD-043 | issuer-subject role mapping, deny-default, claim-change, and no-auto-admin tests |
+| BFW-PRD-044 | keyring mediation and secret/token absence scans across config, env, argv, logs, exports, browser, UI, and plugin surfaces |
+| BFW-PRD-045 | opaque-cookie, Secure/HttpOnly/SameSite, rotation, inactivity, absolute-expiry, logout, and CSRF tests |
+| BFW-PRD-046 | plugin-boundary tests proving no raw OIDC token or provider session crosses the core |
+| BFW-PRD-047 | issuer/client/origin/algorithm/claim/assurance pinning and forwarded-header denial tests |
+| BFW-PRD-048 | provider/JWKS outage tests for new-login denial and bounded existing-session behavior |
+| BFW-PRD-049 | isolated local-console recovery and no-remote-fallback tests during identity/network failures |
+| BFW-PRD-050 | redacted authentication, mapping, session, logout, denial, recovery, and policy-change audit tests |

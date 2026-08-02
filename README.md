@@ -149,6 +149,26 @@ filesystem access, plugin sockets, top-level DOM access, or arbitrary network
 access. UI and backend compatibility is checked and activated or rolled back as
 one plugin release.
 
+## First-class OIDC login
+
+The Bifrost web UI treats OpenID Connect as a first-class authentication path
+so standards-compliant providers such as Authentik can supply user identity.
+OIDC authentication does not replace Bifrost authorization: the core explicitly
+maps trusted issuer/subject and admitted claims to local roles and permissions,
+denying unmapped privilege by default.
+
+The browser flow uses Authorization Code with PKCE, exact redirect URIs, state,
+nonce, TLS, discovery, and signed-token validation. OIDC client credentials are
+held by `agent-keyring`; tokens and secrets are never stored in ordinary
+configuration, logs, browser storage, plugins, or UI manifests. The web service
+exchanges validated identity for a short-lived opaque Bifrost session, and
+plugins receive only the minimum authorized actor/audit facts—not OIDC tokens.
+
+A bounded local-console recovery identity remains available when the identity
+provider, DNS, certificates, or network path is unavailable. It is not a normal
+remote-login fallback and cannot be disabled solely by an OIDC configuration
+change.
+
 ## Current status
 
 Planning-only meta repository. There is no executable firewall, routing plugin,

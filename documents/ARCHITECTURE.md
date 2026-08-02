@@ -227,6 +227,58 @@ and diagnostic page so operators can repair it; mutating actions are denied.
 Web or UI failure never affects native packet policy. The `bfw` CLI and local
 console recovery remain available when the web service is down.
 
+## OIDC identity architecture
+
+OIDC is the primary federated authentication contract for the web UI. Authentik
+is an intended integration target, but Bifrost depends on the OIDC standard and
+an explicit compatibility profile rather than Authentik-specific APIs.
+
+```text
+browser
+  -> bfw-web begins Authorization Code + PKCE transaction
+  -> configured OIDC provider authenticates the user
+  -> bfw-web receives the exact registered callback
+  -> identity boundary validates code/token response and trust facts
+  -> core maps issuer + subject + admitted claims to Bifrost roles
+  -> core issues a short-lived opaque Bifrost session
+  -> browser calls the core API through bfw-web
+```
+
+The identity boundary validates discovery metadata, exact issuer, signed ID
+token algorithm and key, JWKS rotation, audience, authorized party where
+required, nonce, state, expiry, not-before, authentication time, and configured
+assurance requirements. Redirect origins and client ids are exact allowlists.
+TLS is mandatory outside explicit loopback development.
+
+OIDC proves identity; it does not grant Bifrost authority. Role mapping is a
+versioned core policy keyed by allowed issuer and stable subject, with explicit
+claim transforms and deny-by-default behavior. A provider group named `admin`
+does not create a Bifrost administrator unless an operator has admitted that
+exact mapping. High-risk actions may require a configured authentication age or
+assurance level and still pass normal Bifrost confirmation.
+
+`agent-keyring` owns confidential-client secrets, private keys, refresh tokens,
+and any reusable provider credential. The web and identity components use
+scoped opaque keyring authority; secrets never appear in configuration,
+environment, argv, logs, exports, browser storage, UI manifests, or plugins.
+OIDC tokens are consumed at the identity boundary and are never forwarded to
+plugins or used as Bifrost API bearer tokens.
+
+After validation, the core issues an opaque Bifrost session bound to issuer,
+subject, client, authentication time/assurance, role-policy generation,
+session generation, and expiry. The browser receives a Secure, HttpOnly,
+appropriately SameSite cookie. Sessions have inactivity and absolute expiry,
+rotation, CSRF protection, explicit logout, and revocation behavior. Plugins see
+only the admitted actor id, authorization/assurance facts required for the
+action, and audit correlation.
+
+New logins fail closed when provider discovery or keys cannot be validated.
+Already admitted sessions may continue only to their bounded expiry without
+claim or privilege refresh. A separate local-console recovery identity remains
+available for OIDC, DNS, certificate, or management-network failure; it is
+strongly protected, audited, and never exposed as an automatic remote-login
+fallback.
+
 ## Credential authority
 
 Credential management is a separate trust boundary from action authorization:
