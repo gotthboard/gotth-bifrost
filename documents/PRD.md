@@ -40,6 +40,9 @@ count.
   default, and fail closed on unsupported required behavior.
 - **BFR-PRD-012:** Plugin failure, restart, removal, or upgrade shall not erase
   the last known-good network policy or create an unintended open path.
+- **BFR-PRD-013:** Bifrost runtime implementation shall not begin until the
+  required cross-platform `rpc-plugin-system` lifecycle substrate has passed
+  its compatibility, security, failure, and platform admission gates.
 
 ## Bootstrap acceptance criteria
 

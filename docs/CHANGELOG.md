@@ -2,9 +2,38 @@
 
 ## Unreleased
 
-### 2026-08-01 20:55 CDT — Make cross-platform plugins a product requirement
+### 2026-08-01 20:59 CDT — Gate Bifrost on the completed plugin substrate
 
 Commit: current commit; hash assigned by Git after commit
+
+Affected files:
+
+- `README.md`
+- `documents/PRD.md`
+- `documents/ARCHITECTURE.md`
+- `documents/IMPLEMENTATION-SPEC.md`
+
+Explanation:
+
+Make completion and admission of the cross-platform `rpc-plugin-system` a
+Phase 0 predecessor gate for Bifrost runtime implementation. Design work may
+continue, but Bifrost may not fork transport, authentication, generation,
+lifecycle, or supervision behavior to start implementation early.
+
+Verification:
+
+- `git diff --check`
+- requirement trace inspection for BFR-PRD-013
+- dependency-gate exit-evidence inspection
+
+Risks / non-goals:
+
+- This records sequencing only; it does not assign work, change
+  `rpc-plugin-system`, or add Bifrost runtime code.
+
+### 2026-08-01 20:55 CDT — Make cross-platform plugins a product requirement
+
+Commit: `ca617495444cd5d9fa5e917860ce2248b50a4cff`
 
 Affected files:
 

@@ -2,6 +2,28 @@
 
 Status: repository bootstrap complete; implementation deferred
 
+## Phase 0 dependency gate
+
+Finish and admit the cross-platform `rpc-plugin-system` substrate before any
+Bifrost runtime implementation begins.
+
+Required exit evidence:
+
+- Unix-domain-socket and Windows-named-pipe transports behind one documented
+  compatibility contract
+- Linux, BSD/macOS, and Windows peer-identity backends with fail-closed tests
+- explicit protocol/capability version negotiation and compatibility matrix
+- externally consumable, versioned Go SDK/module
+- matching auth, generation, health, timeout, cancellation, restart, teardown,
+  redaction, and append-only logging behavior on supported platforms
+- crash/restart/endurance evidence proving stale generations and transports do
+  not remain trusted
+- clean independent review and admission decision
+
+Bifrost design work may refine requirements and contracts during Phase 0. It
+must not add runtime code, provider-local substrate forks, or host-network
+mutation before this gate passes.
+
 ## Bootstrap slice
 
 1. Create the private `danny/Bifrost` repository and `main` branch.
@@ -50,3 +72,4 @@ host mutation, daemonization, and web administration remain later slices.
 | BFR-PRD-010 | signature, provenance, permission, migration, activation, and rollback tests |
 | BFR-PRD-011 | protocol negotiation and backward/forward compatibility matrix |
 | BFR-PRD-012 | crash/restart/upgrade tests proving last-known-good policy remains active |
+| BFR-PRD-013 | cross-platform substrate admission record and independent review |

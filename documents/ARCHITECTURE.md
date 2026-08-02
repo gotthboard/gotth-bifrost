@@ -94,6 +94,12 @@ the substrate must define and test:
 - matching generation, auth, timeout, cancellation, logging, and teardown
   behavior on every supported platform
 
+This substrate is a predecessor project, not a parallel convenience task.
+Bifrost design and interface planning may continue, but runtime implementation
+is blocked until the cross-platform substrate is complete and independently
+admitted. Bifrost must not carry provider-local transport, authentication,
+generation, lifecycle, or supervision forks as a shortcut.
+
 ## Recovery
 
 The detailed recovery model is not yet selected. Implementation is blocked

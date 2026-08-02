@@ -77,6 +77,11 @@ Canonical design work proceeds in this order:
 Implementation begins only after the supported platform matrix, plugin and
 userspace contracts, recovery design, and acceptance tests are explicit.
 
+Runtime implementation is also gated on completing and admitting the required
+cross-platform `rpc-plugin-system` substrate. Bifrost will not create a private
+fork of lifecycle, authentication, transport, generation, or supervision rules
+to begin earlier.
+
 ## Initial non-goals
 
 - claiming feature parity with OPNsense at bootstrap
