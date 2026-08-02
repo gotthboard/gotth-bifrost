@@ -1,0 +1,9 @@
+/bin/
+/dist/
+/coverage/
+*.coverprofile
+*.test
+.env
+.env.*
+!.env.example
+
