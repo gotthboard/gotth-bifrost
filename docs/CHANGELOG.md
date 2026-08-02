@@ -4,7 +4,7 @@
 
 ### 2026-08-01 21:08 CDT — Assign file and process operations to agent providers
 
-Commit: current commit; hash assigned by Git after commit
+Commit: `2ea4ae84d0d3593f613f3799340cd98ede4860f7`
 
 Affected files:
 
