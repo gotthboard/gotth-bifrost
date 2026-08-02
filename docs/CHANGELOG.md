@@ -4,7 +4,7 @@
 
 ### 2026-08-01 22:02 CDT — Make OIDC a first-class web identity contract
 
-Commit: current commit; hash assigned by Git after commit
+Commit: `1d38dc4224f47d5518fa255d3cf0baa11b44b483`
 
 Affected files:
 
