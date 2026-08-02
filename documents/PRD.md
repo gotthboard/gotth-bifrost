@@ -61,6 +61,31 @@ count.
   `agent-keyring` has passed cross-platform transport, peer-identity,
   encrypted-storage/unlock, lease, revocation, recovery, SDK, and redaction
   admission gates for the supported Bifrost platforms.
+- **BFR-PRD-019:** Host-file operations outside Bifrost's private canonical
+  state shall use `agent-filesystem` with a core-admitted scope containing
+  explicit roots, operations, bounds, link/special-file policy, mutation
+  preconditions, recovery behavior, generation, expiry, and audit correlation.
+- **BFR-PRD-020:** Bifrost shall treat paths and filesystem results as operands,
+  not authority. Filesystem operations shall not expose keyring payloads,
+  provider-private state, or reusable handles, and destructive operations shall
+  require an explicit destructive admission and recoverable behavior where the
+  platform contract supports it.
+- **BFR-PRD-021:** Local process execution shall use `agent-exec` only after
+  core admission of the executable identity, argv or separately allowed shell,
+  cwd, environment, stdio, timeout, process-tree, resource, network,
+  filesystem-containment, side-effect, retry, and audit policies.
+- **BFR-PRD-022:** Bifrost process execution shall deny shells, ambient PATH and
+  environment, inherited credentials, unrestricted network access, privilege
+  fallback, and reusable raw process/session handles by default. Native
+  platform APIs shall remain preferred for firewall and routing mutation.
+- **BFR-PRD-023:** A workflow combining credentials, files, and processes shall
+  require one sealed core-admitted plan and separate, matching, short-lived
+  authority for every keyring, filesystem, and execution use. Outputs or
+  handles from one provider shall not expand another provider's authority.
+- **BFR-PRD-024:** Bifrost runtime integration shall not begin until
+  `agent-filesystem` and `agent-exec` have passed their supported-platform
+  transport, identity, path/process safety, sandbox/containment, recovery,
+  lifecycle, SDK, audit/redaction, and independent admission gates.
 
 ## Bootstrap acceptance criteria
 

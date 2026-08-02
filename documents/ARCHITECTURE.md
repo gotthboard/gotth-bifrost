@@ -36,6 +36,10 @@ operator / API
 - **credential authority:** `agent-keyring` stores and governs secret payloads;
   Bifrost stores only selectors, redacted metadata, opaque-reference
   fingerprints, and audit correlation
+- **filesystem provider:** `agent-filesystem` performs scoped, race-safe host
+  file operations after core admission; it is not canonical-state authority
+- **execution provider:** `agent-exec` performs bounded local process mechanics
+  after core admission; it is not shell, privilege, or policy authority
 - **reconciler:** idempotent apply/verify loop with explicit drift handling
 - **management API:** authenticated authorization boundary; no direct shell
   execution
@@ -116,6 +120,52 @@ receiving a reusable account key. Secret-bearing response types, if a future
 contract admits them at all, must remain distinct, non-loggable, narrowly
 scoped, and unavailable to the web UI.
 
+## Filesystem and execution providers
+
+Bifrost uses `agent-filesystem` for admitted host-file work outside the core's
+private canonical state: generated service configuration, bounded imports and
+exports, backup artifacts, diagnostics, and support bundles. The core remains
+responsible for its own private transactional state and migrations; neither a
+plugin nor the web UI receives ambient access to it.
+
+Every file operation carries an admitted root and operation set, byte and
+recursion bounds, link and special-file policy, mutation preconditions,
+generation/expiry, recovery requirements, and audit correlation. Paths, file
+descriptors, trash/COW records, rollback references, and provider-private
+storage are never reusable authority. Secret-denied scopes must cover keyring
+payload and authority storage.
+
+Bifrost uses `agent-exec` only when an admitted operation genuinely requires a
+local process. Native OS APIs remain the preferred path for firewall, routing,
+and interface mutations. The execution envelope binds executable identity and
+resolution, argv or an explicitly admitted shell payload, cwd, environment,
+stdio, timeout/cancellation, process tree, resources, network policy,
+filesystem containment, side-effect class, idempotency, generation/expiry, and
+audit rules. Cwd is not containment; process reachability is not permission.
+
+Shell execution, PATH lookup, inherited environment, network access, and
+privilege transitions are denied unless separately and explicitly admitted.
+Credentials are never placed in argv, environment, stdin, output, transcripts,
+or diagnostics. If an operation needs credential use, `agent-keyring` supplies
+an opaque, scoped authority reference through the admitted mediation contract;
+`agent-exec` does not read the keyring or collect passwords.
+
+Multi-provider composition is fail-closed:
+
+```text
+one sealed Bifrost action plan
+  -> distinct keyring authority use, if required
+  -> distinct filesystem authority use, if required
+  -> distinct execution authority use, if required
+  -> correlated redacted result and audit evidence
+```
+
+Each use is bound to the same action, target/audience, policy, correlation, and
+current provider/plugin generations. File content does not become a command,
+a command result does not become a path, and a provider-owned reference does
+not cross a boundary unless the sealed plan explicitly types, bounds, and
+admits that transfer.
+
 ## Cross-platform substrate prerequisite
 
 The current `rpc-plugin-system` v1 contract uses Unix-domain sockets, Go
@@ -143,6 +193,16 @@ Windows named pipes, platform peer identity, encrypted payload storage and
 unlock, SDK compatibility, redaction, lease/ref invalidation, backup/restore,
 and recovery. Platform storage adapters may protect keyring material, but they
 must not become competing sources of credential truth.
+
+The current `agent-filesystem` v1 is a local POSIX provider, and the current
+`agent-exec` contract is centered on local Linux/dedicated-account execution.
+Before Bifrost depends on them across platforms, their contracts must define
+and test Windows and supported BSD/macOS path/process semantics, race-safe path
+containment, symlink/reparse-point behavior, atomicity and durability,
+trash/recovery semantics, executable identity, account/sandbox/resource
+controls, cancellation/process-tree behavior, opaque lifecycle references,
+and consistent audit redaction. Unsupported security semantics fail closed;
+provider-local compatibility shortcuts are forbidden.
 
 ## Recovery
 

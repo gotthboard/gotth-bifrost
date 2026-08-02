@@ -79,6 +79,26 @@ peer-identity, encrypted-storage/unlock, lease, revocation, and recovery
 contracts must be admitted on every supported Bifrost platform before runtime
 integration begins.
 
+`agent-filesystem` is the intended provider for admitted host-file operations
+outside Bifrost's private canonical state. Plugin configuration artifacts,
+imports/exports, backups, support bundles, and other host-file work must use
+explicit path roots, operations, byte/recursion bounds, symlink and special-file
+policy, mutation preconditions, and recovery evidence. A path is an operand,
+not authority, and filesystem access must never become a route to keyring
+payloads.
+
+`agent-exec` is the intended provider for admitted local process execution.
+Bifrost must prefer native platform APIs, but may use bounded argv execution for
+separately admitted service or tooling operations. Shells, ambient PATH and
+environment, inherited credentials, unrestricted network access, privilege
+fallback, and reusable process handles are denied by default. Command
+reachability never grants firewall or administrative authority.
+
+Any operation combining keyring, filesystem, and process capabilities requires
+one core-admitted plan plus separate, generation-bound authority for each use.
+Data or handles returned by one provider never silently expand another
+provider's authority.
+
 ## Current status
 
 Planning only. There is no executable firewall, web service, installer, image,
@@ -102,6 +122,10 @@ The same gate applies to the required cross-platform `agent-keyring`
 credential-authority contract. Bifrost will not create a second secret store or
 fall back to ambient environment variables, command arguments, ordinary
 configuration files, or plugin-owned credential databases.
+
+Cross-platform admission of `agent-filesystem` and `agent-exec` is also a Phase
+0 dependency. Bifrost will not fork their path-safety, recovery, process,
+sandbox, resource-bound, or audit contracts to begin implementation early.
 
 ## Initial non-goals
 

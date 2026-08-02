@@ -5,8 +5,8 @@ Status: repository bootstrap complete; implementation deferred
 ## Phase 0 dependency gate
 
 Finish and admit the cross-platform `rpc-plugin-system` lifecycle substrate and
-`agent-keyring` credential substrate before any Bifrost runtime implementation
-begins.
+the `agent-keyring`, `agent-filesystem`, and `agent-exec` provider substrates
+before any Bifrost runtime implementation begins.
 
 Required exit evidence:
 
@@ -27,6 +27,15 @@ Required exit evidence:
   restore, and stale-generation tests
 - raw-export-denied, non-loggable response, redaction, export, support-bundle,
   and audit-correlation tests
+- cross-platform `agent-filesystem` scope, path normalization, symlink/reparse
+  point, race safety, atomicity/durability, COW/trash recovery, bounds, SDK, and
+  audit/redaction evidence
+- cross-platform `agent-exec` executable identity, argv/shell separation,
+  account, environment, filesystem containment, sandbox, network/resource,
+  timeout/cancellation, process-tree, lifecycle-ref, SDK, and audit/redaction
+  evidence
+- composition tests proving keyring, filesystem, and execution authority cannot
+  be exchanged, widened, inferred, or reused across provider boundaries
 
 Bifrost design work may refine requirements and contracts during Phase 0. It
 must not add runtime code, provider-local substrate forks, or host-network
@@ -54,6 +63,13 @@ mutation before this gate passes.
 - define `agent-keyring` selectors, core-admission proofs, lease and opaque-ref
   scopes, credential classes, revocation, rotation, recovery, and
   cross-platform substrate evolution
+- define `agent-filesystem` scopes for generated configuration, import/export,
+  backup, diagnostics, and support artifacts without exposing canonical state
+  or keyring storage
+- define `agent-exec` envelopes for the minimal commands that cannot use native
+  APIs, including denial defaults and cross-platform process semantics
+- define typed, bounded, separately admitted data transfer between keyring,
+  filesystem, and execution providers
 - define last-known-good, confirmation timer, rollback, and interrupted-upgrade
   behavior
 - define independent correctness oracles for compiled and applied policy
@@ -89,3 +105,9 @@ host mutation, daemonization, and web administration remain later slices.
 | BFR-PRD-016 | lease/ref scope, generation, target, audience, expiry, and raw-export-denied tests |
 | BFR-PRD-017 | rotation, revocation, restore, restart, policy-change, and stale-generation invalidation tests |
 | BFR-PRD-018 | cross-platform keyring compatibility, storage/unlock, recovery, SDK, and independent admission record |
+| BFR-PRD-019 | filesystem scope, path, bounds, link/special-file, mutation-precondition, generation, expiry, and audit tests |
+| BFR-PRD-020 | secret/provider-state denial plus destructive-class and recoverability tests |
+| BFR-PRD-021 | complete process-envelope validation and negative spawn tests |
+| BFR-PRD-022 | shell, PATH/env, credential, network, privilege, raw-handle denial and native-API boundary tests |
+| BFR-PRD-023 | cross-provider confused-deputy, stale-generation, type/bounds, ref-reuse, and correlation tests |
+| BFR-PRD-024 | cross-platform filesystem/exec compatibility, safety, lifecycle, SDK, and independent admission record |

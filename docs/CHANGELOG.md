@@ -2,6 +2,37 @@
 
 ## Unreleased
 
+### 2026-08-01 21:08 CDT — Assign file and process operations to agent providers
+
+Commit: current commit; hash assigned by Git after commit
+
+Affected files:
+
+- `README.md`
+- `documents/PRD.md`
+- `documents/ARCHITECTURE.md`
+- `documents/IMPLEMENTATION-SPEC.md`
+
+Explanation:
+
+Make `agent-filesystem` the provider for admitted host-file operations and
+`agent-exec` the provider for admitted local process execution. Define strict
+composition with `agent-keyring`, deny ambient filesystem/shell/process
+authority, and extend the cross-platform Phase 0 admission gate.
+
+Verification:
+
+- `go mod edit -json`
+- `git diff --check`
+- requirement trace inspection for BFR-PRD-019 through BFR-PRD-024
+- provider-boundary review for credential, path, command, privilege, and
+  confused-deputy bypasses
+
+Risks / non-goals:
+
+- This does not modify the provider repositories, execute commands through
+  them, mutate host files through them, or add Bifrost runtime code.
+
 ### 2026-08-01 21:05 CDT — Assign credentials to agent-keyring
 
 Commit: `9cca949db349c65e352f134f57775ebb82b4d07a`
