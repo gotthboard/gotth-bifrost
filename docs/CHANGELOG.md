@@ -4,7 +4,7 @@
 
 ### 2026-08-01 22:32 CDT — Make proxy and HA native Bifrost plugins
 
-Commit: current commit; hash assigned by Git after commit
+Commit: `dc55813a4f2648ff68e696136ea9be2de6cdf9ea`
 
 Affected files:
 
