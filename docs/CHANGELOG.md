@@ -4,7 +4,7 @@
 
 ### 2026-08-01 22:00 CDT — Make Bifrost the meta repo and route through a plugin
 
-Commit: current commit; hash assigned by Git after commit
+Commit: `37d12d0aa224a928030358a94e6b76f07f6837ce`
 
 Affected files:
 
