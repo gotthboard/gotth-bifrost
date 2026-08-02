@@ -2,6 +2,45 @@
 
 ## Unreleased
 
+### 2026-08-01 22:32 CDT — Make proxy and HA native Bifrost plugins
+
+Commit: current commit; hash assigned by Git after commit
+
+Affected files:
+
+- `README.md`
+- `components/README.md`
+- `documents/PRD.md`
+- `documents/ARCHITECTURE.md`
+- `documents/IMPLEMENTATION-SPEC.md`
+
+Explanation:
+
+Correct the initial catalog assumption that Caddy and Keepalived would be
+service adapters. `bfw-reverse-proxy` is now a native Go reverse-proxy data and
+control plane with a Caddy-like operator experience but no Caddy runtime,
+configuration, package, process, or API dependency. `bfw-ha` now implements its
+portable HA control logic natively in Go, with VRRP protocol behavior and
+platform mechanisms such as FreeBSD CARP, but no Keepalived runtime,
+configuration, process, or API dependency.
+
+Verification:
+
+- `git diff --check`
+- requirement trace inspection for BFW-PRD-057 and BFW-PRD-059
+- canonical-document scan rejecting Caddy-as-adapter and
+  Keepalived-as-runtime language
+- reverse-proxy protocol/limit/dependency and HA interoperability/platform
+  boundary review
+- meta-repository no-runtime check
+
+Risks / non-goals:
+
+- This selects native implementation ownership, not Caddy or Keepalived
+  configuration/API compatibility.
+- No proxy, VRRP implementation, CARP configuration, plugin repository,
+  executable, listener, virtual address, or deployed service is created.
+
 ### 2026-08-01 22:19 CDT — Define the initial capability plugin catalog
 
 Commit: `28b4120039c659023d0be9fdb1e0becff6b974a0`

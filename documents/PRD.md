@@ -115,19 +115,24 @@ count.
   firewall/NAT and kill-switch effects, failover behavior, and rollback before
   admitting a tunnel. Routing and firewall effects remain owned by their
   respective plugins.
-- **BFW-PRD-057:** `bfw-reverse-proxy` shall provide a Caddy-style reverse
-  proxy and ingress capability with Caddy as the preferred first adapter. It
-  shall own proxy routes, upstreams, health checks, TLS policy, service
-  publication, observed state, UI contributions, and proxy-specific rollback.
+- **BFW-PRD-057:** `bfw-reverse-proxy` shall provide a native Go reverse proxy
+  and ingress capability with a Caddy-like operator experience. It shall own
+  the proxy data/control path, routes, upstreams, health checks, TLS policy,
+  service publication, observed state, UI contributions, and proxy-specific
+  rollback without embedding, invoking, supervising, configuring, or requiring
+  Caddy at runtime.
 - **BFW-PRD-058:** `bfw-reverse-proxy` shall not become firewall, DNS,
   credential, or identity authority. Certificate and provider credentials
   shall use `agent-keyring`; DNS, ACME, and firewall exposure shall use typed
   dependencies; forwarded identity headers shall remain denied unless an
   explicit authenticated reverse-proxy trust contract is admitted by the core.
-- **BFW-PRD-059:** `bfw-ha` shall provide Keepalived-style high availability
-  using admitted VRRP, CARP, or platform-equivalent adapters for virtual
-  addresses, peer/node health, active/standby roles, state and configuration
-  synchronization, failover, recovery, and HA-specific UI and audit evidence.
+- **BFW-PRD-059:** `bfw-ha` shall implement portable high-availability control
+  logic natively in Go, inspired by Keepalived behavior but without embedding,
+  invoking, supervising, configuring, or requiring Keepalived at runtime. It
+  shall use admitted VRRP, CARP, or safe platform-equivalent mechanisms for
+  virtual addresses, peer/node health, active/standby roles, state and
+  configuration synchronization, failover, recovery, and HA-specific UI and
+  audit evidence.
 - **BFW-PRD-060:** An HA role transition shall require authenticated peer
   identity, compatible configuration and release composition, current health,
   declared quorum/fencing and priority/preemption policy, required replicated

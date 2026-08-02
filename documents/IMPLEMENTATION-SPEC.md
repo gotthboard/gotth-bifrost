@@ -102,13 +102,16 @@ interface design; provisional working names do not create compatibility.
 - define `bfw-wireguard` peer/tunnel, per-device enrollment, keyring,
   routing/firewall coordination, site-to-site validation, status, and rollback
   contracts while retaining a generic later-VPN extension contract
-- define `bfw-reverse-proxy` routes, listeners, upstream health, TLS, Caddy
-  adapter, DNS/ACME/firewall dependencies, forwarded-identity trust, UI, staged
-  publication, verification, and rollback contracts
-- define `bfw-ha` cluster identity, platform VRRP/CARP/equivalent adapters,
-  virtual-address ownership, quorum/fencing, priority/preemption, state/config
-  synchronization, dependent-service readiness, split-brain handling, UI,
-  transition, and recovery contracts
+- define the native Go `bfw-reverse-proxy` HTTP/TLS data path, routes,
+  listeners, upstream health, limits, DNS/ACME/firewall dependencies,
+  forwarded-identity trust, UI, staged publication, conformance, verification,
+  and rollback contracts without a Caddy runtime dependency
+- define the native Go `bfw-ha` control plane, cluster identity, VRRP protocol
+  and CARP/platform mechanism boundaries, virtual-address ownership,
+  quorum/fencing, priority/preemption, state/config synchronization,
+  dependent-service readiness, split-brain handling, UI, transition,
+  interoperability, and recovery contracts without a Keepalived runtime
+  dependency
 - define bounded ownership contracts for every network-service,
   advanced-network, security/access, and operations plugin in the catalog
 - define last-known-good, confirmation timer, rollback, and interrupted-upgrade
@@ -206,9 +209,9 @@ host mutation, daemonization, and web administration remain later slices.
 | BFW-PRD-054 | WireGuard site-to-site and per-device remote-access contract plus generic VPN compatibility tests |
 | BFW-PRD-055 | unique-device identity, keyring-only secret, one-time delivery, expiry, revocation, and no-key-sharing tests |
 | BFW-PRD-056 | AllowedIPs, overlap, loop, reachability, MTU, firewall/NAT, kill-switch, failover, partial-activation, and rollback tests |
-| BFW-PRD-057 | reverse-proxy route/upstream/health/TLS/Caddy-adapter/UI/apply/verify/rollback contract tests |
+| BFW-PRD-057 | native reverse-proxy HTTP/TLS/route/upstream/health/limit/UI/apply/verify/rollback tests plus absence of a Caddy runtime/config/API dependency |
 | BFW-PRD-058 | proxy authority-denial, keyring, DNS/ACME/firewall dependency, header stripping, and forwarded-identity trust tests |
-| BFW-PRD-059 | HA membership, VRRP/CARP/equivalent adapter, virtual-address, synchronization, failover, recovery, UI, and audit tests |
+| BFW-PRD-059 | native HA membership, VRRP/CARP/platform mechanism, virtual-address, synchronization, failover, interoperability, recovery, UI, and audit tests plus absence of a Keepalived runtime/config/API dependency |
 | BFW-PRD-060 | HA peer identity, release/config compatibility, quorum/fencing, stale-state, duplicate-owner, split-brain, ordering, and rollback tests |
 | BFW-PRD-061 | advanced-network plugin ownership, coordination, and no-authority-collapse tests |
 | BFW-PRD-062 | security/access ownership tests plus default-disabled and bounded UPnP/NAT-PMP/PCP tests |

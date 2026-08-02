@@ -15,8 +15,8 @@ contain copied component source.
 | `bfw-firewall` | packet-filter, NAT, aliases, schedules, state policy, deterministic policy plans, and native apply/verify adapters | planned; repository not created |
 | `bfw-network` | interfaces, VLANs, bridges, bonds/LAGs, MTU, DHCP client, and link-state ownership | planned; repository not created |
 | `bfw-wireguard` | WireGuard site-to-site tunnels, per-device remote access, enrollment, peer state, key rotation, and VPN UI | planned; repository not created |
-| `bfw-reverse-proxy` | Caddy-style reverse proxy, ingress, upstream health, TLS policy, service publication, and proxy UI; Caddy is the preferred first adapter | planned; repository not created |
-| `bfw-ha` | Keepalived-style virtual-address ownership, health, failover, state/configuration synchronization, and platform VRRP/CARP/equivalent adapters | planned; repository not created |
+| `bfw-reverse-proxy` | native Go reverse proxy, ingress, upstream health, TLS policy, service publication, and proxy UI with no Caddy runtime dependency | planned; repository not created |
+| `bfw-ha` | native Go HA control logic, virtual-address ownership, health, failover, state/configuration synchronization, and VRRP/CARP/equivalent platform mechanisms with no Keepalived runtime dependency | planned; repository not created |
 | `bfw-plugin-sdk` | versioned Bifrost domain, plugin, UI-manifest, and compatibility contracts | planned; repository not created |
 | identity/authentication component | generic OIDC relying-party integration, claim mapping inputs, and opaque Bifrost session exchange; final repository boundary/name not selected | planned; repository not created |
 | platform backends | native firewall, interface, and other OS-specific adapters for admitted platforms | planned; repository boundaries not yet selected |
@@ -39,10 +39,13 @@ decisions are explicitly admitted.
   or preshared keys outside `agent-keyring`.
 - `bfw-reverse-proxy` owns proxy configuration and observed proxy health. DNS,
   ACME credentials, firewall exposure, and identity-header trust remain typed
-  dependencies owned by their respective authorities.
+  dependencies owned by their respective authorities. It is a native Bifrost
+  implementation and does not embed, invoke, supervise, or configure Caddy.
 - `bfw-ha` owns failover intent and active/standby evidence. It coordinates
   virtual-address, routing, firewall, service, and replicated-state changes
-  through typed plans; it does not seize those domains directly.
+  through typed plans; it does not seize those domains directly. Its portable
+  control logic is implemented in Go and does not embed, invoke, supervise, or
+  configure Keepalived.
 - Every plugin declares compatible platforms, dependencies, conflicts,
   permissions, schemas, UI contracts, health, migration/rollback behavior,
   and release evidence before it can be pinned here.

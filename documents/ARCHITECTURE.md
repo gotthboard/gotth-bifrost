@@ -205,18 +205,27 @@ healthy cannot silently authorize forwarded traffic.
 
 ### Reverse-proxy plugin boundary
 
-`bfw-reverse-proxy` provides a Caddy-style ingress and reverse-proxy domain.
-Caddy is the preferred first service adapter because it offers a useful secure
-configuration model and automatic certificate workflows, but the Bifrost
-contract describes proxy routes, listeners, upstreams, health, TLS policy,
-service publication, observations, and rollback rather than exposing Caddy's
-configuration as the canonical product API.
+`bfw-reverse-proxy` is a Bifrost-native Go ingress and reverse-proxy
+implementation. Its operator experience may learn from Caddy's clear route,
+automatic-certificate, and secure-default model, but Caddy is neither an
+adapter nor a runtime dependency. The plugin does not embed Caddy packages,
+invoke or supervise a Caddy process, generate Caddy configuration, or expose
+Caddy's API/configuration as a Bifrost compatibility contract.
+
+The plugin owns the bounded HTTP reverse-proxy data path and its control
+domain: listeners, routes, upstream selection and health, header policy,
+timeouts and body/stream bounds, TLS termination, service publication,
+observations, and rollback. Protocol implementation may use the Go standard
+library and separately admitted libraries, but every dependency and supported
+HTTP/TLS feature requires its own provenance, compatibility, security, limit,
+and conformance evidence.
 
 The proxy plugin may request typed effects from `bfw-dns`, `bfw-acme`, and
 `bfw-firewall`. It does not modify their state directly. Account keys, DNS API
 tokens, private keys, and upstream credentials remain in `agent-keyring`.
-Generated adapter configuration uses `agent-filesystem`; admitted adapter
-execution uses `agent-exec` only where a native/service API is insufficient.
+Generated auxiliary artifacts use `agent-filesystem`; separately admitted
+helper execution uses `agent-exec` only where a native API is insufficient.
+Neither provider turns the native plugin into a wrapper around another proxy.
 
 Forwarded identity is a separate trust contract. The proxy strips
 client-supplied identity headers by default and may add authenticated identity
@@ -224,19 +233,27 @@ facts only for an exact admitted upstream, protected path, header set, network
 path, key/certificate generation, and expiry. Merely installing or enabling the
 proxy does not satisfy the OIDC forwarded-header exception in BFW-PRD-047.
 
-TLS issuance failure, upstream-health uncertainty, partial route publication,
-or incompatible Caddy/adapter behavior fails closed for the affected route
-without weakening unrelated last-known-good routes. Firewall exposure and DNS
+TLS issuance failure, upstream-health uncertainty, protocol-limit uncertainty,
+or partial route publication fails closed for the affected route without
+weakening unrelated last-known-good routes. Firewall exposure and DNS
 publication are committed only with verified proxy readiness or rolled back.
 
 ### High-availability plugin boundary
 
-`bfw-ha` supplies Keepalived-style high availability without making
-Keepalived the portable product contract. Linux may use an admitted
-Keepalived/VRRP adapter; FreeBSD may use CARP; other platforms require an
-equivalent adapter whose semantics are explicitly mapped and tested. A platform
-without safe address-ownership and fencing semantics reports the feature as
-unsupported rather than emulating it weakly.
+`bfw-ha` implements the portable HA control plane natively in Go. Keepalived is
+a behavioral reference, not an embedded library, configured service, wrapped
+executable, adapter, or runtime dependency. On platforms where Bifrost owns the
+VRRP implementation, the plugin creates and validates protocol messages and
+state transitions itself through admitted network APIs. FreeBSD may use the
+kernel's native CARP facility through a narrow platform mechanism; other
+platforms require an equivalent mechanism whose semantics are explicitly
+mapped and tested. A platform without safe address-ownership and fencing
+semantics reports the feature as unsupported rather than emulating it weakly.
+
+Protocol compatibility is proved independently against the applicable VRRP or
+platform specification and interoperable peers. Bifrost does not promise
+Keepalived configuration-file, CLI, API, extension, or bug compatibility, and
+no copied Keepalived implementation becomes a Bifrost public contract.
 
 The plugin owns cluster membership intent, authenticated peer observations,
 virtual-address role intent, priority/preemption policy, health inputs,

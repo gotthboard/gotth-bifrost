@@ -91,11 +91,13 @@ The initial capability catalog is intentionally split by ownership boundary:
 - `bfw-dns`, `bfw-dhcp`, `bfw-ntp`, `bfw-ddns`, `bfw-acme`, and `bfw-mdns`:
   separately supervised core network services
 - `bfw-wireguard`: site-to-site and per-device remote-access WireGuard
-- `bfw-reverse-proxy`: Caddy-style reverse proxy, ingress, TLS, and service
-  publication with Caddy as the preferred first adapter
-- `bfw-ha`: Keepalived-style high availability, virtual addresses, health,
-  state/configuration synchronization, and failover with platform-native
-  VRRP/CARP or equivalent adapters
+- `bfw-reverse-proxy`: native Go reverse proxy, ingress, TLS, and service
+  publication with a Caddy-like operator experience but no Caddy runtime
+  dependency
+- `bfw-ha`: native Go high availability inspired by Keepalived, covering
+  virtual addresses, health, state/configuration synchronization, and failover
+  through VRRP/CARP or safe platform-equivalent mechanisms without running
+  Keepalived
 - `bfw-frr`, `bfw-ipsec`, `bfw-openvpn`, `bfw-qos`, `bfw-multiwan`, and
   `bfw-cellular`: advanced routing, VPN, traffic, and uplink capabilities
 - `bfw-ids`, `bfw-dns-filter`, `bfw-threat-intel`, `bfw-captive-portal`,
@@ -114,17 +116,20 @@ WireGuard peer remains a per-device cryptographic identity. Private and
 preshared keys remain in `agent-keyring`; routing and firewall/NAT effects are
 separately admitted through their owning plugins.
 
-`bfw-reverse-proxy` owns proxy routes, upstreams, health, TLS policy, and
-service-publication UI. It does not become Bifrost identity authority, firewall
-authority, DNS authority, or credential storage. Forwarded identity headers
-remain denied unless the core admits an explicit authenticated proxy trust
-contract.
+`bfw-reverse-proxy` owns a Bifrost-native Go proxy engine, proxy routes,
+upstreams, health, TLS policy, and service-publication UI. It does not embed,
+configure, supervise, or invoke Caddy, and does not become Bifrost identity
+authority, firewall authority, DNS authority, or credential storage. Forwarded
+identity headers remain denied unless the core admits an explicit authenticated
+proxy trust contract.
 
-`bfw-ha` coordinates failover but does not silently grant itself ownership of
-firewall, routing, interface, service, or credential state. A node may assume a
-virtual address or active role only after peer identity, configuration and
-release compatibility, health, quorum/fencing policy, and required replicated
-state are proven. Split brain and uncertain ownership fail closed.
+`bfw-ha` implements the portable HA control logic in Go rather than wrapping,
+configuring, or executing Keepalived. It coordinates failover but does not
+silently grant itself ownership of firewall, routing, interface, service, or
+credential state. A node may assume a virtual address or active role only after
+peer identity, configuration and release compatibility, health, quorum/fencing
+policy, and required replicated state are proven. Split brain and uncertain
+ownership fail closed.
 
 `rpc-plugin-system` is the intended lifecycle and isolation substrate, but its
 current v1 Unix-socket/Linux-hardening contract is not yet a cross-platform
