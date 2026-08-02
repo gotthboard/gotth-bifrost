@@ -36,6 +36,9 @@ working firewall, router, or security boundary yet.
   from local console access.
 - Secrets must be isolated from ordinary configuration and never written to
   logs or Git.
+- `agent-keyring` is the credential authority. Bifrost configuration, the web
+  UI, and plugins retain only non-secret credential selectors, redacted
+  metadata, and opaque reference fingerprints—not reusable secret material.
 - Upgrades and migrations require preflight validation and a tested rollback
   path.
 
@@ -63,6 +66,19 @@ Bifrost dependency. Bifrost keeps its domain contracts transport-neutral while
 the substrate gains Unix and Windows transports, platform peer identity,
 protocol negotiation, and an externally consumable SDK.
 
+`agent-keyring` is the intended credential substrate. The portable core must
+first admit an action; only then may it request a short-lived credential-use
+lease or non-exporting opaque reference scoped to the caller, plugin and
+provider generations, action, target, usage, policy version, and expiry. A
+credential never grants authority by itself, and raw export is denied by
+default. Plugins and `bifrost-web` must not read broker, VPN, DNS-provider,
+ACME, API, or administrative credentials directly.
+
+The current `agent-keyring` v1 service is Unix-socket based. Its transport,
+peer-identity, encrypted-storage/unlock, lease, revocation, and recovery
+contracts must be admitted on every supported Bifrost platform before runtime
+integration begins.
+
 ## Current status
 
 Planning only. There is no executable firewall, web service, installer, image,
@@ -81,6 +97,11 @@ Runtime implementation is also gated on completing and admitting the required
 cross-platform `rpc-plugin-system` substrate. Bifrost will not create a private
 fork of lifecycle, authentication, transport, generation, or supervision rules
 to begin earlier.
+
+The same gate applies to the required cross-platform `agent-keyring`
+credential-authority contract. Bifrost will not create a second secret store or
+fall back to ambient environment variables, command arguments, ordinary
+configuration files, or plugin-owned credential databases.
 
 ## Initial non-goals
 

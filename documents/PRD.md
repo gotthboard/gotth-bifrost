@@ -43,6 +43,24 @@ count.
 - **BFR-PRD-013:** Bifrost runtime implementation shall not begin until the
   required cross-platform `rpc-plugin-system` lifecycle substrate has passed
   its compatibility, security, failure, and platform admission gates.
+- **BFR-PRD-014:** `agent-keyring` shall be Bifrost's credential authority.
+  Bifrost configuration, databases, logs, exports, support bundles, web UI,
+  and plugins shall not retain reusable secret payloads.
+- **BFR-PRD-015:** Core action admission shall precede credential access.
+  Credential possession, keyring reachability, process identity, or plugin
+  capability shall not independently authorize a Bifrost action.
+- **BFR-PRD-016:** Credential access shall use short-lived leases or
+  non-exporting opaque references bound to the caller, plugin and provider
+  generations, admitted action, credential usage, access mode, target,
+  audience, policy version, credential generation, keyring authority
+  generation, and expiry. Raw export shall be denied by default.
+- **BFR-PRD-017:** Credential revocation, rotation, keyring restore, authority
+  restart, policy change, or relevant runtime-generation change shall make
+  stale leases and references unusable and auditable.
+- **BFR-PRD-018:** Bifrost runtime credential integration shall not begin until
+  `agent-keyring` has passed cross-platform transport, peer-identity,
+  encrypted-storage/unlock, lease, revocation, recovery, SDK, and redaction
+  admission gates for the supported Bifrost platforms.
 
 ## Bootstrap acceptance criteria
 

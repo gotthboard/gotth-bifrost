@@ -33,6 +33,9 @@ operator / API
   declared permissions, migrations, enable/disable state, and rollback
 - **plugin supervisor:** separate-process lifecycle, generation identity,
   authentication, health, failure isolation, routing, and append-only logs
+- **credential authority:** `agent-keyring` stores and governs secret payloads;
+  Bifrost stores only selectors, redacted metadata, opaque-reference
+  fingerprints, and audit correlation
 - **reconciler:** idempotent apply/verify loop with explicit drift handling
 - **management API:** authenticated authorization boundary; no direct shell
   execution
@@ -80,6 +83,39 @@ Candidate plugin classes:
 Core configuration, admission, audit, package verification, and recovery remain
 non-optional. Plugins cannot replace or weaken them.
 
+## Credential authority
+
+Credential management is a separate trust boundary from action authorization:
+
+```text
+browser or operator
+  -> unprivileged bifrost-web
+  -> bifrostd validates and admits the exact action
+  -> agent-keyring issues a scoped, short-lived lease or opaque reference
+  -> admitted plugin or host-mediated executor performs the exact use
+  -> Bifrost and agent-keyring record correlated, redacted audit evidence
+```
+
+`agent-keyring` is the sole credential authority. Bifrost's canonical state may
+contain a credential selector and non-secret binding metadata, but never the
+secret payload, an exportable private key, a reusable token, or an ambient
+credential path. The web UI and ordinary plugins cannot request raw secrets or
+talk around core admission.
+
+The core's admission record must exist before keyring access. Every lease or
+non-exporting reference is bound to the admitted caller and action, runtime and
+provider generations, target and audience, usage and access mode, policy and
+credential generations, keyring authority generation, and a short expiry.
+Rotation, revocation, restore, restart, or a relevant generation change
+invalidates stale authority. Credential possession never substitutes for core
+authorization.
+
+Provider operations should prefer non-exporting references. For example, an
+ACME or VPN plugin receives authority for one admitted operation without
+receiving a reusable account key. Secret-bearing response types, if a future
+contract admits them at all, must remain distinct, non-loggable, narrowly
+scoped, and unavailable to the web UI.
+
 ## Cross-platform substrate prerequisite
 
 The current `rpc-plugin-system` v1 contract uses Unix-domain sockets, Go
@@ -99,6 +135,14 @@ Bifrost design and interface planning may continue, but runtime implementation
 is blocked until the cross-platform substrate is complete and independently
 admitted. Bifrost must not carry provider-local transport, authentication,
 generation, lifecycle, or supervision forks as a shortcut.
+
+The current `agent-keyring` v1 service also uses a local Unix-domain socket.
+Before Bifrost integrates credentials across platforms, the credential
+substrate must preserve the same authority semantics across Unix sockets and
+Windows named pipes, platform peer identity, encrypted payload storage and
+unlock, SDK compatibility, redaction, lease/ref invalidation, backup/restore,
+and recovery. Platform storage adapters may protect keyring material, but they
+must not become competing sources of credential truth.
 
 ## Recovery
 

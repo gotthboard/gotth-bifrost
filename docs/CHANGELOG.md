@@ -2,9 +2,39 @@
 
 ## Unreleased
 
-### 2026-08-01 20:59 CDT — Gate Bifrost on the completed plugin substrate
+### 2026-08-01 21:05 CDT — Assign credentials to agent-keyring
 
 Commit: current commit; hash assigned by Git after commit
+
+Affected files:
+
+- `README.md`
+- `documents/PRD.md`
+- `documents/ARCHITECTURE.md`
+- `documents/IMPLEMENTATION-SPEC.md`
+
+Explanation:
+
+Make `agent-keyring` Bifrost's credential authority. Require core action
+admission before keyring access, scoped short-lived leases or non-exporting
+opaque references, default denial of raw export, generation-bound revocation,
+and a cross-platform keyring admission gate.
+
+Verification:
+
+- `go mod edit -json`
+- `git diff --check`
+- requirement trace inspection for BFR-PRD-014 through BFR-PRD-018
+- credential-boundary review for raw-secret and authorization bypass paths
+
+Risks / non-goals:
+
+- This is architecture and sequencing only. It does not migrate credentials,
+  modify `agent-keyring`, expose secrets, or add Bifrost runtime code.
+
+### 2026-08-01 20:59 CDT — Gate Bifrost on the completed plugin substrate
+
+Commit: `9c19dda84f8fd6928d49aeb93d9536e6e539f68b`
 
 Affected files:
 

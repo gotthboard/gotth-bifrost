@@ -4,8 +4,9 @@ Status: repository bootstrap complete; implementation deferred
 
 ## Phase 0 dependency gate
 
-Finish and admit the cross-platform `rpc-plugin-system` substrate before any
-Bifrost runtime implementation begins.
+Finish and admit the cross-platform `rpc-plugin-system` lifecycle substrate and
+`agent-keyring` credential substrate before any Bifrost runtime implementation
+begins.
 
 Required exit evidence:
 
@@ -19,6 +20,13 @@ Required exit evidence:
 - crash/restart/endurance evidence proving stale generations and transports do
   not remain trusted
 - clean independent review and admission decision
+- cross-platform `agent-keyring` service transport and peer-identity binding
+- versioned external keyring SDK with explicit compatibility negotiation
+- cross-platform encrypted-payload storage and unlock/recovery contract
+- lease and opaque-reference scope, expiry, revocation, rotation, restart,
+  restore, and stale-generation tests
+- raw-export-denied, non-loggable response, redaction, export, support-bundle,
+  and audit-correlation tests
 
 Bifrost design work may refine requirements and contracts during Phase 0. It
 must not add runtime code, provider-local substrate forks, or host-network
@@ -43,6 +51,9 @@ mutation before this gate passes.
 - define signed plugin manifests, package provenance, compatibility,
   permissions, migrations, activation, removal, and rollback
 - define the required cross-platform `rpc-plugin-system` substrate evolution
+- define `agent-keyring` selectors, core-admission proofs, lease and opaque-ref
+  scopes, credential classes, revocation, rotation, recovery, and
+  cross-platform substrate evolution
 - define last-known-good, confirmation timer, rollback, and interrupted-upgrade
   behavior
 - define independent correctness oracles for compiled and applied policy
@@ -73,3 +84,8 @@ host mutation, daemonization, and web administration remain later slices.
 | BFR-PRD-011 | protocol negotiation and backward/forward compatibility matrix |
 | BFR-PRD-012 | crash/restart/upgrade tests proving last-known-good policy remains active |
 | BFR-PRD-013 | cross-platform substrate admission record and independent review |
+| BFR-PRD-014 | secret-location scan plus configuration, database, log, export, UI, plugin, and support-bundle redaction tests |
+| BFR-PRD-015 | negative tests proving no credential or caller identity bypasses core action admission |
+| BFR-PRD-016 | lease/ref scope, generation, target, audience, expiry, and raw-export-denied tests |
+| BFR-PRD-017 | rotation, revocation, restore, restart, policy-change, and stale-generation invalidation tests |
+| BFR-PRD-018 | cross-platform keyring compatibility, storage/unlock, recovery, SDK, and independent admission record |
