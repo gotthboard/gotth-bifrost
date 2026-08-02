@@ -2,6 +2,37 @@
 
 ## Unreleased
 
+### 2026-08-01 21:10 CDT — Establish BFW as the product acronym
+
+Commit: current commit; hash assigned by Git after commit
+
+Affected files:
+
+- `README.md`
+- `documents/PRD.md`
+- `documents/ARCHITECTURE.md`
+- `documents/IMPLEMENTATION-SPEC.md`
+
+Explanation:
+
+Name the product **Bifrost Firewall**, establish **BFW** as its canonical
+acronym and `bfw` as its lowercase public namespace, and migrate planning
+requirement identifiers from the provisional prefix to `BFW-PRD-*` before
+implementation creates compatibility obligations.
+
+Verification:
+
+- `go mod edit -json`
+- `git diff --check`
+- naming and requirement-trace inspection
+- absence check for the retired requirement prefix
+
+Risks / non-goals:
+
+- The repository remains `danny/Bifrost`.
+- Final daemon and web-service executable names remain a later interface-design
+  decision; no runtime code or installed service was renamed.
+
 ### 2026-08-01 21:08 CDT — Assign file and process operations to agent providers
 
 Commit: `2ea4ae84d0d3593f613f3799340cd98ede4860f7`
@@ -24,7 +55,7 @@ Verification:
 
 - `go mod edit -json`
 - `git diff --check`
-- requirement trace inspection for BFR-PRD-019 through BFR-PRD-024
+- requirement trace inspection for BFW-PRD-019 through BFW-PRD-024
 - provider-boundary review for credential, path, command, privilege, and
   confused-deputy bypasses
 
@@ -55,7 +86,7 @@ Verification:
 
 - `go mod edit -json`
 - `git diff --check`
-- requirement trace inspection for BFR-PRD-014 through BFR-PRD-018
+- requirement trace inspection for BFW-PRD-014 through BFW-PRD-018
 - credential-boundary review for raw-secret and authorization bypass paths
 
 Risks / non-goals:
@@ -84,7 +115,7 @@ lifecycle, or supervision behavior to start implementation early.
 Verification:
 
 - `git diff --check`
-- requirement trace inspection for BFR-PRD-013
+- requirement trace inspection for BFW-PRD-013
 - dependency-gate exit-evidence inspection
 
 Risks / non-goals:
@@ -115,7 +146,7 @@ Verification:
 
 - `go mod edit -json`
 - `git diff --check`
-- design traceability inspection for BFR-PRD-009 through BFR-PRD-012
+- design traceability inspection for BFW-PRD-009 through BFW-PRD-012
 
 Risks / non-goals:
 

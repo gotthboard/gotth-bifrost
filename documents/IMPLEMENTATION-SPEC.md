@@ -1,4 +1,4 @@
-# Bifrost Implementation Specification
+# Bifrost Firewall (BFW) Implementation Specification
 
 Status: repository bootstrap complete; implementation deferred
 
@@ -48,6 +48,11 @@ mutation before this gate passes.
 3. Record product, architecture, safety, and recovery boundaries.
 4. Verify clean Git state and exact local/remote ref equality.
 
+All future public CLI commands, package/configuration keys, protocol labels,
+and compatibility identifiers use the lowercase `bfw` namespace. Final daemon
+and web-service executable names are selected together in the versioned public
+interface design; provisional working names do not create compatibility.
+
 ## Required design work before runtime code
 
 - pin supported OS releases, kernels/runtime APIs, Go, CPU architectures, and
@@ -87,27 +92,28 @@ host mutation, daemonization, and web administration remain later slices.
 
 | Requirement | Planned verification |
 | --- | --- |
-| BFR-PRD-001 | canonical IR golden tests plus per-platform compiler and isolated apply/oracle tests |
-| BFR-PRD-002 | schema, migration, audit, and rollback tests |
-| BFR-PRD-003 | partial-failure and last-known-good recovery tests |
-| BFR-PRD-004 | authorization, exposure, confirmation-timer, and console-recovery tests |
-| BFR-PRD-005 | adapter contracts, integration tests, and health-state tests |
-| BFR-PRD-006 | signature, preflight, interruption, and rollback tests |
-| BFR-PRD-007 | secret-storage, export, logging, and redaction tests |
-| BFR-PRD-008 | pinned build and integration matrix |
-| BFR-PRD-009 | process isolation, generation, authority-boundary, and failure-isolation tests |
-| BFR-PRD-010 | signature, provenance, permission, migration, activation, and rollback tests |
-| BFR-PRD-011 | protocol negotiation and backward/forward compatibility matrix |
-| BFR-PRD-012 | crash/restart/upgrade tests proving last-known-good policy remains active |
-| BFR-PRD-013 | cross-platform substrate admission record and independent review |
-| BFR-PRD-014 | secret-location scan plus configuration, database, log, export, UI, plugin, and support-bundle redaction tests |
-| BFR-PRD-015 | negative tests proving no credential or caller identity bypasses core action admission |
-| BFR-PRD-016 | lease/ref scope, generation, target, audience, expiry, and raw-export-denied tests |
-| BFR-PRD-017 | rotation, revocation, restore, restart, policy-change, and stale-generation invalidation tests |
-| BFR-PRD-018 | cross-platform keyring compatibility, storage/unlock, recovery, SDK, and independent admission record |
-| BFR-PRD-019 | filesystem scope, path, bounds, link/special-file, mutation-precondition, generation, expiry, and audit tests |
-| BFR-PRD-020 | secret/provider-state denial plus destructive-class and recoverability tests |
-| BFR-PRD-021 | complete process-envelope validation and negative spawn tests |
-| BFR-PRD-022 | shell, PATH/env, credential, network, privilege, raw-handle denial and native-API boundary tests |
-| BFR-PRD-023 | cross-provider confused-deputy, stale-generation, type/bounds, ref-reuse, and correlation tests |
-| BFR-PRD-024 | cross-platform filesystem/exec compatibility, safety, lifecycle, SDK, and independent admission record |
+| BFW-PRD-000 | naming lint for full name, `BFW` acronym, `bfw` public namespace, and absence of competing shorthand |
+| BFW-PRD-001 | canonical IR golden tests plus per-platform compiler and isolated apply/oracle tests |
+| BFW-PRD-002 | schema, migration, audit, and rollback tests |
+| BFW-PRD-003 | partial-failure and last-known-good recovery tests |
+| BFW-PRD-004 | authorization, exposure, confirmation-timer, and console-recovery tests |
+| BFW-PRD-005 | adapter contracts, integration tests, and health-state tests |
+| BFW-PRD-006 | signature, preflight, interruption, and rollback tests |
+| BFW-PRD-007 | secret-storage, export, logging, and redaction tests |
+| BFW-PRD-008 | pinned build and integration matrix |
+| BFW-PRD-009 | process isolation, generation, authority-boundary, and failure-isolation tests |
+| BFW-PRD-010 | signature, provenance, permission, migration, activation, and rollback tests |
+| BFW-PRD-011 | protocol negotiation and backward/forward compatibility matrix |
+| BFW-PRD-012 | crash/restart/upgrade tests proving last-known-good policy remains active |
+| BFW-PRD-013 | cross-platform substrate admission record and independent review |
+| BFW-PRD-014 | secret-location scan plus configuration, database, log, export, UI, plugin, and support-bundle redaction tests |
+| BFW-PRD-015 | negative tests proving no credential or caller identity bypasses core action admission |
+| BFW-PRD-016 | lease/ref scope, generation, target, audience, expiry, and raw-export-denied tests |
+| BFW-PRD-017 | rotation, revocation, restore, restart, policy-change, and stale-generation invalidation tests |
+| BFW-PRD-018 | cross-platform keyring compatibility, storage/unlock, recovery, SDK, and independent admission record |
+| BFW-PRD-019 | filesystem scope, path, bounds, link/special-file, mutation-precondition, generation, expiry, and audit tests |
+| BFW-PRD-020 | secret/provider-state denial plus destructive-class and recoverability tests |
+| BFW-PRD-021 | complete process-envelope validation and negative spawn tests |
+| BFW-PRD-022 | shell, PATH/env, credential, network, privilege, raw-handle denial and native-API boundary tests |
+| BFW-PRD-023 | cross-provider confused-deputy, stale-generation, type/bounds, ref-reuse, and correlation tests |
+| BFW-PRD-024 | cross-platform filesystem/exec compatibility, safety, lifecycle, SDK, and independent admission record |
