@@ -1,0 +1,10 @@
+schema_version = 1
+component_id = "{{COMPONENT_ID}}"
+component_version = "0.0.0-draft"
+core_api_minimum = "{{CORE_API_MIN}}"
+core_api_maximum_exclusive = "{{CORE_API_MAX_EXCLUSIVE}}"
+plugin_protocol = "{{PLUGIN_PROTOCOL_VERSION}}"
+configuration_schema = "{{CONFIGURATION_SCHEMA_VERSION}}"
+platforms = []
+semantic_gaps = ["{{DECLARE_EACH_GAP_OR_REMOVE_AFTER_PROOF}}"]
+status = "not_admitted"

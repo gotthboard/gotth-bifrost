@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.bifrost.invalid/v1/kubernetes-ha-profile.schema.json",
+  "title": "Bifrost Kubernetes-managed HA profile v1",
+  "type": "object",
+  "required": ["schema", "profile", "controller_nodes", "failure_domains", "managed_nodes", "managed_node_mode", "consensus", "forwarding_dependency", "control_loss_policy", "management_path", "rollback_required"],
+  "properties": {
+    "schema": {"const": "bfw.kubernetes-ha-profile/v1"},
+    "profile": {"enum": ["single-controller", "ha-controller"]},
+    "controller_nodes": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "common.schema.json#/$defs/identifier"}},
+    "failure_domains": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "common.schema.json#/$defs/identifier"}},
+    "managed_nodes": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "common.schema.json#/$defs/identifier"}},
+    "managed_node_mode": {"const": "native-agent"},
+    "consensus": {"enum": ["single", "quorum"]},
+    "forwarding_dependency": {"const": "autonomous-last-known-good"},
+    "control_loss_policy": {"const": "freeze-mutations-retain-forwarding"},
+    "management_path": {"enum": ["dedicated-vlan", "out-of-band", "shared-admitted"]},
+    "rollback_required": {"const": true}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"profile": {"const": "ha-controller"}}, "required": ["profile"]},
+      "then": {
+        "properties": {"consensus": {"const": "quorum"}},
+        "anyOf": [
+          {"properties": {"controller_nodes": {"minItems": 3, "maxItems": 3}, "failure_domains": {"minItems": 3, "maxItems": 3}}},
+          {"properties": {"controller_nodes": {"minItems": 5, "maxItems": 5}, "failure_domains": {"minItems": 5, "maxItems": 5}}},
+          {"properties": {"controller_nodes": {"minItems": 7, "maxItems": 7}, "failure_domains": {"minItems": 7, "maxItems": 7}}}
+        ]
+      },
+      "else": {"properties": {"controller_nodes": {"maxItems": 1}, "consensus": {"const": "single"}}}
+    }
+  ],
+  "additionalProperties": false
+}

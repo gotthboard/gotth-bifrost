@@ -1,0 +1,48 @@
+schema_version = 1
+feature = "meta-governance-v1"
+base_revision = "a3afae76b4b2eb31a965b7a067258a298ec6e7f8"
+captured_at = "2026-08-08T13:15:00-05:00"
+result = "pass"
+requirements = ["BFW-PRD-079", "BFW-PRD-080", "BFW-PRD-081", "BFW-PRD-082", "BFW-PRD-083", "BFW-PRD-084", "BFW-PRD-085", "BFW-PRD-086", "BFW-PRD-087", "BFW-PRD-088", "BFW-PRD-089", "BFW-PRD-090"]
+external_effects = false
+runtime_changes = false
+
+[[checks]]
+command = "python tools/governance.py validate"
+result = "pass"
+summary = "All structural, trace, catalog, Phase 0, release, schema, ADR, template, lab, repository-boundary, CI, workflow, changelog, and generated-view gates passed."
+
+[[checks]]
+command = "PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s tools/tests -v"
+result = "pass"
+summary = "9 tests passed, including fail-closed admission, Phase 0, dependency-cycle, and stale-render negative tests."
+
+[[checks]]
+command = "pyright tools/governance.py tools/tests/test_governance.py"
+result = "pass"
+summary = "0 errors, 0 warnings, 0 informations."
+
+[[checks]]
+command = "git diff --check"
+result = "pass"
+summary = "No whitespace errors."
+
+[[checks]]
+command = "independent Markdown-link, TOML/JSON parse, requirement-set, profile-partition, no-runtime, admission-flag, secret-pattern, and external-revision audits"
+result = "pass"
+summary = "91 requirements and 38 components reconciled; v0.1 included/deferred partition is exact; all four external revisions match current Forgejo main heads."
+
+[[reviews]]
+path = "workflow/features/meta-governance-v1/review/judge-1.md"
+result = "pass"
+
+[[reviews]]
+path = "workflow/features/meta-governance-v1/review/judge-2.md"
+result = "pass"
+
+limitations = [
+  "Remote Forgejo CI was not run because commit/push authority was not granted.",
+  "No Bifrost runtime, platform, signature, cryptographic, or recovery behavior exists to test.",
+  "Representative contract fixtures are validated locally; complete runtime implementation conformance remains a future admission gate.",
+  "Exact lab OS/runtime/image pins remain absent and block system evidence.",
+]

@@ -1,0 +1,122 @@
+schema_version = 1
+lab_id = "bfw-system-admission-lab"
+status = "specified_unprovisioned"
+authority = "This file defines required roles and evidence. Empty image digests block admission."
+management_network = "lab-management-isolated"
+data_networks = ["inside", "outside", "ha-sync", "hostile-client"]
+internet_access = "deny by default; explicit test egress only"
+production_reuse = false
+required_scenarios = [
+  "clean-install", "upgrade", "interrupted-upgrade", "configuration-migration",
+  "last-known-good-rollback", "management-lockout", "local-console-recovery",
+  "plugin-crash-restart", "stale-generation", "malicious-plugin",
+  "packet-policy-oracle", "warning-as-failure", "ha-failover", "split-brain",
+  "duplicate-virtual-address", "identity-provider-outage", "secret-redaction",
+  "switch-access-trunk-vlan-isolation", "switch-layer2-loop-stp-convergence",
+  "switch-lacp-member-loss", "switch-fdb-learning-aging-static",
+  "switch-storm-control", "switch-multicast-snooping",
+  "switch-management-path-rollback", "switch-offload-parity",
+  "role-router-only", "role-switch-only", "role-converged",
+  "role-transition-rollback", "switch-management-address-non-transit",
+  "switch-layer3-svi-inter-vlan", "switch-layer3-routed-port",
+  "switch-local-fabric-versus-edge-denial", "router-layer4-state-policy",
+  "router-nat-port-forward", "layer4-no-layer7-authority",
+  "ids-passive-observation", "ids-inline-fail-open", "ids-inline-fail-closed",
+  "ids-fragment-stream-evasion", "ids-rule-dialect-rejection",
+  "ids-overload-loss-accounting", "ids-alert-evidence-redaction",
+  "ids-enforcement-authority-denial", "ids-ruleset-rollback",
+  "fabric-membership-quorum-fencing", "fabric-asymmetric-partition",
+  "fabric-evpn-vxlan-mobility", "fabric-vrf-anycast-ecmp",
+  "fabric-distributed-firewall-placement", "fabric-state-owner-failover",
+  "fabric-mtu-bum-offload", "fabric-staged-upgrade-rollback",
+  "fabric-scale-convergence",
+  "kubernetes-single-controller-loss", "kubernetes-controller-quorum-loss",
+  "kubernetes-total-control-plane-loss", "kubernetes-api-etcd-cni-storage-loss",
+  "kubernetes-management-partition", "kubernetes-stale-plan-replay",
+  "kubernetes-autonomous-forwarding", "kubernetes-controller-rebuild",
+  "kubernetes-rolling-upgrade-rollback", "kubernetes-rbac-secret-isolation",
+  "goka-clean-room-provenance", "goka-vrrp-v2-v3-interop",
+  "goka-malformed-packet-fuzz", "goka-timer-election-preemption",
+  "goka-split-brain-duplicate-owner", "goka-health-shell-denial",
+  "goka-keepalived-import-rejection", "goka-platform-parity",
+  "goka-restart-upgrade-rollback", "goka-performance-boundaries",
+  "ha-profile-exact-two-packaged", "ha-profile-shared-contract-parity",
+  "ha-profile-competing-coordinator-denial", "ha-profile-cross-migration",
+  "ha-profile-migration-interruption-rollback", "ha-profile-release-composition",
+]
+required_evidence = [
+  "image-and-artifact-digests", "host-and-network-facts", "test-command",
+  "start-and-end-time", "packet-or-state-oracle", "logs-with-redaction-scan",
+  "configuration-generation", "release-composition", "rollback-result",
+  "review-decision",
+]
+
+[[targets]]
+id = "linux-primary"
+platform = "linux"
+role = "primary v0.1 build, policy, upgrade, and recovery target"
+os_release = ""
+kernel_or_runtime = ""
+architectures = ["amd64"]
+image_digest = ""
+status = "unpinned"
+
+[[targets]]
+id = "freebsd-compatibility"
+platform = "freebsd"
+role = "pf, route, CARP, plugin, upgrade, and recovery compatibility target"
+os_release = ""
+kernel_or_runtime = ""
+architectures = ["amd64"]
+image_digest = ""
+status = "unpinned"
+
+[[targets]]
+id = "windows-compatibility"
+platform = "windows"
+role = "WFP, IP Helper, named-pipe, plugin, upgrade, and recovery compatibility target"
+os_release = ""
+kernel_or_runtime = ""
+architectures = ["amd64"]
+image_digest = ""
+status = "unpinned"
+
+[[roles]]
+id = "operator"
+purpose = "Unprivileged web and CLI management, step-up, lockout, and recovery tests."
+count = 1
+
+[[roles]]
+id = "ha-node"
+purpose = "Two-node failover, fencing, duplicate-owner, and split-brain tests."
+count = 2
+
+[[roles]]
+id = "traffic-generator"
+purpose = "Known packet streams, hostile inputs, throughput, and completeness oracles."
+count = 2
+
+[[roles]]
+id = "fabric-node"
+purpose = "Three-node distributed switching, routing, firewall, quorum, partition, mobility, convergence, and rolling-recovery tests."
+count = 3
+
+[[roles]]
+id = "kubernetes-controller"
+purpose = "Three failure-separated Kubernetes/K3s controller members for quorum, loss, rebuild, upgrade, RBAC, and management-path tests."
+count = 3
+
+[[roles]]
+id = "switch-port"
+purpose = "Independent access/trunk, VLAN isolation, FDB, STP, LACP, storm, snooping, and management-path tests."
+count = 4
+
+[[roles]]
+id = "service-fixture"
+purpose = "DNS, DHCP, OIDC, ACME, VPN, proxy, logging, and update fixtures."
+count = 2
+
+[[roles]]
+id = "witness"
+purpose = "Independent HA witness/fencing and time-correlated observation."
+count = 1

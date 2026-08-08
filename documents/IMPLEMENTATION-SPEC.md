@@ -1,6 +1,6 @@
 # Bifrost (BFW) Implementation Specification
 
-Status: meta-repository bootstrap complete; component implementation deferred
+Status: executable meta-governance active; component implementation deferred
 
 ## Phase 0 dependency gate
 
@@ -50,9 +50,8 @@ mutation before this gate passes.
 5. Verify clean Git state and exact local/remote ref equality.
 
 All future public CLI commands, package/configuration keys, protocol labels,
-and compatibility identifiers use the lowercase `bfw` namespace. Final daemon
-and web-service executable names are selected together in the versioned public
-interface design; provisional working names do not create compatibility.
+and compatibility identifiers use the lowercase `bfw` namespace. ADR-0002
+settles `bfw`, `bfwd`, and `bfw-web` as the public executable role names.
 
 ## Required design work before runtime code
 
@@ -78,6 +77,10 @@ interface design; provisional working names do not create compatibility.
   filesystem, and execution providers
 - define the independent unprivileged web-service and `bfw` CLI contracts over
   one authenticated, versioned core API
+- define the Cisco IOS-style CLI mode grammar, prompt and transition rules,
+  contextual help/completion, canonical scripting form, typed-action mapping,
+  session-owned candidate lifecycle, diff/validation, commit-confirmed, and
+  redacted history/output contracts
 - define the signed plugin UI manifest, declarative schema/component contract,
   sanitized UI catalog, route namespace, permissions, asset digest model, and
   compatibility negotiation
@@ -97,8 +100,17 @@ interface design; provisional working names do not create compatibility.
 - define the canonical capability-plugin catalog schema, typed dependency and
   conflict graph, platform-support declarations, degradation rules, health,
   migration, rollback, UI, evidence, and release-admission states
-- define `bfw-firewall`, `bfw-network`, and `bfw-routing` as separate domain
+- define `bfw-firewall`, `bfw-network`, `bfw-switching`, and `bfw-routing` as separate domain
   authorities and specify atomic cross-domain transaction coordination
+- define `bfw-switching` as the Layer-2 authority for bridge domains, VLAN
+  membership, FDB, STP, LACP, isolation, storm control, multicast snooping,
+  LLDP observations, platform semantic gaps, and management-path recovery
+- define machine-readable router, switch, and converged deployment profiles,
+  role-specific enabled/denied forwarding effects, management-only addressing,
+  capability admission, and transactional role transitions
+- define Layer-2/Layer-3 switch effects and Layer-3/Layer-4-aware router effects
+  while retaining separate routing and firewall plan ownership and excluding
+  implied Layer-7 behavior
 - define `bfw-wireguard` peer/tunnel, per-device enrollment, keyring,
   routing/firewall coordination, site-to-site validation, status, and rollback
   contracts while retaining a generic later-VPN extension contract
@@ -114,10 +126,21 @@ interface design; provisional working names do not create compatibility.
   dependency
 - define bounded ownership contracts for every network-service,
   advanced-network, security/access, and operations plugin in the catalog
+- define the native Go `bfw-ids` capture, normalization, flow/stream,
+  decoder/rule, Snort-import, resource-bound, alert/evidence, signed-ruleset,
+  passive/inline, enforcement-proposal, platform, and admission contracts
+- define `bfw-fabric` membership/identity, quorum/fencing, EVPN-class
+  Layer-2/3 overlays, anycast/VRF/ECMP routing, distributed policy placement,
+  flow-state ownership, partitions, MTU/offload, staged rollout, convergence,
+  observability, rollback, scale, and admission contracts
 - define last-known-good, confirmation timer, rollback, and interrupted-upgrade
   behavior
 - define independent correctness oracles for compiled and applied policy
 - decompose the first narrow vertical slice
+- maintain the authoritative component/release catalog, requirement registry,
+  Phase 0 dashboard, versioned schemas, ADR index, threat model,
+  cross-component transaction contract, v0.1 profile, component templates,
+  release/recovery plan, test-lab specification, and governance CI
 
 ## Planned capability sequence
 
@@ -125,14 +148,15 @@ This is a dependency order, not permission to create every repository at once:
 
 1. `bfw-firewall`
 2. `bfw-network`
-3. `bfw-routing`
-4. `bfw-dns`
-5. `bfw-dhcp`
-6. `bfw-wireguard`
-7. `bfw-acme` and `bfw-ddns`, followed by `bfw-reverse-proxy`
-8. `bfw-monitoring`, `bfw-logging`, and `bfw-backup`
-9. `bfw-ha` and `bfw-multiwan`
-10. `bfw-ids`, `bfw-frr`, and the remaining catalog plugins as their contracts
+3. `bfw-switching`
+4. `bfw-routing`
+5. `bfw-dns`
+6. `bfw-dhcp`
+7. `bfw-wireguard`
+8. `bfw-acme` and `bfw-ddns`, followed by `bfw-reverse-proxy`
+9. `bfw-monitoring`, `bfw-logging`, and `bfw-backup`
+10. `bfw-ha` and `bfw-multiwan`
+11. `bfw-ids`, `bfw-frr`, and the remaining catalog plugins as their contracts
     and user need justify them
 
 Each component begins with its own PRD, architecture, implementation spec,
@@ -144,9 +168,11 @@ override the Phase 0 substrate gate.
 
 The preferred first runtime slice is an offline, pure configuration validator
 and platform-neutral policy compiler for a deliberately tiny firewall schema.
-It must produce one canonical IR plus deterministic golden outputs for at least
-two platform adapters without modifying the host network. Plugin execution,
-host mutation, daemonization, and web administration remain later slices.
+It includes a pure `bfw` grammar/parser slice that maps a small set of EXEC and
+configuration commands into typed candidate edits and read actions. It must
+produce one canonical IR plus deterministic golden outputs for at least two
+platform adapters without modifying the host network. Plugin execution, host
+mutation, daemonization, and web administration remain later slices.
 
 ## Requirement-to-verification map
 
@@ -204,7 +230,7 @@ host mutation, daemonization, and web administration remain later slices.
 | BFW-PRD-049 | isolated local-console recovery and no-remote-fallback tests during identity/network failures |
 | BFW-PRD-050 | redacted authentication, mapping, session, logout, denial, recovery, and policy-change audit tests |
 | BFW-PRD-051 | catalog schema, ownership, dependency/conflict, platform, permission, health, UI, migration/rollback, and no-authority-by-presence checks |
-| BFW-PRD-052 | firewall/network/routing ownership and atomic cross-domain transaction tests |
+| BFW-PRD-052 | firewall/network/switching/routing ownership and atomic cross-domain transaction tests |
 | BFW-PRD-053 | per-service configuration/status/platform/UI/failure/rollback contract suites |
 | BFW-PRD-054 | WireGuard site-to-site and per-device remote-access contract plus generic VPN compatibility tests |
 | BFW-PRD-055 | unique-device identity, keyring-only secret, one-time delivery, expiry, revocation, and no-key-sharing tests |
@@ -221,3 +247,96 @@ host mutation, daemonization, and web administration remain later slices.
 | BFW-PRD-066 | meta-planning dependency-order and change-admission checks |
 | BFW-PRD-067 | signed UI contribution, typed action, and no-secondary-management-plane tests for every managed plugin |
 | BFW-PRD-068 | provider scope, generation, confused-deputy, privilege, secret, path, process, and network non-expansion tests |
+| BFW-PRD-069 | modal grammar and prompt golden tests for EXEC, global configuration, and domain submodes |
+| BFW-PRD-070 | role, step-up, mode-transition, shared-password-denial, and no-authority-expansion tests |
+| BFW-PRD-071 | contextual help, completion, unambiguous-interactive-abbreviation, canonical-script, and structured-output compatibility tests |
+| BFW-PRD-072 | parser-to-typed-action golden and fuzz tests plus shell, file, plugin-socket, and direct-mutation denial tests |
+| BFW-PRD-073 | candidate ownership, base-generation, expiry, disconnect, authorization-change, and audit-correlation tests |
+| BFW-PRD-074 | diff, validation, commit, commit-confirmed timeout, conflict, failure, verification, and rollback tests |
+| BFW-PRD-075 | authorization-filtered show views, stable structured output, deterministic rendering, and no-second-authority tests |
+| BFW-PRD-076 | no/default grammar, schema derivation, absence/deletion/inheritance/default distinction, and round-trip tests |
+| BFW-PRD-077 | signed declarative plugin grammar, namespace, compatibility, typed-binding, parser-code, shell-escape, and secondary-plane tests |
+| BFW-PRD-078 | secret-input history exclusion plus completion, diagnostic, output, audit, support-bundle, and recovery redaction tests |
+| BFW-PRD-079 | component/release schema, complete-field, immutable-admitted-pin, dependency, platform, migration/rollback, and evidence-hash validation |
+| BFW-PRD-080 | exact PRD/trace/verification ID-set equality plus owner, state, blocker, command, evidence, and admission-field validation |
+| BFW-PRD-081 | JSON Schema parse, identifier/version, strict-object, reference, representative-valid, and representative-invalid fixture tests |
+| BFW-PRD-082 | pinned dependency revision, required/passed gate, gap, evidence, review, admission, and fail-closed runtime-start checks |
+| BFW-PRD-083 | ADR filename/id/status/index, requirement-link, supersession, and accepted-decision consistency checks |
+| BFW-PRD-084 | threat inventory, trust-boundary, requirement, mitigation, verification, and residual-risk trace review |
+| BFW-PRD-085 | transaction phase/state-machine, participant, generation, idempotency, partial-failure, verification, rollback, and recovery model tests |
+| BFW-PRD-086 | clean-checkout Forgejo CI execution of governance validation, generated-view checks, secret scanning, and diff hygiene |
+| BFW-PRD-087 | exact included/deferred partition, dependency closure, platform profile, and no-unplanned-MVP-component checks |
+| BFW-PRD-088 | required component-template set, placeholder, authority-boundary, evidence, and independent-review checks |
+| BFW-PRD-089 | signed-artifact, SBOM/provenance, reproducibility, staged activation, interruption, migration, console rollback, and last-known-good exercises |
+| BFW-PRD-090 | pinned image/topology, isolation, role-count, scenario, packet/state oracle, platform, upgrade, HA, split-brain, and recovery evidence checks |
+| BFW-PRD-091 | product-profile and end-to-end tests proving one appliance supports admitted Layer-2 switching and Layer-3 routing/firewall roles |
+| BFW-PRD-092 | ownership tests proving switching, network, routing, and firewall plans cannot mutate one another's domains directly |
+| BFW-PRD-093 | VLAN, bridge, FDB, STP-family, LACP, isolation, storm-control, snooping, and LLDP contract/conformance suites |
+| BFW-PRD-094 | loop, VLAN leakage, duplicate membership, uncertain-STP, unsupported-feature, and last-known-good negative tests |
+| BFW-PRD-095 | atomic cross-domain port/switching/routing/firewall/DHCP transaction, ordering, failure, and rollback tests |
+| BFW-PRD-096 | platform semantic-gap matrix plus Linux, FreeBSD, Windows, and separately admitted offload adapter conformance tests |
+| BFW-PRD-097 | observed-state authorization, bounds, FDB, VLAN, STP, LACP, counter, offload, health, and drift tests |
+| BFW-PRD-098 | management-VLAN/uplink commit-confirmed timeout, local/OOB recovery, verification-failure, and automatic rollback tests |
+| BFW-PRD-099 | exact v0.1 composition and Linux software-switch baseline tests with hardware-offload admission kept optional |
+| BFW-PRD-100 | exact router/switch/converged profile identifiers, shared-management-plane, and no-edition-fork checks |
+| BFW-PRD-101 | router-profile component closure plus user-traffic Layer-2 switching disabled/absent tests |
+| BFW-PRD-102 | switch-profile Layer-2 forwarding plus Layer-3 transit and NAT deny-default tests with bounded management addressing |
+| BFW-PRD-103 | converged inter-VLAN, routed-port, SVI, firewall, DHCP, reachability, and atomic transaction tests |
+| BFW-PRD-104 | role-transition preflight, commit-confirmed, management-loss, partial-apply, restart, and last-known-good rollback tests |
+| BFW-PRD-105 | catalog/profile/platform capability negotiation, unsupported-required-feature denial, and no-v0.1-overclaim checks |
+| BFW-PRD-106 | Layer-2 VLAN/FDB/STP/LACP plus SVI, routed-switchport, inter-VLAN, and local-fabric Layer-3 switching tests |
+| BFW-PRD-107 | switch-profile WAN-edge/NAT denial and management-interface non-transit tests with routing-plan ownership checks |
+| BFW-PRD-108 | Layer-3 forwarding plus TCP/UDP state, NAT, port-forward, connection-state, and transport-steering router tests |
+| BFW-PRD-109 | routing/firewall ownership tests plus negative Layer-7 proxy, TLS, payload-inspection, and identity-policy implication checks |
+| BFW-PRD-110 | declared-layer capability negotiation, partial-observation rejection, and last-known-good preservation tests |
+| BFW-PRD-111 | build/dependency/source scans plus provenance review proving no Snort runtime, executable, copied source, or private implementation dependency |
+| BFW-PRD-112 | passive/inline mode, capture-point identity, no-implicit-prevention, activation, and authorization tests |
+| BFW-PRD-113 | fragment/TCP reassembly, flow direction/state, decoder, content/regex, threshold/suppression, checksum/overlap/truncation, and evasion corpus tests |
+| BFW-PRD-114 | canonical-rule determinism plus versioned Snort-dialect accepted/rejected keyword, action, preprocessor, PCRE, and ambiguity fixtures |
+| BFW-PRD-115 | CPU/memory/byte/depth/time/cardinality/retention boundary and incomplete-inspection reporting tests |
+| BFW-PRD-116 | signature/provenance/digest/compatibility/expiry, deterministic compile, atomic activation, interruption, and rollback tests |
+| BFW-PRD-117 | alert schema, stable flow/capture identity, truncation fact, payload/PCAP deny-default, access, redaction, retention, and audit tests |
+| BFW-PRD-118 | confused-deputy and direct-mutation denial plus core/firewall typed enforcement transaction tests |
+| BFW-PRD-119 | inline fail-open/fail-closed, bypass, backlog, overload, watchdog, health, confirmation, restart, and recovery tests |
+| BFW-PRD-120 | per-platform timestamp/checksum/offload/VLAN/multi-queue/zero-copy/injection/loss/ordering semantic and completeness tests |
+| BFW-PRD-121 | canonical/differential corpora, fuzz, race, restart, upgrade, rollback, loss, overload, latency, throughput, CPU, memory, and allocation evidence |
+| BFW-PRD-122 | compatibility-matrix and documentation checks rejecting unqualified parity or endorsement claims |
+| BFW-PRD-123 | router/switch/converged crossed with standalone/fabric profile validation and shared-management-authority tests |
+| BFW-PRD-124 | fabric versus switching/routing/firewall ownership and no-direct-domain-mutation tests |
+| BFW-PRD-125 | node enrollment/revocation, cryptographic identity, liveness/generation, release/schema/capability, role, and encrypted-channel tests |
+| BFW-PRD-126 | quorum, leader/term, fencing, minority, stale generation, journal/restart, idempotency, and split-brain tests |
+| BFW-PRD-127 | overlay/VNI, EVPN-class MAC/IP, split-horizon, designated-forwarder, BUM, ARP/ND suppression, mobility, duplication, and aging tests |
+| BFW-PRD-128 | VRF, routed-VNI, anycast-gateway, ECMP, route-target, route-leak, next-hop, dynamic-protocol, and convergence tests |
+| BFW-PRD-129 | deterministic distributed-policy placement, endpoint mobility, zone identity, asymmetric/symmetric flow, steering, state owner/replication/failover/staleness tests |
+| BFW-PRD-130 | partition, node/control loss, reorder/delay, loop, duplicate endpoint, route conflict, placement gap, and incomplete-observation safety tests |
+| BFW-PRD-131 | encapsulation MTU/PMTU, fragmentation, QoS/ECN, hash entropy, loop/BUM, and software/hardware-offload parity tests |
+| BFW-PRD-132 | staged dependency/failure-domain rollout, readiness barrier, canary, node/end-to-end oracle, deadline, interruption, island, and rollback tests |
+| BFW-PRD-133 | fail-static/isolate/open/closed traffic-class policy, time bound, audit, stricter-local-floor, and control-loss tests |
+| BFW-PRD-134 | authorized topology/membership/term/generation/peer/MAC/IP/route/policy/state/loss/convergence/drift/rollback observation tests |
+| BFW-PRD-135 | three-node multi-failure-domain partition/mobility/churn/ECMP/upgrade/rollback/scale/resource/performance admission matrix |
+| BFW-PRD-136 | first-party Kubernetes-managed scope, shared-authority, inventory, intent, rollout, observation, and no-edition-fork tests |
+| BFW-PRD-137 | single-controller non-HA labeling plus odd three-or-more controller quorum and failure-domain validation |
+| BFW-PRD-138 | API/scheduler/CNI/service/overlay/storage outage tests proving forwarding, fast failover, and local recovery independence |
+| BFW-PRD-139 | native-agent identity, signed-service, no-worker-membership, and no-container-runtime dependency tests |
+| BFW-PRD-140 | controller-loss mutation freeze plus last-known-good, BFD, EVPN/routing, ECMP, gateway, and firewall-state continuity tests |
+| BFW-PRD-141 | mutual-authentication, authorization, signature, generation, expiry, idempotency, readiness, verification, audit, and rollback tests |
+| BFW-PRD-142 | dedicated/OOB management path, shared-path risk admission, commit-confirmed, bootstrap, rebuild, and local-recovery tests |
+| BFW-PRD-143 | pinned Kubernetes/K3s/runtime/CNI/storage/image/manifest/CRD/API/RBAC/NetworkPolicy/Pod-Security/provenance compatibility matrix |
+| BFW-PRD-144 | quorum/member/total-control/API/etcd/CNI/storage/partition/replay/restart/rebuild/upgrade/rollback/secret/autonomy admission matrix |
+| BFW-PRD-145 | clean-room provenance, license/source/dependency/build scan, product-name, and no-Keepalived-runtime tests |
+| BFW-PRD-146 | VRRPv2/v3 IPv4/IPv6 election, priority, timer, owner, preemption, multicast/unicast, and malformed-protocol tests |
+| BFW-PRD-147 | typed effect-plan ownership, authorization, generation, verification, rollback, and direct-mutation denial tests |
+| BFW-PRD-148 | typed health interval/timeout/rise/fall/weight/freshness/incomplete-state tests plus shell/env/process denial |
+| BFW-PRD-149 | duplicate-owner, split-brain, replay, stale generation, ambiguity, timer/clock, partial transition, restart, fencing, and last-known-good tests |
+| BFW-PRD-150 | exact Keepalived-dialect accepted/rejected directive, script/hook, IPVS, order, and ambiguity fixture tests |
+| BFW-PRD-151 | Linux VRRP/netlink, FreeBSD CARP, unsupported-platform, semantic-gap, and parity admission tests |
+| BFW-PRD-152 | bounded authorized instance/role/peer/timer/health/generation/transition/degraded/rollback observation and leakage tests |
+| BFW-PRD-153 | provenance, conformance, interop, deterministic state machine, packet corpus/fuzz/race/endurance, platform, upgrade, and performance matrix |
+| BFW-PRD-154 | exact two-profile identifier, first-party packaging, no-third-party-addon, and catalog checks |
+| BFW-PRD-155 | canonical config/core/CLI/web/API/audit/transaction/release/recovery parity tests across both profiles |
+| BFW-PRD-156 | GoKA-native no-external-orchestrator, peer coordination, election, health, fencing, and failover tests |
+| BFW-PRD-157 | Kubernetes controller/chart/manifest/CRD/policy/compatibility packaging and admitted-substrate tests |
+| BFW-PRD-158 | single coordinator ownership, no competing writer, native fast-failover preservation, and composition tests |
+| BFW-PRD-159 | profile selection/migration preflight, commit-confirmed, handoff, continuity/isolation, verification, and rollback tests |
+| BFW-PRD-160 | packaged/configured/controller/forwarding/degraded/unsupported/admitted capability-state tests |
+| BFW-PRD-161 | release composition, recovery assets, cross-profile migration, failure matrix, semantic parity, and no-v0.1-overclaim checks |

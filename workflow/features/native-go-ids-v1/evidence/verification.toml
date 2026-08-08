@@ -1,0 +1,49 @@
+schema_version = 1
+feature = "native-go-ids-v1"
+verified_at = "2026-08-08T13:51:00-05:00"
+base_commit = "a3afae76b4b2eb31a965b7a067258a298ec6e7f8"
+decision = "passed"
+requirements = ["BFW-PRD-111", "BFW-PRD-112", "BFW-PRD-113", "BFW-PRD-114", "BFW-PRD-115", "BFW-PRD-116", "BFW-PRD-117", "BFW-PRD-118", "BFW-PRD-119", "BFW-PRD-120", "BFW-PRD-121", "BFW-PRD-122"]
+runtime_admission = "not_admitted"
+phase0 = "blocked"
+
+[[checks]]
+command = "python tools/governance.py validate"
+result = "passed"
+
+[[checks]]
+command = "python tools/governance.py render --check"
+result = "passed"
+
+[[checks]]
+command = "python -m unittest discover -s tools/tests -v"
+result = "passed: 12 tests"
+
+[[checks]]
+command = "pyright tools/governance.py tools/tests/test_governance.py"
+result = "passed: 0 errors, 0 warnings, 0 informations"
+
+[[checks]]
+command = "git diff --check"
+result = "passed"
+
+[[inventory]]
+summary = "123 contiguous requirements, 39 components, 15 strict schemas, 11 accepted ADRs, and a deferred native Go Snort-class IDS/IPS contract reconcile."
+
+[[reviews]]
+path = "workflow/features/native-go-ids-v1/review/judge-1.md"
+sha256 = "f7a60307713d0a572a0a63d124daf7214913af98e1e5252dc99332a2967e8bf6"
+decision = "passed"
+
+[[reviews]]
+path = "workflow/features/native-go-ids-v1/review/judge-2.md"
+sha256 = "c2a5f1f203036bd05b7483a804f5570f948d2160ff55419073ece27ca9a0df12"
+decision = "passed"
+
+[limitations]
+runtime_code_created = false
+component_repository_created = false
+release_created = false
+external_action_performed = false
+packet_behavior_tested = false
+snort_parity_claimed = false

@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.bifrost.invalid/v1/audit-event.schema.json",
+  "title": "Bifrost audit event v1",
+  "type": "object",
+  "required": ["schema", "event_id", "time", "correlation_id", "actor_id", "action", "decision", "resource", "generations", "redaction"],
+  "properties": {
+    "schema": {"const": "bfw.audit-event/v1"},
+    "event_id": {"$ref": "common.schema.json#/$defs/correlation"},
+    "time": {"$ref": "common.schema.json#/$defs/timestamp"},
+    "correlation_id": {"$ref": "common.schema.json#/$defs/correlation"},
+    "actor_id": {"type": "string", "minLength": 1},
+    "action": {"type": "string", "minLength": 1},
+    "decision": {"enum": ["allowed", "denied", "failed", "rolled_back"]},
+    "resource": {"type": "string", "minLength": 1},
+    "generations": {"type": "object", "additionalProperties": {"$ref": "common.schema.json#/$defs/generation"}},
+    "facts": {"type": "object"},
+    "redaction": {"type": "object", "required": ["policy", "fields_removed"], "properties": {"policy": {"type": "string"}, "fields_removed": {"type": "array", "items": {"type": "string"}}}, "additionalProperties": false}
+  },
+  "additionalProperties": false
+}

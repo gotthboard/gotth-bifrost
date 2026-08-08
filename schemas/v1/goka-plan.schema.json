@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.bifrost.invalid/v1/goka-plan.schema.json",
+  "title": "GoKA HA plan v1",
+  "type": "object",
+  "required": ["schema", "plan_id", "configuration_generation", "instance", "protocol", "address_family", "peer_mode", "peers", "priority", "preempt", "advertisement_milliseconds", "address_set", "platform_effect_plan", "health_checks", "failure_policy", "fencing_proof", "rollback_required"],
+  "properties": {
+    "schema": {"const": "goka.plan/v1"},
+    "plan_id": {"$ref": "common.schema.json#/$defs/correlation"},
+    "configuration_generation": {"$ref": "common.schema.json#/$defs/generation"},
+    "instance": {"$ref": "common.schema.json#/$defs/identifier"},
+    "protocol": {"enum": ["vrrp-v2", "vrrp-v3", "platform-equivalent"]},
+    "address_family": {"enum": ["ipv4", "ipv6"]},
+    "peer_mode": {"enum": ["multicast", "unicast"]},
+    "peers": {"type": "array", "uniqueItems": true, "items": {"$ref": "common.schema.json#/$defs/identifier"}},
+    "priority": {"type": "integer", "minimum": 1, "maximum": 255},
+    "preempt": {"type": "boolean"},
+    "advertisement_milliseconds": {"type": "integer", "minimum": 100},
+    "address_set": {"$ref": "common.schema.json#/$defs/identifier"},
+    "platform_effect_plan": {"$ref": "common.schema.json#/$defs/identifier"},
+    "health_checks": {"type": "array", "items": {"type": "object", "required": ["id", "type", "target", "interval_milliseconds", "timeout_milliseconds", "rise", "fall", "weight", "freshness_milliseconds", "incomplete"], "properties": {"id": {"$ref": "common.schema.json#/$defs/identifier"}, "type": {"enum": ["tcp", "http", "grpc", "interface", "route", "plugin-observation"]}, "target": {"$ref": "common.schema.json#/$defs/identifier"}, "interval_milliseconds": {"type": "integer", "minimum": 100}, "timeout_milliseconds": {"type": "integer", "minimum": 1}, "rise": {"type": "integer", "minimum": 1}, "fall": {"type": "integer", "minimum": 1}, "weight": {"type": "integer", "minimum": 0, "maximum": 253}, "freshness_milliseconds": {"type": "integer", "minimum": 1}, "incomplete": {"enum": ["unhealthy", "relinquish", "isolate"]}}, "additionalProperties": false}},
+    "failure_policy": {"enum": ["relinquish", "isolate", "retain-bounded-last-known-good"]},
+    "fencing_proof": {"type": ["string", "null"]},
+    "rollback_required": {"const": true}
+  },
+  "allOf": [
+    {"if": {"properties": {"peer_mode": {"const": "unicast"}}, "required": ["peer_mode"]}, "then": {"properties": {"peers": {"minItems": 1}}}},
+    {"if": {"properties": {"protocol": {"const": "vrrp-v2"}}, "required": ["protocol"]}, "then": {"properties": {"address_family": {"const": "ipv4"}}}},
+    {"if": {"properties": {"failure_policy": {"const": "retain-bounded-last-known-good"}}, "required": ["failure_policy"]}, "then": {"properties": {"fencing_proof": {"type": "string", "minLength": 1}}}}
+  ],
+  "additionalProperties": false
+}

@@ -1,0 +1,48 @@
+schema_version = 1
+feature = "data-plane-layers-v1"
+verified_at = "2026-08-08T13:42:00-05:00"
+base_commit = "a3afae76b4b2eb31a965b7a067258a298ec6e7f8"
+decision = "passed"
+requirements = ["BFW-PRD-102", "BFW-PRD-106", "BFW-PRD-107", "BFW-PRD-108", "BFW-PRD-109", "BFW-PRD-110"]
+runtime_admission = "not_admitted"
+phase0 = "blocked"
+
+[[checks]]
+command = "python tools/governance.py validate"
+result = "passed"
+
+[[checks]]
+command = "python tools/governance.py render --check"
+result = "passed"
+
+[[checks]]
+command = "python -m unittest discover -s tools/tests -v"
+result = "passed: 11 tests"
+
+[[checks]]
+command = "pyright tools/governance.py tools/tests/test_governance.py"
+result = "passed: 0 errors, 0 warnings, 0 informations"
+
+[[checks]]
+command = "git diff --check"
+result = "passed"
+
+[[inventory]]
+summary = "111 contiguous requirements, 39 components, 14 strict schemas, 10 accepted ADRs, and exact Layer-2/3 switch plus Layer-3/4-aware router profiles reconcile."
+
+[[reviews]]
+path = "workflow/features/data-plane-layers-v1/review/judge-1.md"
+sha256 = "c1a91033306f377f09c021eb265148b0f0eeee25d5103041610a0a170e2982a9"
+decision = "passed"
+
+[[reviews]]
+path = "workflow/features/data-plane-layers-v1/review/judge-2.md"
+sha256 = "131823d956256412c55a091d3c1295c5e91efe92a50d0369318c6257b831b686"
+decision = "passed"
+
+[limitations]
+runtime_code_created = false
+release_created = false
+external_action_performed = false
+native_packet_behavior_tested = false
+layer7_authority_created = false

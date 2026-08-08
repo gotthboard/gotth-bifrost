@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.bifrost.invalid/v1/canonical-config.schema.json",
+  "title": "Bifrost canonical configuration envelope v1",
+  "type": "object",
+  "required": ["schema", "generation", "created_at", "created_by", "domains", "secret_selectors"],
+  "properties": {
+    "schema": {"const": "bfw.configuration/v1"},
+    "generation": {"$ref": "common.schema.json#/$defs/generation"},
+    "created_at": {"$ref": "common.schema.json#/$defs/timestamp"},
+    "created_by": {"type": "string", "minLength": 1, "maxLength": 128},
+    "domains": {"type": "object", "propertyNames": {"pattern": "^bfw(?:[.-][a-z0-9]+)+$"}, "additionalProperties": {"type": "object"}},
+    "secret_selectors": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^keyring:[A-Za-z0-9._/-]+$"}},
+    "extensions": {"type": "object", "propertyNames": {"pattern": "^x-bfw-[a-z0-9-]+$"}}
+  },
+  "additionalProperties": false
+}

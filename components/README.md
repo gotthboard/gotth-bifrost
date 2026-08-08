@@ -4,36 +4,51 @@ This directory belongs to the Bifrost meta repository. It records component
 ownership and, after admission, exact immutable component pins. It does not
 contain copied component source.
 
+`governance/components.toml` is authoritative for component identity,
+dependencies, platform status, pins, and admission. This file explains the map
+for humans and must not override the machine-readable catalog.
+
 ## Planned Bifrost-owned components
 
 | Component | Responsibility | Status |
 | --- | --- | --- |
 | `bfw-core` | canonical configuration, admission, transaction coordination, audit, reconciliation, and recovery | planned; repository not created |
-| `bfw-cli` | unprivileged `bfw` command-line and local-recovery client | planned; repository not created |
+| `bfw-cli` | unprivileged Cisco IOS-style `bfw` command-line and local-recovery client; modal grammar maps to typed core actions and candidate transactions | planned; repository not created |
 | `bfw-web` | independent unprivileged web/API presentation service and trusted UI shell | planned; repository not created |
+| `bfw-switching` | Layer-2 bridge domains, VLAN membership, FDB, STP, LACP, isolation, storm control, multicast snooping, LLDP observations, and switching rollback effects | planned; repository not created |
 | `bfw-routing` | routing domain, deterministic route plans, platform apply/verify adapters, routing UI contribution, and routing rollback effects | planned; repository not created |
 | `bfw-firewall` | packet-filter, NAT, aliases, schedules, state policy, deterministic policy plans, and native apply/verify adapters | planned; repository not created |
-| `bfw-network` | interfaces, VLANs, bridges, bonds/LAGs, MTU, DHCP client, and link-state ownership | planned; repository not created |
+| `bfw-network` | physical/logical ports, interface construction, MTU, DHCP client, and link-state ownership | planned; repository not created |
 | `bfw-wireguard` | WireGuard site-to-site tunnels, per-device remote access, enrollment, peer state, key rotation, and VPN UI | planned; repository not created |
 | `bfw-reverse-proxy` | native Go reverse proxy, ingress, upstream health, TLS policy, service publication, and proxy UI with no Caddy runtime dependency | planned; repository not created |
-| `bfw-ha` | native Go HA control logic, virtual-address ownership, health, failover, state/configuration synchronization, and VRRP/CARP/equivalent platform mechanisms with no Keepalived runtime dependency | planned; repository not created |
+| `bfw-ha` (**GoKA**) | clean-room native Go VRRP-class HA control, virtual-address role intent, typed health, failover, state/configuration synchronization, and admitted CARP/equivalent adapters with no Keepalived code or runtime dependency | planned; repository not created |
+| `bfw-fabric` | distributed topology, overlay/underlay placement, convergence, multi-node transactions, and coordination of switching/routing/firewall plans without owning those domains | deferred; repository not created |
+| `bfw-kubernetes-controller` | first-party out-of-the-box Kubernetes/K3s-hosted management, inventory, rollout, observation, and recovery coordination for autonomous native Bifrost nodes | planned; repository not created |
 | `bfw-plugin-sdk` | versioned Bifrost domain, plugin, UI-manifest, and compatibility contracts | planned; repository not created |
-| identity/authentication component | generic OIDC relying-party integration, claim mapping inputs, and opaque Bifrost session exchange; final repository boundary/name not selected | planned; repository not created |
-| platform backends | native firewall, interface, and other OS-specific adapters for admitted platforms | planned; repository boundaries not yet selected |
+| `bfw-identity` | generic OIDC relying-party validation and opaque identity facts without core authorization ownership | planned; repository not created |
+| `bfw-platform-linux` | Linux nftables/netlink, bridge/VLAN, optional admitted switch offload, interface, routing, and service adapters | planned; repository not created |
+| `bfw-platform-freebsd` | FreeBSD pf, bridge/VLAN, routing, interface, CARP, and service adapters | planned; repository not created |
+| `bfw-platform-windows` | Windows Filtering Platform, admitted Hyper-V vSwitch/equivalent, IP Helper, interface, routing, and service adapters | planned; repository not created |
 | network-service plugins | `bfw-dns`, `bfw-dhcp`, `bfw-ntp`, `bfw-ddns`, `bfw-acme`, and `bfw-mdns` | planned; repositories not created |
 | advanced-network plugins | `bfw-frr`, `bfw-ipsec`, `bfw-openvpn`, `bfw-qos`, `bfw-multiwan`, and `bfw-cellular` | planned; repositories not created |
-| security plugins | `bfw-ids`, `bfw-dns-filter`, `bfw-threat-intel`, `bfw-captive-portal`, `bfw-radius`, and `bfw-upnp` | planned; repositories not created |
+| `bfw-ids` | native Go Snort-class IDS/IPS engine: capture normalization, flow/stream state, protocol decoding, rules, alerts/evidence, and typed enforcement proposals | deferred; repository not created |
+| other security plugins | `bfw-dns-filter`, `bfw-threat-intel`, `bfw-captive-portal`, `bfw-radius`, and `bfw-upnp` | planned; repositories not created |
 | operations plugins | `bfw-monitoring`, `bfw-logging`, `bfw-backup`, `bfw-support`, `bfw-notifications`, and `bfw-updater` | planned; repositories not created |
 
-Names other than the settled `bfw` CLI namespace and `bfw-routing` ownership
-boundary remain planning labels until their repository and public-interface
-decisions are explicitly admitted.
+Catalog names are settled planning identifiers. They create no runtime or
+release authority until their repositories, public contracts, exact revisions,
+artifacts, rollback mates, evidence, and admission are recorded here.
 
 ## Catalog ownership rules
 
-- `bfw-firewall` owns packet filtering and NAT; `bfw-network` owns link and
-  interface construction; `bfw-routing` owns route semantics. No one plugin may
+- `bfw-firewall` owns packet filtering and NAT; `bfw-network` owns ports and
+  interface construction; `bfw-switching` owns Layer-2 forwarding and loop
+  control; `bfw-routing` owns Layer-3 route semantics. No one plugin may
   collapse those authorities into an ambient network-administrator capability.
+- `bfw-switching` coordinates cross-domain changes through the core. It never
+  writes routes or firewall policy, and hardware offload requires a separately
+  admitted platform adapter with equivalent apply, observe, verify, and
+  rollback behavior.
 - `bfw-wireguard` owns tunnel and peer semantics. It requests separately
   admitted routing and firewall/NAT effects and never stores reusable private
   or preshared keys outside `agent-keyring`.
@@ -41,11 +56,11 @@ decisions are explicitly admitted.
   ACME credentials, firewall exposure, and identity-header trust remain typed
   dependencies owned by their respective authorities. It is a native Bifrost
   implementation and does not embed, invoke, supervise, or configure Caddy.
-- `bfw-ha` owns failover intent and active/standby evidence. It coordinates
+- `bfw-ha`/GoKA owns failover intent and active/standby evidence. It coordinates
   virtual-address, routing, firewall, service, and replicated-state changes
   through typed plans; it does not seize those domains directly. Its portable
-  control logic is implemented in Go and does not embed, invoke, supervise, or
-  configure Keepalived.
+  control logic is clean-room Go and does not copy, embed, invoke, supervise,
+  configure, or require Keepalived.
 - Every plugin declares compatible platforms, dependencies, conflicts,
   permissions, schemas, UI contracts, health, migration/rollback behavior,
   and release evidence before it can be pinned here.

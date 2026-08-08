@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.bifrost.invalid/v1/rollback-record.schema.json",
+  "title": "Bifrost rollback record v1",
+  "type": "object",
+  "required": ["schema", "rollback_id", "transaction_id", "started_at", "completed_at", "reason", "from_release", "to_release", "from_configuration_generation", "to_configuration_generation", "steps", "verification", "result"],
+  "properties": {
+    "schema": {"const": "bfw.rollback-record/v1"},
+    "rollback_id": {"$ref": "common.schema.json#/$defs/correlation"},
+    "transaction_id": {"$ref": "common.schema.json#/$defs/correlation"},
+    "started_at": {"$ref": "common.schema.json#/$defs/timestamp"},
+    "completed_at": {"$ref": "common.schema.json#/$defs/timestamp"},
+    "reason": {"type": "string", "minLength": 1},
+    "from_release": {"$ref": "common.schema.json#/$defs/sha256"},
+    "to_release": {"$ref": "common.schema.json#/$defs/sha256"},
+    "from_configuration_generation": {"$ref": "common.schema.json#/$defs/generation"},
+    "to_configuration_generation": {"$ref": "common.schema.json#/$defs/generation"},
+    "steps": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["component_id", "result", "evidence"], "properties": {"component_id": {"$ref": "common.schema.json#/$defs/identifier"}, "result": {"enum": ["restored", "unchanged", "failed"]}, "evidence": {"type": "array", "items": {"$ref": "common.schema.json#/$defs/sha256"}}}, "additionalProperties": false}},
+    "verification": {"type": "object", "required": ["packet_safety", "management_recovery", "state_complete"], "properties": {"packet_safety": {"type": "boolean"}, "management_recovery": {"type": "boolean"}, "state_complete": {"type": "boolean"}}, "additionalProperties": false},
+    "result": {"enum": ["restored", "failed_closed", "failed"]}
+  },
+  "additionalProperties": false
+}

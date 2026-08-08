@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.bifrost.invalid/v1/deployment-profile.schema.json",
+  "title": "Bifrost deployment profile v1",
+  "type": "object",
+  "required": ["schema", "profile", "release_id", "configuration_generation", "required_components", "data_plane_layers", "enabled_effects", "denied_effects", "transition_policy"],
+  "properties": {
+    "schema": {"const": "bfw.deployment-profile/v1"},
+    "profile": {"enum": ["router", "switch", "converged"]},
+    "release_id": {"$ref": "common.schema.json#/$defs/identifier"},
+    "configuration_generation": {"$ref": "common.schema.json#/$defs/generation"},
+    "required_components": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "common.schema.json#/$defs/identifier"}},
+    "data_plane_layers": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"enum": [2, 3, 4]}},
+    "enabled_effects": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "common.schema.json#/$defs/identifier"}},
+    "denied_effects": {"type": "array", "uniqueItems": true, "items": {"$ref": "common.schema.json#/$defs/identifier"}},
+    "transition_policy": {"const": "commit-confirmed"}
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.bifrost.invalid/v1/capability.schema.json",
+  "title": "Bifrost permission and capability declaration v1",
+  "type": "object",
+  "required": ["schema", "capability_id", "actions", "resources", "constraints"],
+  "properties": {
+    "schema": {"const": "bfw.capability/v1"},
+    "capability_id": {"$ref": "common.schema.json#/$defs/identifier"},
+    "actions": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z][a-z0-9.-]+$"}},
+    "resources": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "maxLength": 256}},
+    "constraints": {"type": "object", "required": ["generation_bound", "expires"], "properties": {"generation_bound": {"const": true}, "expires": {"$ref": "common.schema.json#/$defs/timestamp"}, "targets": {"type": "array", "items": {"type": "string", "maxLength": 256}}, "max_uses": {"type": "integer", "minimum": 1}}, "additionalProperties": false}
+  },
+  "additionalProperties": false
+}

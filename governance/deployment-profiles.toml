@@ -1,0 +1,33 @@
+schema_version = 1
+authority = "Bifrost deployment roles over one product and canonical configuration model."
+default_profile = "router"
+management_address_is_transit = false
+product_scopes = ["standalone", "fabric"]
+v0_1_scopes = ["standalone"]
+
+[[profiles]]
+id = "router"
+description = "Layer-3 router/firewall without a user-traffic managed switching domain."
+required_components = ["bfw-core", "bfw-network", "bfw-routing", "bfw-firewall"]
+data_plane_layers = [3, 4]
+enabled_effects = ["port-interface", "layer3-routing", "wan-edge-routing", "packet-filter", "stateful-transport-policy", "nat", "port-forward", "management-termination"]
+denied_effects = ["user-layer2-bridge-forwarding"]
+transition_policy = "commit-confirmed"
+
+[[profiles]]
+id = "switch"
+description = "Managed Layer-2 switch with non-transit management addressing."
+required_components = ["bfw-core", "bfw-network", "bfw-switching", "bfw-routing"]
+data_plane_layers = [2, 3]
+enabled_effects = ["port-interface", "layer2-switching", "layer3-switching", "svi-inter-vlan-routing", "routed-switchport", "local-fabric-routing", "management-termination"]
+denied_effects = ["wan-edge-routing", "nat", "stateful-transport-policy"]
+transition_policy = "commit-confirmed"
+
+[[profiles]]
+id = "converged"
+description = "Converged managed switch, inter-VLAN router, and firewall."
+required_components = ["bfw-core", "bfw-network", "bfw-switching", "bfw-routing", "bfw-firewall"]
+data_plane_layers = [2, 3, 4]
+enabled_effects = ["port-interface", "layer2-switching", "layer3-switching", "svi-inter-vlan-routing", "routed-switchport", "local-fabric-routing", "layer3-routing", "wan-edge-routing", "packet-filter", "stateful-transport-policy", "nat", "port-forward", "management-termination"]
+denied_effects = []
+transition_policy = "commit-confirmed"

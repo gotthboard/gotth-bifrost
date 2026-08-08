@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.bifrost.invalid/v1/ui-manifest.schema.json",
+  "title": "Bifrost plugin UI contribution manifest v1",
+  "type": "object",
+  "required": ["schema", "plugin_id", "plugin_version", "contract_version", "routes", "actions", "assets", "permissions"],
+  "properties": {
+    "schema": {"const": "bfw.ui-manifest/v1"},
+    "plugin_id": {"$ref": "common.schema.json#/$defs/identifier"},
+    "plugin_version": {"$ref": "common.schema.json#/$defs/version"},
+    "contract_version": {"$ref": "common.schema.json#/$defs/version"},
+    "routes": {"type": "array", "items": {"type": "object", "required": ["id", "path", "view_schema"], "properties": {"id": {"type": "string"}, "path": {"type": "string", "pattern": "^/[a-z0-9/_-]*$"}, "view_schema": {"type": "object"}}, "additionalProperties": false}},
+    "actions": {"type": "array", "items": {"type": "object", "required": ["id", "core_action", "permission"], "properties": {"id": {"type": "string"}, "core_action": {"type": "string"}, "permission": {"type": "string"}}, "additionalProperties": false}},
+    "assets": {"type": "array", "items": {"type": "object", "required": ["name", "digest", "media_type", "size"], "properties": {"name": {"type": "string"}, "digest": {"$ref": "common.schema.json#/$defs/sha256"}, "media_type": {"type": "string"}, "size": {"type": "integer", "minimum": 0}}, "additionalProperties": false}},
+    "permissions": {"type": "array", "uniqueItems": true, "items": {"type": "string"}},
+    "custom_bundle": {"type": "object", "required": ["enabled", "separate_origin", "capabilities"], "properties": {"enabled": {"type": "boolean"}, "separate_origin": {"const": true}, "capabilities": {"type": "array", "items": {"type": "string"}}}, "additionalProperties": false}
+  },
+  "additionalProperties": false
+}

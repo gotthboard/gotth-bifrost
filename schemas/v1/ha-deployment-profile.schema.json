@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.bifrost.invalid/v1/ha-deployment-profile.schema.json",
+  "title": "Bifrost HA deployment profile v1",
+  "type": "object",
+  "required": ["schema", "profile", "management_coordinator", "external_controller_substrate_required", "packaged_first_party", "canonical_authority", "fast_failover_authority", "control_loss_policy", "transition_policy", "rollback_required"],
+  "properties": {
+    "schema": {"const": "bfw.ha-deployment-profile/v1"},
+    "profile": {"enum": ["goka-native", "kubernetes-managed"]},
+    "management_coordinator": {"enum": ["goka", "kubernetes"]},
+    "external_controller_substrate_required": {"type": "boolean"},
+    "packaged_first_party": {"const": true},
+    "canonical_authority": {"const": "bfw-core"},
+    "fast_failover_authority": {"const": "native-node"},
+    "control_loss_policy": {"const": "freeze-mutations-retain-forwarding"},
+    "transition_policy": {"const": "commit-confirmed"},
+    "rollback_required": {"const": true}
+  },
+  "allOf": [
+    {"if": {"properties": {"profile": {"const": "goka-native"}}, "required": ["profile"]}, "then": {"properties": {"management_coordinator": {"const": "goka"}, "external_controller_substrate_required": {"const": false}}}},
+    {"if": {"properties": {"profile": {"const": "kubernetes-managed"}}, "required": ["profile"]}, "then": {"properties": {"management_coordinator": {"const": "kubernetes"}, "external_controller_substrate_required": {"const": true}}}}
+  ],
+  "additionalProperties": false
+}

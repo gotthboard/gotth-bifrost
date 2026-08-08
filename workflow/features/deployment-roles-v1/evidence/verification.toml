@@ -1,0 +1,49 @@
+schema_version = 1
+feature = "deployment-roles-v1"
+verified_at = "2026-08-08T13:36:00-05:00"
+base_commit = "a3afae76b4b2eb31a965b7a067258a298ec6e7f8"
+decision = "passed"
+requirements = ["BFW-PRD-100", "BFW-PRD-101", "BFW-PRD-102", "BFW-PRD-103", "BFW-PRD-104", "BFW-PRD-105"]
+runtime_admission = "not_admitted"
+phase0 = "blocked"
+
+[[checks]]
+command = "python tools/governance.py validate"
+result = "passed"
+
+[[checks]]
+command = "python tools/governance.py render --check"
+result = "passed"
+
+[[checks]]
+command = "python -m unittest discover -s tools/tests -v"
+result = "passed: 11 tests"
+
+[[checks]]
+command = "pyright tools/governance.py tools/tests/test_governance.py"
+result = "passed: 0 errors, 0 warnings, 0 informations"
+
+[[checks]]
+command = "git diff --check"
+result = "passed"
+
+[[inventory]]
+summary = "106 contiguous requirements, 39 components, 14 strict schemas, 9 accepted ADRs, three exact deployment roles, and the v0.1 composition reconcile."
+
+[[reviews]]
+path = "workflow/features/deployment-roles-v1/review/judge-1.md"
+sha256 = "0580000ecd23e9d2d090c34cb93c7a20e4d9b820cf3e197c5dd74f357473ce50"
+decision = "passed"
+
+[[reviews]]
+path = "workflow/features/deployment-roles-v1/review/judge-2.md"
+sha256 = "dde6f3b64e7ca6e889f918fd8f21a863dc49ebaa45e14f1a673609944f291354"
+decision = "passed"
+
+[limitations]
+runtime_code_created = false
+component_repository_created = false
+release_created = false
+external_action_performed = false
+native_role_transition_tested = false
+full_catalog_implementation_claimed = false

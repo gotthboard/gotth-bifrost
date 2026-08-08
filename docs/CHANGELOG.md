@@ -2,6 +2,316 @@
 
 ## Unreleased
 
+### 2026-08-08 12:39–14:01 CDT — Build and Judge the executable Bifrost governance tree
+
+Commit: current commit; hash assigned by Git after commit
+
+Affected files:
+
+- `README.md`
+- `components/README.md`
+- `documents/`
+- `governance/`
+- `schemas/v1/fabric-plan.schema.json`
+- `tools/`
+- `workflow.toml`
+- `workflow/`
+- `workflow.events.jsonl`
+
+Explanation:
+
+Build the cumulative local governance change covering the Cisco-style CLI,
+executable product governance, Layer-2/3 switching, Layer-3/4-aware routing,
+router/switch/converged roles, native Go Snort-class IDS/IPS, and an orthogonal
+distributed fabric scope. Add optional dedicated Kubernetes/K3s-managed HA
+whose controller coordinates native autonomous nodes without becoming a
+forwarding dependency. Formalize the clean-room native Go HA engine as GoKA,
+with bounded VRRP compatibility and no Keepalived code/runtime authority.
+Define GoKA-native and Kubernetes-managed as the exactly two first-party,
+out-of-the-box HA profiles once HA is release-admitted. Run
+a fail-closed Judge loop over the whole change,
+repair evidence binding, workflow chronology, component identity authority,
+schema fixtures, and fabric placement constraints, then rerun all gates.
+
+The distributed scope adds a deferred `bfw-fabric` component and defines
+cryptographic membership, quorum/fencing and partition behavior,
+Define cryptographic membership, quorum/fencing and partition behavior,
+EVPN/VXLAN-class Layer-2/3 overlays, VRFs/anycast/ECMP, endpoint mobility,
+deterministic node-local firewall placement, state symmetry/ownership/failover,
+MTU/offload/BUM semantics, staged multi-node transactions, last-known-good
+local enforcement, convergence observations, rolling rollback, and three-node
+admission evidence. Domain ownership remains with switching, routing, and
+firewall components.
+
+Verification:
+
+- `python tools/governance.py validate`
+- `python tools/governance.py render --check`
+- `python -m unittest discover -s tools/tests -v`
+- `pyright tools/governance.py tools/tests/test_governance.py`
+- `git diff --check`
+- two cold distributed-systems/security reviews
+
+Risks / non-goals:
+
+- Fabric scope remains deferred outside v0.1; no implementation, cluster,
+  tunnel, protocol session, repository, release, or deployment is created.
+- EVPN/VXLAN/GENEVE terminology describes required compatible semantics and is
+  not evidence that a protocol stack or hardware offload has been admitted.
+
+### 2026-08-08 13:44 CDT — Define native Go Snort-class IDS/IPS
+
+Commit: included in the cumulative current change above
+
+Affected files:
+
+- `README.md`
+- `components/README.md`
+- `documents/`
+- `governance/`
+- `schemas/v1/ids-plan.schema.json`
+- `tools/`
+- `workflow.toml`
+- `workflow/`
+- `workflow.events.jsonl`
+
+Explanation:
+
+Define `bfw-ids` as a clean-room native Go Snort-class IDS/IPS engine rather
+than a Snort process wrapper. Add passive and separately admitted inline modes,
+bounded capture/normalization and flow/stream state, protocol/rule evaluation,
+signed atomic rulesets, typed alerts/evidence, explicit overload/loss health,
+platform capture semantics, a strict Snort-rule compatibility matrix, and
+core-authorized firewall-only enforcement.
+
+Verification:
+
+- `python tools/governance.py validate`
+- `python tools/governance.py render --check`
+- `python -m unittest discover -s tools/tests -v`
+- `pyright tools/governance.py tools/tests/test_governance.py`
+- `git diff --check`
+- two cold security/architecture reviews
+
+Risks / non-goals:
+
+- The IDS component remains deferred outside v0.1; no implementation,
+  repository, ruleset, packet test, performance result, or release is created.
+- No complete Snort rule, decoder, preprocessor, detection, or performance
+  parity is claimed, and Snort is referenced descriptively only.
+
+### 2026-08-08 13:38 CDT — Define Layer-2/3 switch and Layer-3/4 router behavior
+
+Commit: included in the cumulative current change above
+
+Affected files:
+
+- `README.md`
+- `documents/`
+- `governance/deployment-profiles.toml`
+- `governance/requirements.toml`
+- `governance/test-lab.toml`
+- `schemas/v1/deployment-profile.schema.json`
+- `tools/`
+- `workflow.toml`
+- `workflow/`
+- `workflow.events.jsonl`
+
+Explanation:
+
+Refine Bifrost's roles so switch mode supports both Layer 2 and bounded Layer 3
+switching through SVIs, routed switchports, inter-VLAN routing, and local-fabric
+routes, while router mode composes Layer 3 forwarding with Layer-4-aware
+stateful policy, NAT, port forwarding, and transport-aware steering. Preserve
+separate switching, routing, and firewall authority, deny WAN/NAT/implicit
+Layer-4 effects in switch mode, and explicitly reject any implication that
+Layer-4 awareness grants Layer-7 proxy or payload authority.
+
+Verification:
+
+- `python tools/governance.py validate`
+- `python tools/governance.py render --check`
+- `python -m unittest discover -s tools/tests -v`
+- `pyright tools/governance.py tools/tests/test_governance.py`
+- `git diff --check`
+- two cold governance/security reviews
+
+Risks / non-goals:
+
+- This is product architecture and executable governance only; it implements
+  no packet path, switch/router runtime, release, or deployment.
+- "Layer 4 router" is intentionally modeled as Layer-3 routing composed with
+  stateful Layer-4-aware firewall/NAT effects, not as a new routing authority.
+
+### 2026-08-08 13:29 CDT — Define router, switch, and converged roles
+
+Commit: included in the cumulative current change above
+
+Affected files:
+
+- `README.md`
+- `documents/`
+- `governance/deployment-profiles.toml`
+- `governance/requirements.toml`
+- `governance/test-lab.toml`
+- `schemas/v1/deployment-profile.schema.json`
+- `tools/`
+- `workflow.toml`
+- `workflow/`
+- `workflow.events.jsonl`
+
+Explanation:
+
+Clarify that Bifrost is one full-featured network operating system deployable
+as a router, switch, or converged router-switch. Add exact role component
+closure and forwarding effects, non-transit management addressing for switch
+mode, shared configuration and management authority, transactional role
+changes, fail-closed capability negotiation, and explicit limits on v0.1 and
+platform/hardware support claims.
+
+Verification:
+
+- `python tools/governance.py validate`
+- `python tools/governance.py render --check`
+- `python -m unittest discover -s tools/tests -v`
+- `pyright tools/governance.py tools/tests/test_governance.py`
+- `git diff --check`
+- two cold governance/security reviews
+
+Risks / non-goals:
+
+- This defines product and governance contracts only; no runtime role switch,
+  component repository, release, deployment, or admission is created.
+- "Full-featured" does not claim that v0.1 or every supported platform/hardware
+  combination implements the entire catalog.
+
+### 2026-08-08 12:48 CDT — Make Bifrost a router and managed switch system
+
+Commit: included in the cumulative current change above
+
+Affected files:
+
+- `README.md`
+- `components/README.md`
+- `contracts/TRANSACTION-V1.md`
+- `documents/`
+- `governance/`
+- `schemas/v1/switch-plan.schema.json`
+- `tools/`
+- `workflow.toml`
+- `workflow/`
+- `workflow.events.jsonl`
+
+Explanation:
+
+Add `bfw-switching` as the explicit Layer-2 authority and include it in the
+narrow v0.1 profile. Define VLAN access/trunk/native behavior, bridge domains,
+FDB, STP-family loop control, LACP, isolation, storm control, multicast
+snooping, LLDP observations, desired-state drift, management-path recovery,
+and cross-domain transaction semantics. Linux software switching is the
+portable baseline; ASIC and OS-specific offload require separate platform
+admission and semantic-parity evidence.
+
+Verification:
+
+- `python tools/governance.py validate`
+- `python tools/governance.py render --check`
+- `python -m unittest discover -s tools/tests -v`
+- `pyright tools/governance.py tools/tests/test_governance.py`
+- `git diff --check`
+- two cold governance/security reviews
+
+Risks / non-goals:
+
+- This is architecture and executable governance only; no switch runtime,
+  platform adapter, component repository, artifact, release, or admission is
+  created.
+- Phase 0, pinned test images, component artifacts, and native switching
+  conformance evidence remain blockers.
+
+### 2026-08-08 12:42 CDT — Add executable product governance
+
+Commit: included in the cumulative current change above
+
+Affected files:
+
+- `.forgejo/workflows/governance.yml`
+- `.gitignore`
+- `contracts/`
+- `governance/`
+- `schemas/v1/`
+- `templates/component/`
+- `tools/`
+- `workflow.toml`
+- `workflow/`
+- `workflow.events.jsonl`
+- `README.md`
+- `components/README.md`
+- `documents/`
+- `docs/`
+
+Explanation:
+
+Turn the Bifrost meta repository into an executable product-governance control
+plane. Add an authoritative component catalog and v0.1 composition, complete
+requirement trace registry, blocked Phase 0 dashboard with exact substrate
+revisions, versioned contract schemas, accepted architecture decisions, a
+formal system threat model, cross-component transaction contract, narrow v0.1
+profile, component bootstrap/admission templates, release/recovery design,
+test-lab specification, deterministic generated views, dependency-free local
+validators, and Forgejo CI wiring. All empty runtime pins and lab image fields
+remain explicit blockers; no runtime, component repository, release, or
+admission is created.
+
+Verification:
+
+- `python tools/governance.py validate`
+- `python tools/governance.py render --check`
+- `python -m unittest discover -s tools/tests -v`
+- `git diff --check`
+- cold governance/security review
+- meta-repository no-runtime and secret-pattern scans
+
+Risks / non-goals:
+
+- CI execution on the remote Forgejo runner is not claimed until this local
+  change is committed, pushed, and observed in that environment.
+- Draft JSON Schemas define contract shape but do not admit implementations or
+  replace runtime conformance, failure, boundary, and platform tests.
+- Exact test images, component artifacts, rollback mates, signatures, and
+  evidence remain absent and therefore block release admission.
+
+### 2026-08-08 12:39 CDT — Define the Cisco IOS-style `bfw` command line
+
+Commit: included in the cumulative current change above
+
+Affected files:
+
+- `README.md`
+- `components/README.md`
+- `documents/PRD.md`
+- `documents/ARCHITECTURE.md`
+- `documents/IMPLEMENTATION-SPEC.md`
+
+Explanation:
+
+Make Cisco IOS-style command-line ergonomics a first-class Bifrost product
+contract. The unprivileged `bfw` client now has specified EXEC and configuration
+modes, familiar prompts and navigation, contextual help and completion,
+`show`/`no`/`default` grammar, and declarative plugin command contributions.
+Unlike classic immediate-mutation workflows, configuration commands edit a
+session-owned candidate and reach live state only through Bifrost validation,
+transactional commit, verification, audit, and rollback. `enable` is an
+authorized mode transition rather than shared-password authority.
+
+Verification:
+
+- `git diff --check`
+- complete and unique BFW-PRD-000 through BFW-PRD-078 trace inspection
+- CLI authority-boundary and candidate/commit semantic review
+- canonical-document scan for direct shell, plugin, file, or host mutation
+- meta-repository no-runtime check
+
 ### 2026-08-01 22:32 CDT — Make proxy and HA native Bifrost plugins
 
 Commit: `dc55813a4f2648ff68e696136ea9be2de6cdf9ea`

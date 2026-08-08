@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.bifrost.invalid/v1/health.schema.json",
+  "title": "Bifrost component health and degradation v1",
+  "type": "object",
+  "required": ["schema", "component_id", "generation", "observed_at", "state", "mutation_allowed", "reasons"],
+  "properties": {
+    "schema": {"const": "bfw.health/v1"},
+    "component_id": {"$ref": "common.schema.json#/$defs/identifier"},
+    "generation": {"$ref": "common.schema.json#/$defs/generation"},
+    "observed_at": {"$ref": "common.schema.json#/$defs/timestamp"},
+    "state": {"enum": ["healthy", "degraded", "unhealthy", "unknown", "disabled", "incompatible"]},
+    "mutation_allowed": {"type": "boolean"},
+    "reasons": {"type": "array", "items": {"type": "object", "required": ["code", "message"], "properties": {"code": {"type": "string"}, "message": {"type": "string"}}, "additionalProperties": false}},
+    "evidence": {"type": "array", "items": {"$ref": "common.schema.json#/$defs/sha256"}}
+  },
+  "additionalProperties": false
+}

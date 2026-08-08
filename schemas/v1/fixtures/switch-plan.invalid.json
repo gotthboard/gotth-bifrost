@@ -1,0 +1,1 @@
+{"schema_file":"switch-plan.schema.json","valid":false,"instance":{"schema":"bfw.switch-plan/v1","plan_id":"plan-1","base_generation":1,"bridge_domains":[],"ports":[],"verification":{"vlan_membership":true,"fdb":true,"spanning_tree":true,"lacp":true,"management_reachability":true},"rollback_required":false}}

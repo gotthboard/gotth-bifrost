@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.bifrost.invalid/v1/fabric-plan.schema.json",
+  "title": "Bifrost distributed fabric plan v1",
+  "type": "object",
+  "required": ["schema", "plan_id", "fabric_id", "configuration_generation", "leader_term", "membership_epoch", "nodes", "overlays", "placements", "failure_policy", "convergence_deadline", "rollback_required"],
+  "properties": {
+    "schema": {"const": "bfw.fabric-plan/v1"},
+    "plan_id": {"$ref": "common.schema.json#/$defs/correlation"},
+    "fabric_id": {"$ref": "common.schema.json#/$defs/identifier"},
+    "configuration_generation": {"$ref": "common.schema.json#/$defs/generation"},
+    "leader_term": {"$ref": "common.schema.json#/$defs/generation"},
+    "membership_epoch": {"$ref": "common.schema.json#/$defs/generation"},
+    "nodes": {"type": "array", "minItems": 3, "uniqueItems": true, "items": {"$ref": "common.schema.json#/$defs/identifier"}},
+    "overlays": {"type": "array", "items": {"type": "object", "required": ["id", "encapsulation", "vni", "vrf", "mtu"], "properties": {"id": {"$ref": "common.schema.json#/$defs/identifier"}, "encapsulation": {"enum": ["vxlan", "geneve"]}, "vni": {"type": "integer", "minimum": 1, "maximum": 16777215}, "vrf": {"type": ["string", "null"]}, "mtu": {"type": "integer", "minimum": 576}}, "additionalProperties": false}},
+    "placements": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["node", "switch_plan", "route_plan", "firewall_plan", "readiness_barrier"], "properties": {"node": {"$ref": "common.schema.json#/$defs/identifier"}, "switch_plan": {"type": ["string", "null"]}, "route_plan": {"type": ["string", "null"]}, "firewall_plan": {"type": ["string", "null"]}, "readiness_barrier": {"type": "string", "minLength": 1}}, "anyOf": [{"properties": {"switch_plan": {"type": "string"}}}, {"properties": {"route_plan": {"type": "string"}}}, {"properties": {"firewall_plan": {"type": "string"}}}], "additionalProperties": false}},
+    "failure_policy": {"type": "object", "required": ["minority", "control_loss", "unknown_placement", "stale_state"], "properties": {"minority": {"const": "deny-mutations"}, "control_loss": {"enum": ["retain-last-known-good", "isolate"]}, "unknown_placement": {"const": "deny"}, "stale_state": {"enum": ["drop", "isolate", "retain-bounded"]}}, "additionalProperties": false},
+    "convergence_deadline": {"$ref": "common.schema.json#/$defs/timestamp"},
+    "rollback_required": {"const": true}
+  },
+  "additionalProperties": false
+}

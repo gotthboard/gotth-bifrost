@@ -1,0 +1,252 @@
+schema_version = 1
+release_id = "bfw-v0.1-profile"
+version = "0.1.0-draft"
+channel = "design"
+status = "profile_only"
+admission = "not_admitted"
+platforms = ["linux"]
+platform_policy = "Linux is the first implementation profile; exact OS, kernel, architecture, and image digests remain required before implementation admission."
+phase0_gate = "BFW-PHASE-0"
+phase0_required = true
+transaction_contract = "bfw.transaction/v1-draft"
+configuration_schema = "bfw.configuration/v1-draft"
+rollback_record_schema = "bfw.rollback-record/v1-draft"
+release_manifest_schema = "bfw.release/v1-draft"
+signing_policy_adr = "ADR-0006"
+compatibility_policy_adr = "ADR-0007"
+
+included = [
+  "bfw-core",
+  "bfw-cli",
+  "bfw-web",
+  "bfw-plugin-sdk",
+  "bfw-identity",
+  "bfw-platform-linux",
+  "bfw-firewall",
+  "bfw-network",
+  "bfw-switching",
+  "bfw-routing",
+  "bfw-dns",
+  "bfw-dhcp",
+  "bfw-wireguard",
+  "bfw-monitoring",
+  "bfw-logging",
+  "bfw-backup",
+]
+
+deferred = [
+  "bfw-platform-freebsd", "bfw-platform-windows", "bfw-reverse-proxy",
+  "bfw-ha", "bfw-ntp", "bfw-ddns", "bfw-acme", "bfw-mdns", "bfw-frr",
+  "bfw-ipsec", "bfw-openvpn", "bfw-qos", "bfw-multiwan", "bfw-cellular",
+  "bfw-ids", "bfw-fabric", "bfw-kubernetes-controller", "bfw-dns-filter", "bfw-threat-intel", "bfw-captive-portal",
+  "bfw-radius", "bfw-upnp", "bfw-support", "bfw-notifications",
+  "bfw-updater",
+]
+
+[[composition]]
+id = "bfw-core"
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "none"
+migration_order = 10
+rollback_mate = ""
+evidence_hashes = []
+admission = "not_admitted"
+
+[[composition]]
+id = "bfw-plugin-sdk"
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+migration_order = 20
+rollback_mate = ""
+evidence_hashes = []
+admission = "not_admitted"
+
+[[composition]]
+id = "bfw-identity"
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "none"
+migration_order = 30
+rollback_mate = ""
+evidence_hashes = []
+admission = "not_admitted"
+
+[[composition]]
+id = "bfw-platform-linux"
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "none"
+migration_order = 40
+rollback_mate = ""
+evidence_hashes = []
+admission = "not_admitted"
+
+[[composition]]
+id = "bfw-firewall"
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+migration_order = 50
+rollback_mate = ""
+evidence_hashes = []
+admission = "not_admitted"
+
+[[composition]]
+id = "bfw-network"
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+migration_order = 51
+rollback_mate = ""
+evidence_hashes = []
+admission = "not_admitted"
+
+[[composition]]
+id = "bfw-switching"
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+migration_order = 52
+rollback_mate = ""
+evidence_hashes = []
+admission = "not_admitted"
+
+[[composition]]
+id = "bfw-routing"
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+migration_order = 53
+rollback_mate = ""
+evidence_hashes = []
+admission = "not_admitted"
+
+[[composition]]
+id = "bfw-dns"
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+migration_order = 60
+rollback_mate = ""
+evidence_hashes = []
+admission = "not_admitted"
+
+[[composition]]
+id = "bfw-dhcp"
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+migration_order = 61
+rollback_mate = ""
+evidence_hashes = []
+admission = "not_admitted"
+
+[[composition]]
+id = "bfw-wireguard"
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+migration_order = 70
+rollback_mate = ""
+evidence_hashes = []
+admission = "not_admitted"
+
+[[composition]]
+id = "bfw-cli"
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "cli-1-draft"
+migration_order = 90
+rollback_mate = ""
+evidence_hashes = []
+admission = "not_admitted"
+
+[[composition]]
+id = "bfw-web"
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+migration_order = 100
+rollback_mate = ""
+evidence_hashes = []
+admission = "not_admitted"
+
+[[composition]]
+id = "bfw-monitoring"
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+migration_order = 130
+rollback_mate = ""
+evidence_hashes = []
+admission = "not_admitted"
+
+[[composition]]
+id = "bfw-logging"
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+migration_order = 131
+rollback_mate = ""
+evidence_hashes = []
+admission = "not_admitted"
+
+[[composition]]
+id = "bfw-backup"
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+migration_order = 132
+rollback_mate = ""
+evidence_hashes = []
+admission = "not_admitted"

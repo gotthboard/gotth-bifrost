@@ -1,0 +1,26 @@
+schema_version = 1
+authority = "First-party Kubernetes-managed Bifrost control profiles; native node forwarding remains autonomous."
+status = "planned"
+default_profile = "single-controller"
+managed_node_mode = "native-agent"
+forwarding_dependency = "autonomous-last-known-good"
+control_loss_policy = "freeze-mutations-retain-forwarding"
+worker_membership_required = false
+
+[[profiles]]
+id = "single-controller"
+ha = false
+minimum_controllers = 1
+odd_controller_count_required = false
+minimum_failure_domains = 1
+consensus = "single"
+availability_claim = "management-single-point-of-failure"
+
+[[profiles]]
+id = "ha-controller"
+ha = true
+minimum_controllers = 3
+odd_controller_count_required = true
+minimum_failure_domains = 3
+consensus = "quorum"
+availability_claim = "controller-ha-only; forwarding-ha-remains-native"

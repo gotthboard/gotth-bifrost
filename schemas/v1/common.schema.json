@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.bifrost.invalid/v1/common.schema.json",
+  "title": "Bifrost common contract types",
+  "$defs": {
+    "identifier": {"type": "string", "pattern": "^bfw(?:[.-][a-z0-9]+)+$", "maxLength": 128},
+    "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+(?:\\.[0-9]+)?(?:-[a-z0-9.-]+)?$", "maxLength": 64},
+    "generation": {"type": "integer", "minimum": 0},
+    "sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+    "timestamp": {"type": "string", "format": "date-time"},
+    "correlation": {"type": "string", "pattern": "^[A-Za-z0-9._:-]{1,128}$"},
+    "platform": {"enum": ["linux", "freebsd", "windows", "darwin"]},
+    "admission": {"enum": ["not_admitted", "admitted", "rejected", "revoked"]}
+  }
+}

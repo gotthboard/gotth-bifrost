@@ -1,0 +1,51 @@
+schema_version = 1
+feature = "goka-clean-room-ha-v1"
+verified_at = "2026-08-08T14:42:07-05:00"
+base_commit = "a3afae76b4b2eb31a965b7a067258a298ec6e7f8"
+decision = "passed"
+requirements = ["BFW-PRD-145", "BFW-PRD-146", "BFW-PRD-147", "BFW-PRD-148", "BFW-PRD-149", "BFW-PRD-150", "BFW-PRD-151", "BFW-PRD-152", "BFW-PRD-153"]
+runtime_admission = "not_admitted"
+phase0 = "blocked"
+
+[[checks]]
+command = "python tools/governance.py validate"
+result = "passed"
+
+[[checks]]
+command = "python tools/governance.py render --check"
+result = "passed"
+
+[[checks]]
+command = "PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s tools/tests -v"
+result = "passed: 20 tests"
+
+[[checks]]
+command = "pyright tools/governance.py tools/tests/test_governance.py"
+result = "passed: 0 errors, 0 warnings, 0 informations"
+
+[[checks]]
+command = "clean-room, Keepalived-authority, schema-fixture, direct-mutation, shell-health, threat, lab, JSON/TOML, link, no-runtime, and changelog audits"
+result = "passed"
+
+[[checks]]
+command = "git diff --check"
+result = "passed"
+
+[[reviews]]
+path = "workflow/features/goka-clean-room-ha-v1/review/judge-1.md"
+sha256 = "219a5998d1d9bd12ff836b9fc479d62739a59be6731262c1bf6c14c3af374293"
+decision = "passed"
+
+[[reviews]]
+path = "workflow/features/goka-clean-room-ha-v1/review/judge-2.md"
+sha256 = "8aa997874410f4f05917909a0add1e6f9e0208c5854ec594eff766524dd34584"
+decision = "passed"
+
+[limitations]
+runtime_code_created = false
+component_repository_created = false
+keepalived_code_used = false
+protocol_interoperability_claimed = false
+release_created = false
+external_action_performed = false
+remote_ci_run = false

@@ -1,0 +1,50 @@
+schema_version = 1
+feature = "kubernetes-managed-ha-v1"
+verified_at = "2026-08-08T14:32:59-05:00"
+base_commit = "a3afae76b4b2eb31a965b7a067258a298ec6e7f8"
+decision = "passed"
+requirements = ["BFW-PRD-136", "BFW-PRD-137", "BFW-PRD-138", "BFW-PRD-139", "BFW-PRD-140", "BFW-PRD-141", "BFW-PRD-142", "BFW-PRD-143", "BFW-PRD-144"]
+runtime_admission = "not_admitted"
+phase0 = "blocked"
+
+[[checks]]
+command = "python tools/governance.py validate"
+result = "passed"
+
+[[checks]]
+command = "python tools/governance.py render --check"
+result = "passed"
+
+[[checks]]
+command = "PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s tools/tests -v"
+result = "passed: 18 tests"
+
+[[checks]]
+command = "pyright tools/governance.py tools/tests/test_governance.py"
+result = "passed: 0 errors, 0 warnings, 0 informations"
+
+[[checks]]
+command = "JSON/TOML parse, local-link, profile/cardinality, authority-boundary, v0.1 partition, Phase 0, no-runtime, and changelog audits"
+result = "passed"
+
+[[checks]]
+command = "git diff --check"
+result = "passed"
+
+[[reviews]]
+path = "workflow/features/kubernetes-managed-ha-v1/review/judge-1.md"
+sha256 = "799c2f8aba85bd0514290086fbe2529c111278ee478e4b0913e12e0a00aa00bb"
+decision = "passed"
+
+[[reviews]]
+path = "workflow/features/kubernetes-managed-ha-v1/review/judge-2.md"
+sha256 = "7c8ba7c2db51eb2bc3408f26e058b82e9e6cae9994989f295458c28565109ce4"
+decision = "passed"
+
+[limitations]
+runtime_code_created = false
+kubernetes_cluster_created = false
+controller_repository_created = false
+release_created = false
+external_action_performed = false
+remote_ci_run = false

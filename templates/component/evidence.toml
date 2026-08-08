@@ -1,0 +1,16 @@
+schema_version = 1
+component_id = "{{COMPONENT_ID}}"
+revision = "{{40_HEX_COMMIT}}"
+status = "pending"
+
+[[runs]]
+requirement_ids = ["{{REQUIREMENT_ID}}"]
+command = "{{EXACT_COMMAND}}"
+environment_digest = "sha256:{{64_HEX}}"
+started_at = "{{RFC3339}}"
+completed_at = "{{RFC3339}}"
+exit_code = -1
+raw_evidence_path = "{{PATH}}"
+raw_evidence_digest = "sha256:{{64_HEX}}"
+result = "pending"
+limitations = ["{{KNOWN_GAP}}"]

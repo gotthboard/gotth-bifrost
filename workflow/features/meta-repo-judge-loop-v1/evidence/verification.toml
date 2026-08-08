@@ -1,0 +1,54 @@
+schema_version = 1
+feature = "meta-repo-judge-loop-v1"
+verified_at = "2026-08-08T14:14:18-05:00"
+base_commit = "a3afae76b4b2eb31a965b7a067258a298ec6e7f8"
+decision = "passed"
+requirements = ["BFW-PRD-079", "BFW-PRD-080", "BFW-PRD-081", "BFW-PRD-082", "BFW-PRD-083", "BFW-PRD-084", "BFW-PRD-085", "BFW-PRD-086", "BFW-PRD-087", "BFW-PRD-088", "BFW-PRD-089", "BFW-PRD-090", "BFW-PRD-091", "BFW-PRD-092", "BFW-PRD-093", "BFW-PRD-094", "BFW-PRD-095", "BFW-PRD-096", "BFW-PRD-097", "BFW-PRD-098", "BFW-PRD-099", "BFW-PRD-100", "BFW-PRD-101", "BFW-PRD-102", "BFW-PRD-103", "BFW-PRD-104", "BFW-PRD-105", "BFW-PRD-106", "BFW-PRD-107", "BFW-PRD-108", "BFW-PRD-109", "BFW-PRD-110", "BFW-PRD-111", "BFW-PRD-112", "BFW-PRD-113", "BFW-PRD-114", "BFW-PRD-115", "BFW-PRD-116", "BFW-PRD-117", "BFW-PRD-118", "BFW-PRD-119", "BFW-PRD-120", "BFW-PRD-121", "BFW-PRD-122", "BFW-PRD-123", "BFW-PRD-124", "BFW-PRD-125", "BFW-PRD-126", "BFW-PRD-127", "BFW-PRD-128", "BFW-PRD-129", "BFW-PRD-130", "BFW-PRD-131", "BFW-PRD-132", "BFW-PRD-133", "BFW-PRD-134", "BFW-PRD-135"]
+runtime_admission = "not_admitted"
+phase0 = "blocked"
+
+[[checks]]
+command = "python tools/governance.py validate"
+result = "passed"
+
+[[checks]]
+command = "python tools/governance.py render --check"
+result = "passed"
+
+[[checks]]
+command = "PYTHONDONTWRITEBYTECODE=1 python -m unittest discover -s tools/tests -v"
+result = "passed: 16 tests"
+
+[[checks]]
+command = "pyright tools/governance.py tools/tests/test_governance.py"
+result = "passed: 0 errors, 0 warnings, 0 informations"
+
+[[checks]]
+command = "JSON/TOML parse, Markdown-link, evidence-binding, authority-boundary, workflow-history, Phase 0, no-runtime, and changelog-marker audits"
+result = "passed"
+
+[[checks]]
+command = "git diff --check"
+result = "passed"
+
+[[reviews]]
+path = "workflow/features/meta-repo-judge-loop-v1/review/judge-1.md"
+sha256 = "1587eec56818aeea6beb65d4ad4c7353679203a881bf60fb74f18524f2b0796e"
+decision = "failed"
+
+[[reviews]]
+path = "workflow/features/meta-repo-judge-loop-v1/review/judge-2.md"
+sha256 = "5dc7ab3224d95d5b5200f80943d10ebeb26ea717914672f28c2058db06703ee4"
+decision = "passed"
+
+[[reviews]]
+path = "workflow/features/meta-repo-judge-loop-v1/review/judge-3.md"
+sha256 = "2104afd13a86dabd4225b684feaf5d4e192bd9766270fa8dc6e1798c9b6134b0"
+decision = "passed"
+
+[limitations]
+runtime_code_created = false
+release_created = false
+external_action_performed = false
+remote_ci_run = false
+platform_behavior_tested = false

@@ -1,0 +1,49 @@
+schema_version = 1
+feature = "distributed-fabric-v1"
+verified_at = "2026-08-08T14:00:00-05:00"
+base_commit = "a3afae76b4b2eb31a965b7a067258a298ec6e7f8"
+decision = "passed"
+requirements = ["BFW-PRD-123", "BFW-PRD-124", "BFW-PRD-125", "BFW-PRD-126", "BFW-PRD-127", "BFW-PRD-128", "BFW-PRD-129", "BFW-PRD-130", "BFW-PRD-131", "BFW-PRD-132", "BFW-PRD-133", "BFW-PRD-134", "BFW-PRD-135"]
+runtime_admission = "not_admitted"
+phase0 = "blocked"
+
+[[checks]]
+command = "python tools/governance.py validate"
+result = "passed"
+
+[[checks]]
+command = "python tools/governance.py render --check"
+result = "passed"
+
+[[checks]]
+command = "python -m unittest discover -s tools/tests -v"
+result = "passed: 13 tests"
+
+[[checks]]
+command = "pyright tools/governance.py tools/tests/test_governance.py"
+result = "passed: 0 errors, 0 warnings, 0 informations"
+
+[[checks]]
+command = "git diff --check"
+result = "passed"
+
+[[inventory]]
+summary = "136 contiguous requirements, 40 components, 16 strict schemas, 12 accepted ADRs, and a deferred distributed switching/routing/firewall fabric contract reconcile."
+
+[[reviews]]
+path = "workflow/features/distributed-fabric-v1/review/judge-1.md"
+sha256 = "f93532ef2b1c21248a92e0b94f44bd2818de7b2165763d7504003e1480bb2bfb"
+decision = "passed"
+
+[[reviews]]
+path = "workflow/features/distributed-fabric-v1/review/judge-2.md"
+sha256 = "dc015d2a3dd1b58b3626e241398f92a987d8c618f6a631e56b7b32beed401fc6"
+decision = "passed"
+
+[limitations]
+runtime_code_created = false
+cluster_created = false
+network_session_created = false
+release_created = false
+external_action_performed = false
+protocol_or_packet_behavior_tested = false

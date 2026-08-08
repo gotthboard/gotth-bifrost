@@ -1,0 +1,17 @@
+schema_version = 1
+component_id = "{{COMPONENT_ID}}"
+version = "0.0.0-draft"
+repository = "{{CANONICAL_REPOSITORY_URI}}"
+revision = "{{40_HEX_COMMIT}}"
+artifact_digests = ["sha256:{{64_HEX}}"]
+sbom_digest = "sha256:{{64_HEX}}"
+provenance_digest = "sha256:{{64_HEX}}"
+api_version = "{{API_VERSION}}"
+schema_version_contract = "{{SCHEMA_VERSION}}"
+ui_version = "{{UI_VERSION_OR_NONE}}"
+platforms = []
+migration_order = 0
+rollback_mate = "{{40_HEX_COMMIT}}"
+evidence_hashes = ["sha256:{{64_HEX}}"]
+signature_ref = "{{SIGNATURE_METADATA_REFERENCE}}"
+admission = "not_admitted"

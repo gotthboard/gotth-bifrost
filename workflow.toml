@@ -1,0 +1,28 @@
+schema_version = 1
+project = "Bifrost"
+authority = "workflow.toml"
+
+[root]
+id = "two-out-of-box-ha-profiles-v1"
+title = "Exactly two first-party out-of-the-box HA profiles"
+status = "completed"
+phase = "handoff"
+owner = "bryce"
+started_at = "2026-08-08T14:45:16-05:00"
+external_actions_allowed = false
+runtime_code_allowed = false
+
+[active_feature]
+id = "two-out-of-box-ha-profiles-v1"
+status = "completed"
+requirements = ["BFW-PRD-154", "BFW-PRD-155", "BFW-PRD-156", "BFW-PRD-157", "BFW-PRD-158", "BFW-PRD-159", "BFW-PRD-160", "BFW-PRD-161"]
+evidence = ["sha256:19b32c5c9b51fee5bb5c70c1f69729077fe4be4349d40c904f4343c9ba01641f"]
+review = "passed"
+
+[gates]
+phase0 = "blocked"
+design = "passed"
+implementation = "passed"
+verification = "passed"
+judge = "passed"
+handoff = "passed"

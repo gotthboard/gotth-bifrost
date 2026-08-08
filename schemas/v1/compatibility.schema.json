@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.bifrost.invalid/v1/compatibility.schema.json",
+  "title": "Bifrost compatibility declaration v1",
+  "type": "object",
+  "required": ["schema", "component_id", "component_version", "core_api", "plugin_protocol", "configuration_schema", "platforms"],
+  "properties": {
+    "schema": {"const": "bfw.compatibility/v1"},
+    "component_id": {"$ref": "common.schema.json#/$defs/identifier"},
+    "component_version": {"$ref": "common.schema.json#/$defs/version"},
+    "core_api": {"type": "object", "required": ["minimum", "maximum_exclusive"], "properties": {"minimum": {"$ref": "common.schema.json#/$defs/version"}, "maximum_exclusive": {"$ref": "common.schema.json#/$defs/version"}}, "additionalProperties": false},
+    "plugin_protocol": {"$ref": "common.schema.json#/$defs/version"},
+    "configuration_schema": {"$ref": "common.schema.json#/$defs/version"},
+    "ui_contract": {"$ref": "common.schema.json#/$defs/version"},
+    "cli_contract": {"$ref": "common.schema.json#/$defs/version"},
+    "platforms": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["name", "status", "semantic_gaps"], "properties": {"name": {"$ref": "common.schema.json#/$defs/platform"}, "status": {"enum": ["supported", "degraded", "unsupported"]}, "semantic_gaps": {"type": "array", "items": {"type": "string"}}}, "additionalProperties": false}}
+  },
+  "additionalProperties": false
+}

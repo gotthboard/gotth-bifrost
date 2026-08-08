@@ -1,0 +1,26 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.bifrost.invalid/v1/ids-plan.schema.json",
+  "title": "Bifrost IDS/IPS plan v1",
+  "type": "object",
+  "required": ["schema", "plan_id", "mode", "capture_points", "ruleset", "resource_bounds", "evidence_policy", "inline_policy", "rollback_required"],
+  "properties": {
+    "schema": {"const": "bfw.ids-plan/v1"},
+    "plan_id": {"$ref": "common.schema.json#/$defs/correlation"},
+    "mode": {"enum": ["passive-ids", "inline-ips"]},
+    "capture_points": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "common.schema.json#/$defs/identifier"}},
+    "ruleset": {"type": "object", "required": ["id", "revision", "digest", "dialect", "expires_at"], "properties": {"id": {"$ref": "common.schema.json#/$defs/identifier"}, "revision": {"type": "string", "minLength": 1}, "digest": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}, "dialect": {"type": "string", "minLength": 1}, "expires_at": {"$ref": "common.schema.json#/$defs/timestamp"}}, "additionalProperties": false},
+    "resource_bounds": {"type": "object", "required": ["max_flows", "max_stream_bytes", "max_packet_bytes", "max_decode_depth", "max_alerts_per_second", "max_evidence_bytes"], "properties": {"max_flows": {"type": "integer", "minimum": 1}, "max_stream_bytes": {"type": "integer", "minimum": 1}, "max_packet_bytes": {"type": "integer", "minimum": 1}, "max_decode_depth": {"type": "integer", "minimum": 1}, "max_alerts_per_second": {"type": "integer", "minimum": 1}, "max_evidence_bytes": {"type": "integer", "minimum": 0}}, "additionalProperties": false},
+    "evidence_policy": {"type": "object", "required": ["retain_payload", "retain_pcap", "retention_seconds", "redaction_profile"], "properties": {"retain_payload": {"type": "boolean", "default": false}, "retain_pcap": {"type": "boolean", "default": false}, "retention_seconds": {"type": "integer", "minimum": 0}, "redaction_profile": {"$ref": "common.schema.json#/$defs/identifier"}}, "additionalProperties": false},
+    "inline_policy": {"type": ["object", "null"], "required": ["failure_mode", "max_backlog_packets", "watchdog_milliseconds", "bypass_admitted"], "properties": {"failure_mode": {"enum": ["fail-open", "fail-closed"]}, "max_backlog_packets": {"type": "integer", "minimum": 1}, "watchdog_milliseconds": {"type": "integer", "minimum": 1}, "bypass_admitted": {"type": "boolean"}}, "additionalProperties": false},
+    "rollback_required": {"const": true}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"mode": {"const": "inline-ips"}}, "required": ["mode"]},
+      "then": {"properties": {"inline_policy": {"type": "object"}}},
+      "else": {"properties": {"inline_policy": {"type": "null"}}}
+    }
+  ],
+  "additionalProperties": false
+}

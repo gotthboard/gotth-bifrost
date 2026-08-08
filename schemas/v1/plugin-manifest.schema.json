@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.bifrost.invalid/v1/plugin-manifest.schema.json",
+  "title": "Bifrost signed plugin manifest v1",
+  "type": "object",
+  "required": ["schema", "plugin_id", "version", "artifact", "compatibility", "capabilities", "dependencies", "conflicts", "health", "migrations", "rollback", "provenance"],
+  "properties": {
+    "schema": {"const": "bfw.plugin-manifest/v1"},
+    "plugin_id": {"$ref": "common.schema.json#/$defs/identifier"},
+    "version": {"$ref": "common.schema.json#/$defs/version"},
+    "artifact": {"type": "object", "required": ["name", "digest", "size"], "properties": {"name": {"type": "string", "pattern": "^[A-Za-z0-9._-]+$"}, "digest": {"$ref": "common.schema.json#/$defs/sha256"}, "size": {"type": "integer", "minimum": 1}}, "additionalProperties": false},
+    "compatibility": {"$ref": "compatibility.schema.json"},
+    "capabilities": {"type": "array", "items": {"$ref": "capability.schema.json"}},
+    "dependencies": {"type": "array", "uniqueItems": true, "items": {"$ref": "common.schema.json#/$defs/identifier"}},
+    "conflicts": {"type": "array", "uniqueItems": true, "items": {"$ref": "common.schema.json#/$defs/identifier"}},
+    "health": {"$ref": "health.schema.json"},
+    "ui": {"$ref": "ui-manifest.schema.json"},
+    "migrations": {"type": "array", "items": {"type": "object", "required": ["id", "order", "digest"], "properties": {"id": {"type": "string"}, "order": {"type": "integer", "minimum": 0}, "digest": {"$ref": "common.schema.json#/$defs/sha256"}}, "additionalProperties": false}},
+    "rollback": {"type": "object", "required": ["supported", "mate"], "properties": {"supported": {"type": "boolean"}, "mate": {"type": "string"}}, "additionalProperties": false},
+    "provenance": {"type": "object", "required": ["statement_digest", "sbom_digest", "signature_ref"], "properties": {"statement_digest": {"$ref": "common.schema.json#/$defs/sha256"}, "sbom_digest": {"$ref": "common.schema.json#/$defs/sha256"}, "signature_ref": {"type": "string", "minLength": 1}}, "additionalProperties": false}
+  },
+  "additionalProperties": false
+}

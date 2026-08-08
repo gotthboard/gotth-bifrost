@@ -1,0 +1,49 @@
+schema_version = 1
+feature = "switching-domain-v1"
+verified_at = "2026-08-08T13:28:00-05:00"
+base_commit = "a3afae76b4b2eb31a965b7a067258a298ec6e7f8"
+decision = "passed"
+requirements = ["BFW-PRD-091", "BFW-PRD-092", "BFW-PRD-093", "BFW-PRD-094", "BFW-PRD-095", "BFW-PRD-096", "BFW-PRD-097", "BFW-PRD-098", "BFW-PRD-099"]
+runtime_admission = "not_admitted"
+phase0 = "blocked"
+
+[[checks]]
+command = "python tools/governance.py validate"
+result = "passed"
+
+[[checks]]
+command = "python tools/governance.py render --check"
+result = "passed"
+
+[[checks]]
+command = "python -m unittest discover -s tools/tests -v"
+result = "passed: 10 tests"
+
+[[checks]]
+command = "pyright tools/governance.py tools/tests/test_governance.py"
+result = "passed: 0 errors, 0 warnings, 0 informations"
+
+[[checks]]
+command = "git diff --check"
+result = "passed"
+
+[[inventory]]
+summary = "100 contiguous requirements, 39 components, 13 strict schemas, 8 accepted ADRs, and an exact v0.1 included/deferred partition reconcile."
+
+[[reviews]]
+path = "workflow/features/switching-domain-v1/review/judge-1.md"
+sha256 = "bd27e5ea5161156c315134d4d2e5d9a6708ae7b5715584a3a66dfc16ac636c0c"
+decision = "passed"
+
+[[reviews]]
+path = "workflow/features/switching-domain-v1/review/judge-2.md"
+sha256 = "8c68273bec7314403349bdfea76919ed596ca4e16ac9334e475b721cb7094954"
+decision = "passed"
+
+[limitations]
+runtime_code_created = false
+component_repository_created = false
+release_created = false
+external_action_performed = false
+native_switching_tested = false
+hardware_offload_claimed = false

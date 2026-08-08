@@ -1,7 +1,7 @@
 # Bifrost (BFW)
 
 **Bifrost**, with the firewall shorthand **BFW**, is a planned open-source,
-cross-platform network firewall and routing platform written in Go, in the same
+cross-platform network firewall, managed-switch, and routing platform written in Go, in the same
 broad product category as OPNsense.
 
 The goal is a security-first appliance that combines deterministic packet and
@@ -10,6 +10,17 @@ web administration plane. This is the **Bifrost meta repository**: it owns the
 cross-repository product definition, component map, integration contracts,
 compatibility matrix, release composition, and system-level evidence. It is
 not a product runtime module, firewall, router, or security boundary.
+
+Bifrost is one full-featured network operating system with three supported
+deployment roles: **router**, **switch**, and **converged router-switch**. The
+switch role provides Layer-2 switching and Layer-3 switching through SVIs,
+routed switchports, and inter-VLAN/local-fabric routing. The router role
+provides Layer-3 routing plus Layer-4-aware stateful policy, NAT, port
+forwarding, and transport-aware steering. A router deployment does not require
+a user-traffic Layer-2 switching domain; a switch management address does not
+become a transit path; a converged deployment coordinates all domains through the same
+candidate, authorization, transaction, audit, and recovery model. These are
+profiles of one product, not separate editions or forks.
 
 ## Naming
 
@@ -26,7 +37,9 @@ introduce competing `bfr`, `bif`, or ambiguous `bifrost` shorthand namespaces.
 ## Intended capabilities
 
 - stateful firewall policy through native platform engines
-- routing, VLANs, bridges, bonds, and interface management
+- Layer-2 switching with VLAN access/trunk ports, bridges, STP, LACP, FDB,
+  isolation, storm control, and multicast snooping
+- Layer-3 routing, bonds, and physical/logical interface management
 - NAT, port forwarding, and policy-based routing
 - DHCP, DNS forwarding, and network-service supervision
 - site-to-site and remote-access VPN integration
@@ -36,6 +49,16 @@ introduce competing `bfr`, `bif`, or ambiguous `bifrost` shorthand namespaces.
 - authenticated web UI and API
 - signed plugin/package repository with compatibility and permission admission
 - signed, transactional upgrades with recovery support
+- native Go intrusion detection and separately admitted prevention with a
+  Snort-class rule/flow operating model and bounded compatibility imports
+- distributed switching, routing, and firewall fabrics with node-local
+  enforcement, convergence evidence, and partition-safe recovery
+- first-party Kubernetes/K3s-hosted controller HA for centralized management,
+  without making node forwarding or fast failover depend on Kubernetes
+
+The catalog is the full-featured product direction, not a claim that every
+platform or the first release implements every item. Profiles expose only
+admitted capabilities supported by the selected OS, drivers, and hardware.
 
 ## Design posture
 
@@ -65,7 +88,8 @@ service plugins.
 
 - The portable core owns canonical configuration, shared transaction envelopes,
   authorization, audit, compatibility, and rollback. Domain plugins own their
-  typed domain plans; `bfw-routing` owns routing-plan semantics.
+  typed domain plans; `bfw-switching` owns switching-plan semantics and
+  `bfw-routing` owns routing-plan semantics.
 - Platform plugins translate admitted plans into native OS firewall, routing,
   interface, and service transactions.
 - Optional plugins may add VPN, DHCP, DNS, IDS/IPS, dynamic DNS, ACME,
@@ -76,17 +100,25 @@ service plugins.
 - A plugin crash must not remove the last known-good policy or open an
   unfiltered traffic path.
 
-Routing is not implemented in the core. The separately versioned
+Switching and routing are not implemented in the core. The separately versioned
+`bfw-switching` plugin owns bridge domains, VLAN membership, access/trunk and
+native/PVID behavior, MAC learning and static FDB entries, STP-family loop
+prevention, LACP port channels, isolation, storm control, and multicast
+snooping. The separately versioned
 `bfw-routing` plugin owns static routes, gateways, policy routing, route health,
 ECMP where supported, and integration with admitted dynamic-routing services.
 It produces typed routing plans under core admission and applies them through
-supported native platform adapters. Interface/VLAN ownership and packet-filter
-policy remain separate contracts.
+supported native platform adapters. Physical interface ownership and
+packet-filter policy remain separate contracts. Platform adapters may use
+software switching or separately admitted hardware offload; catalog membership
+does not claim universal ASIC or vendor-SDK support.
 
 The initial capability catalog is intentionally split by ownership boundary:
 
 - `bfw-firewall`: packet-filter, NAT, aliases, schedules, and state policy
-- `bfw-network`: interfaces, VLANs, bridges, bonds/LAGs, MTU, and link state
+- `bfw-network`: physical/logical ports, interface construction, MTU, and link state
+- `bfw-switching`: bridges, VLAN access/trunk membership, FDB, STP, LACP,
+  isolation, storm control, snooping, and LLDP observations
 - `bfw-routing`: static and policy routing, gateways, ECMP, and route health
 - `bfw-dns`, `bfw-dhcp`, `bfw-ntp`, `bfw-ddns`, `bfw-acme`, and `bfw-mdns`:
   separately supervised core network services
@@ -94,12 +126,17 @@ The initial capability catalog is intentionally split by ownership boundary:
 - `bfw-reverse-proxy`: native Go reverse proxy, ingress, TLS, and service
   publication with a Caddy-like operator experience but no Caddy runtime
   dependency
-- `bfw-ha`: native Go high availability inspired by Keepalived, covering
+- `bfw-ha` (**GoKA**): clean-room native Go VRRP-class high availability,
+  covering
   virtual addresses, health, state/configuration synchronization, and failover
   through VRRP/CARP or safe platform-equivalent mechanisms without running
-  Keepalived
+  Keepalived code, binaries, configuration authority, or runtime
 - `bfw-frr`, `bfw-ipsec`, `bfw-openvpn`, `bfw-qos`, `bfw-multiwan`, and
   `bfw-cellular`: advanced routing, VPN, traffic, and uplink capabilities
+- `bfw-fabric`: distributed Layer-2 overlays, Layer-3/anycast routing, policy
+  placement, node convergence, and fabric transaction coordination
+- `bfw-kubernetes-controller`: first-party dedicated Kubernetes/K3s management,
+  rollout, observation, and recovery for autonomous native managed nodes
 - `bfw-ids`, `bfw-dns-filter`, `bfw-threat-intel`, `bfw-captive-portal`,
   `bfw-radius`, and `bfw-upnp`: separately admitted security and access
   capabilities
@@ -110,6 +147,21 @@ Names are planning identifiers until their repositories and public contracts
 are admitted. Catalog membership grants no runtime authority. Every plugin must
 declare typed dependencies and conflicts, UI contributions, platform support,
 permissions, health, migration, rollback, and last-known-good consequences.
+
+`bfw-ids` is intended as a clean-room native Go implementation of Snort-class
+IDS/IPS behavior, not a wrapper, embedded Snort runtime, or copy of Snort
+source. It owns capture normalization, flow/stream state, protocol decoding,
+signature evaluation, alert evidence, and prevention proposals. A versioned
+Snort-rule compatibility importer may accept only the semantics it proves;
+unsupported keywords, PCRE behavior, preprocessors, or actions fail explicitly.
+Only the core and `bfw-firewall` may turn a detection into packet enforcement.
+
+Distribution is orthogonal to appliance role. A router, switch, or converged
+node may run standalone or join an admitted Bifrost fabric. `bfw-fabric` owns
+topology, placement, convergence, and multi-node transaction intent; it does
+not own Layer-2 semantics, routes, or firewall policy. Those remain compiled by
+`bfw-switching`, `bfw-routing`, and `bfw-firewall` and enforced locally on each
+node under one signed configuration generation.
 
 WireGuard enrollment may use OIDC to authenticate an operator or user, but a
 WireGuard peer remains a per-device cryptographic identity. Private and
@@ -123,8 +175,9 @@ authority, firewall authority, DNS authority, or credential storage. Forwarded
 identity headers remain denied unless the core admits an explicit authenticated
 proxy trust contract.
 
-`bfw-ha` implements the portable HA control logic in Go rather than wrapping,
-configuring, or executing Keepalived. It coordinates failover but does not
+`bfw-ha`, formally named **GoKA**, implements the portable HA control logic as
+a clean-room Go engine rather than copying, linking, wrapping, configuring, or
+executing Keepalived. It coordinates failover but does not
 silently grant itself ownership of firewall, routing, interface, service, or
 credential state. A node may assume a virtual address or active role only after
 peer identity, configuration and release compatibility, health, quorum/fencing
@@ -142,7 +195,7 @@ first admit an action; only then may it request a short-lived credential-use
 lease or non-exporting opaque reference scoped to the caller, plugin and
 provider generations, action, target, usage, policy version, and expiry. A
 credential never grants authority by itself, and raw export is denied by
-default. Plugins and `bifrost-web` must not read broker, VPN, DNS-provider,
+default. Plugins and `bfw-web` must not read broker, VPN, DNS-provider,
 ACME, API, or administrative credentials directly.
 
 The current `agent-keyring` v1 service is Unix-socket based. Its transport,
@@ -175,13 +228,30 @@ provider's authority.
 Bifrost separates the privileged core from presentation:
 
 - `bfw` is the unprivileged command-line and local-recovery client.
-- `bfwd` is the provisional role name for the privileged core daemon.
-- `bfw-web` is the provisional role name for the independent, unprivileged web
-  service.
+- `bfwd` is the public role name for the privileged core daemon.
+- `bfw-web` is the public role name for the independent, unprivileged web
+  service. ADR-0002 owns this naming decision.
 
 All management clients use the same versioned, authenticated core API. They do
 not edit configuration files, call platform plugins directly, run firewall
 commands, or become configuration authority.
+
+The `bfw` client presents a Cisco IOS-style command line with hierarchical
+EXEC and configuration modes, familiar prompts, `show`, `configure terminal`,
+`no`, `default`, `exit`, `end`, contextual `?` help, and tab completion. The
+similarity is an operator interface, not an authority model: `enable` is an
+authorized mode transition rather than a shared-password bypass, and
+configuration commands update a session-owned candidate at a known base
+generation. Operators inspect the candidate and diff, validate it, and use
+`commit` or `commit confirmed` before the core may apply anything. Stale or
+conflicting candidates fail closed, and an unconfirmed commit rolls back.
+
+The command parser resolves input to versioned typed core actions; it never
+constructs shell commands or edits native service configuration. Canonical
+structured state remains the source of truth, while `show running-config` is a
+deterministic rendering for operators and automation. Interactive command
+abbreviations are allowed only when unambiguous; scripts use full canonical
+commands and machine-readable output.
 
 Plugin packages may contribute signed UI manifests containing versioned route
 and navigation declarations, configuration/data schemas, declarative forms,
@@ -196,6 +266,22 @@ narrow capability-based message API. It receives no BFW cookies, credentials,
 filesystem access, plugin sockets, top-level DOM access, or arbitrary network
 access. UI and backend compatibility is checked and activated or rolled back as
 one plugin release.
+
+## Executable product governance
+
+The meta repository has a machine-readable development control plane under
+`governance/`. It owns component and external-dependency identity, release
+profiles and exact admitted composition, requirement lifecycle and evidence
+traces, the Phase 0 gate, and test-lab requirements. Versioned JSON Schemas
+under `schemas/v1/` define shared contract envelopes. ADRs, the threat model,
+transaction contract, release/recovery design, v0.1 profile, and component
+templates turn open architecture work into reviewable state.
+
+Local and Forgejo checks run `python tools/governance.py validate` and
+`python tools/governance.py render --check`. These checks reject inconsistent
+metadata and stale generated views; they never turn missing runtime evidence
+into admission. Empty component, image, artifact, rollback, signature, or
+evidence pins remain blockers.
 
 ## First-class OIDC login
 
@@ -219,8 +305,9 @@ change.
 
 ## Current status
 
-Planning-only meta repository. There is no executable firewall, routing plugin,
-web service, installer, image, or production deployment here.
+Governance-only meta repository. It contains executable validation/rendering
+tooling, but no firewall, routing plugin, web service, installer, appliance
+image, or production deployment.
 
 The component and dependency map is maintained in
 [`components/README.md`](components/README.md). Component repositories will be

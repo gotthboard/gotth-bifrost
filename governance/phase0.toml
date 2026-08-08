@@ -1,0 +1,55 @@
+schema_version = 1
+gate_id = "BFW-PHASE-0"
+title = "Cross-platform substrate admission"
+status = "blocked"
+runtime_implementation_allowed = false
+captured_at = "2026-08-08T12:42:00-05:00"
+decision = "No Bifrost runtime repository or host-network mutation may begin until every dependency is admitted."
+
+[[dependencies]]
+id = "rpc-plugin-system"
+repository = "https://git.dannyhunn.com/agents/rpc-plugin-system.git"
+revision = "e94a13a57fa0d475a61ec3c0cfd557c769ab6647"
+status = "blocked"
+required_gates = ["unix-and-windows-transport", "cross-platform-peer-identity", "protocol-negotiation", "external-sdk", "lifecycle-parity", "endurance", "independent-review"]
+passed_gates = []
+evidence = []
+gaps = ["Cross-platform gate evidence has not been admitted by Bifrost.", "Independent Bifrost admission record is absent."]
+review = "not_started"
+admission = "not_admitted"
+
+[[dependencies]]
+id = "agent-keyring"
+repository = "https://git.dannyhunn.com/agents/agent-keyring.git"
+revision = "2476cc7ea36e9b9d6d27ac788c9363b51f4cb864"
+status = "blocked"
+required_gates = ["cross-platform-transport", "peer-identity", "encrypted-storage-unlock", "lease-and-opaque-reference", "rotation-revocation", "recovery", "external-sdk", "redaction", "endurance", "independent-review"]
+passed_gates = []
+evidence = []
+gaps = ["Cross-platform storage, transport, identity, SDK, and native-platform evidence are not admitted.", "Independent Bifrost admission record is absent."]
+review = "not_started"
+admission = "not_admitted"
+
+[[dependencies]]
+id = "agent-filesystem"
+repository = "https://git.dannyhunn.com/agents/agent-filesystem.git"
+revision = "5b723c9e7a67c35e7ed4d9475223dbab74ab112a"
+status = "blocked"
+required_gates = ["cross-platform-transport", "peer-identity", "path-containment", "symlink-and-reparse", "atomicity-durability", "recovery", "external-sdk", "redaction", "endurance", "independent-review"]
+passed_gates = []
+evidence = []
+gaps = ["Windows and supported BSD/macOS path, recovery, and identity evidence are not admitted.", "Independent Bifrost admission record is absent."]
+review = "not_started"
+admission = "not_admitted"
+
+[[dependencies]]
+id = "agent-exec"
+repository = "https://git.dannyhunn.com/agents/agent-exec.git"
+revision = "00ef49a2c397e970704efafb8cf023ac96ebd51e"
+status = "blocked"
+required_gates = ["cross-platform-transport", "peer-identity", "executable-identity", "sandbox-and-account", "resource-and-network-policy", "cancellation-process-tree", "external-sdk", "redaction", "endurance", "independent-review"]
+passed_gates = []
+evidence = []
+gaps = ["Windows and supported BSD/macOS execution, containment, lifecycle, and identity evidence are not admitted.", "Independent Bifrost admission record is absent."]
+review = "not_started"
+admission = "not_admitted"

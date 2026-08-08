@@ -1,0 +1,1 @@
+{"schema_file":"deployment-profile.schema.json","valid":true,"instance":{"schema":"bfw.deployment-profile/v1","profile":"switch","release_id":"bfw.release-01","configuration_generation":1,"required_components":["bfw.core"],"data_plane_layers":[2,3],"enabled_effects":["bfw.layer2"],"denied_effects":["bfw.nat"],"transition_policy":"commit-confirmed"}}

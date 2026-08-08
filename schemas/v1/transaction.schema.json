@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.bifrost.invalid/v1/transaction.schema.json",
+  "title": "Bifrost cross-component transaction envelope v1",
+  "type": "object",
+  "required": ["schema", "transaction_id", "correlation_id", "actor", "base_generation", "deadline", "state", "plan", "participants", "last_known_good"],
+  "properties": {
+    "schema": {"const": "bfw.transaction/v1"},
+    "transaction_id": {"$ref": "common.schema.json#/$defs/correlation"},
+    "correlation_id": {"$ref": "common.schema.json#/$defs/correlation"},
+    "actor": {"type": "object", "required": ["id", "authorization_generation"], "properties": {"id": {"type": "string"}, "authorization_generation": {"$ref": "common.schema.json#/$defs/generation"}}, "additionalProperties": false},
+    "base_generation": {"$ref": "common.schema.json#/$defs/generation"},
+    "deadline": {"$ref": "common.schema.json#/$defs/timestamp"},
+    "state": {"enum": ["validating", "prepared", "applying", "verifying", "committed", "rolling_back", "rolled_back", "failed_closed"]},
+    "plan": {"$ref": "plan.schema.json"},
+    "participants": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["component_id", "generation", "prepare_token_fingerprint", "state"], "properties": {"component_id": {"$ref": "common.schema.json#/$defs/identifier"}, "generation": {"$ref": "common.schema.json#/$defs/generation"}, "prepare_token_fingerprint": {"$ref": "common.schema.json#/$defs/sha256"}, "state": {"enum": ["pending", "prepared", "applied", "verified", "rolled_back", "failed"]}}, "additionalProperties": false}},
+    "last_known_good": {"type": "object", "required": ["configuration_generation", "release_digest"], "properties": {"configuration_generation": {"$ref": "common.schema.json#/$defs/generation"}, "release_digest": {"$ref": "common.schema.json#/$defs/sha256"}}, "additionalProperties": false}
+  },
+  "additionalProperties": false
+}

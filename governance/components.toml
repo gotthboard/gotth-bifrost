@@ -1,0 +1,855 @@
+schema_version = 1
+catalog_id = "bfw-component-catalog"
+status = "planning"
+captured_at = "2026-08-08T12:42:00-05:00"
+authority = "This file is authoritative for component identity and composition metadata."
+
+[platforms]
+known = ["linux", "freebsd", "windows", "darwin"]
+admitted = []
+policy = "Every component must explicitly declare assessed, unsupported, or unassessed platform state before admission."
+
+[[components]]
+id = "bfw-core"
+kind = "core"
+responsibility = "Canonical configuration, authorization, admission, transaction coordination, audit, reconciliation, and recovery."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "none"
+dependencies = ["rpc-plugin-system", "agent-keyring", "agent-filesystem", "agent-exec"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 10
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-cli"
+kind = "management"
+responsibility = "Unprivileged Cisco IOS-style command line and local-recovery client over typed core APIs."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "cli-1-draft"
+dependencies = ["bfw-core"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 90
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-web"
+kind = "management"
+responsibility = "Independent unprivileged web/API presentation service and trusted UI shell."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-identity"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 100
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-plugin-sdk"
+kind = "sdk"
+responsibility = "Versioned domain, plugin, UI, CLI, compatibility, and evidence contracts."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["rpc-plugin-system"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 20
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-identity"
+kind = "identity"
+responsibility = "OIDC relying-party validation, claim inputs, and opaque Bifrost session exchange without authorization ownership."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "none"
+dependencies = ["bfw-core", "agent-keyring"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 30
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-platform-linux"
+kind = "platform"
+responsibility = "Linux nftables, netlink, software bridge/VLAN, optional admitted switchdev/DSA/devlink, interface, routing, and service adapters."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "none"
+dependencies = ["bfw-plugin-sdk"]
+conflicts = []
+platforms = ["linux"]
+platform_status = "planned"
+migration_order = 40
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-platform-freebsd"
+kind = "platform"
+responsibility = "FreeBSD pf, bridge/VLAN, routing, interface, CARP, and service adapters."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "none"
+dependencies = ["bfw-plugin-sdk"]
+conflicts = []
+platforms = ["freebsd"]
+platform_status = "planned"
+migration_order = 40
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-platform-windows"
+kind = "platform"
+responsibility = "Windows Filtering Platform, admitted Hyper-V vSwitch/equivalent, IP Helper, interface, routing, and service adapters."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "none"
+dependencies = ["bfw-plugin-sdk"]
+conflicts = []
+platforms = ["windows"]
+platform_status = "planned"
+migration_order = 40
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-firewall"
+kind = "foundation-plugin"
+responsibility = "Packet-filter, NAT, aliases, schedules, state policy, and deterministic firewall plans."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 50
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-network"
+kind = "foundation-plugin"
+responsibility = "Physical and logical ports, interface construction, MTU, DHCP client, and link-state ownership."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 51
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-switching"
+kind = "foundation-plugin"
+responsibility = "Layer-2 bridge domains, VLAN membership, FDB, STP, LACP, isolation, storm control, multicast snooping, and LLDP observations."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk", "bfw-network"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 52
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-routing"
+kind = "foundation-plugin"
+responsibility = "Static and policy routing, gateways, route health, ECMP, and deterministic routing plans."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk", "bfw-network"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 53
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-wireguard"
+kind = "foundation-plugin"
+responsibility = "WireGuard tunnels, per-device remote access, enrollment, peer lifecycle, and rotation."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk", "bfw-network", "bfw-routing", "bfw-firewall", "agent-keyring"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 70
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-reverse-proxy"
+kind = "foundation-plugin"
+responsibility = "Native Go HTTP/TLS reverse proxy, ingress, upstream health, and service publication."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk", "bfw-dns", "bfw-acme", "bfw-firewall", "agent-keyring"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 80
+rollback_mate = ""
+evidence_hashes = []
+status = "deferred"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-ha"
+product_name = "GoKA"
+kind = "foundation-plugin"
+responsibility = "GoKA clean-room native Go VRRP-class HA control, virtual-address role intent, typed health, synchronization, and failover coordination without Keepalived runtime or direct domain mutation."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk", "bfw-network", "bfw-routing", "bfw-firewall"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 85
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-dns"
+kind = "network-service-plugin"
+responsibility = "DNS resolver/forwarder configuration, observations, and rollback."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk", "bfw-network"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 60
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-dhcp"
+kind = "network-service-plugin"
+responsibility = "DHCP pools, reservations, leases, service observations, and rollback."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk", "bfw-network", "bfw-dns"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 61
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-ntp"
+kind = "network-service-plugin"
+responsibility = "Time-service configuration, health, and rollback."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk", "bfw-network"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 62
+rollback_mate = ""
+evidence_hashes = []
+status = "deferred"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-ddns"
+kind = "network-service-plugin"
+responsibility = "Dynamic DNS provider updates through scoped credentials and typed side effects."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk", "bfw-dns", "agent-keyring"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 63
+rollback_mate = ""
+evidence_hashes = []
+status = "deferred"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-acme"
+kind = "network-service-plugin"
+responsibility = "ACME account, challenge, certificate lifecycle, and deployment coordination."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk", "bfw-dns", "agent-keyring"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 64
+rollback_mate = ""
+evidence_hashes = []
+status = "deferred"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-mdns"
+kind = "network-service-plugin"
+responsibility = "Bounded multicast DNS reflection and service discovery."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk", "bfw-network", "bfw-firewall"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 65
+rollback_mate = ""
+evidence_hashes = []
+status = "deferred"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-frr"
+kind = "advanced-network-plugin"
+responsibility = "Dynamic-routing integration through the typed routing contract."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk", "bfw-routing"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 110
+rollback_mate = ""
+evidence_hashes = []
+status = "deferred"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-ipsec"
+kind = "advanced-network-plugin"
+responsibility = "IPsec VPN contracts and admitted platform/service integration."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk", "bfw-network", "bfw-routing", "bfw-firewall", "agent-keyring"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 111
+rollback_mate = ""
+evidence_hashes = []
+status = "deferred"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-openvpn"
+kind = "advanced-network-plugin"
+responsibility = "OpenVPN contracts and admitted platform/service integration."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk", "bfw-network", "bfw-routing", "bfw-firewall", "agent-keyring"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 112
+rollback_mate = ""
+evidence_hashes = []
+status = "deferred"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-qos"
+kind = "advanced-network-plugin"
+responsibility = "Traffic shaping, classification, and queue policy."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk", "bfw-network", "bfw-firewall"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 113
+rollback_mate = ""
+evidence_hashes = []
+status = "deferred"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-multiwan"
+kind = "advanced-network-plugin"
+responsibility = "Uplink health, failover, load distribution, and sticky-flow policy."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk", "bfw-network", "bfw-routing", "bfw-firewall"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 114
+rollback_mate = ""
+evidence_hashes = []
+status = "deferred"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-cellular"
+kind = "advanced-network-plugin"
+responsibility = "Cellular modem identity, link, health, and bounded control."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk", "bfw-network", "agent-keyring"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 115
+rollback_mate = ""
+evidence_hashes = []
+status = "deferred"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-ids"
+kind = "security-plugin"
+responsibility = "Native Go Snort-class IDS/IPS capture normalization, flow/stream state, protocol decoding, rules, alerts/evidence, and separately admitted enforcement proposals."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk", "bfw-network", "bfw-firewall", "agent-keyring", "agent-filesystem"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 120
+rollback_mate = ""
+evidence_hashes = []
+status = "deferred"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-fabric"
+kind = "advanced-network-plugin"
+responsibility = "Distributed topology, overlay/underlay placement, convergence, multi-node transactions, and coordination of switching, routing, and firewall plans without owning those domains."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk", "bfw-network", "bfw-switching", "bfw-routing", "bfw-firewall", "bfw-ha", "bfw-frr", "rpc-plugin-system", "agent-keyring"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 116
+rollback_mate = ""
+evidence_hashes = []
+status = "deferred"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-kubernetes-controller"
+kind = "optional-management-controller"
+responsibility = "First-party out-of-the-box Kubernetes/K3s-hosted fleet inventory, signed plan distribution, rollout, observation, and recovery coordination without forwarding or independent configuration authority."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk", "rpc-plugin-system", "agent-keyring"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 117
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-dns-filter"
+kind = "security-plugin"
+responsibility = "DNS filtering policy and bounded feed inputs."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk", "bfw-dns"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 121
+rollback_mate = ""
+evidence_hashes = []
+status = "deferred"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-threat-intel"
+kind = "security-plugin"
+responsibility = "Signed threat-feed retrieval, normalization, expiry, and bounded policy proposals."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk", "bfw-firewall", "bfw-dns-filter"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 122
+rollback_mate = ""
+evidence_hashes = []
+status = "deferred"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-captive-portal"
+kind = "security-plugin"
+responsibility = "Guest access policy, portal session state, and bounded network effects."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk", "bfw-network", "bfw-firewall", "bfw-identity"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 123
+rollback_mate = ""
+evidence_hashes = []
+status = "deferred"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-radius"
+kind = "security-plugin"
+responsibility = "RADIUS client/service integration without core identity-authority transfer."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk", "bfw-identity", "agent-keyring"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 124
+rollback_mate = ""
+evidence_hashes = []
+status = "deferred"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-upnp"
+kind = "security-plugin"
+responsibility = "Default-disabled, policy-bounded UPnP, NAT-PMP, and PCP mappings."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk", "bfw-network", "bfw-firewall"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 125
+rollback_mate = ""
+evidence_hashes = []
+status = "deferred"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-monitoring"
+kind = "operations-plugin"
+responsibility = "Metrics, health aggregation, dashboards, and bounded export."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 130
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-logging"
+kind = "operations-plugin"
+responsibility = "Structured event collection, retention, redaction, and bounded export."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 131
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-backup"
+kind = "operations-plugin"
+responsibility = "Signed configuration backup, restore preflight, and recovery artifact handling."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk", "agent-keyring", "agent-filesystem"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 132
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-support"
+kind = "operations-plugin"
+responsibility = "Redacted diagnostics and bounded support-bundle production."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk", "agent-filesystem"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 133
+rollback_mate = ""
+evidence_hashes = []
+status = "deferred"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-notifications"
+kind = "operations-plugin"
+responsibility = "Policy-bounded alert delivery to explicitly admitted destinations."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk", "agent-keyring"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 134
+rollback_mate = ""
+evidence_hashes = []
+status = "deferred"
+admission = "not_admitted"
+
+[[components]]
+id = "bfw-updater"
+kind = "operations-plugin"
+responsibility = "Signed update retrieval, staging, preflight, activation, and recovery coordination."
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+dependencies = ["bfw-core", "bfw-plugin-sdk", "agent-keyring", "agent-filesystem", "agent-exec"]
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 135
+rollback_mate = ""
+evidence_hashes = []
+status = "deferred"
+admission = "not_admitted"
+
+[[external_dependencies]]
+id = "rpc-plugin-system"
+repository = "https://git.dannyhunn.com/agents/rpc-plugin-system.git"
+revision = "e94a13a57fa0d475a61ec3c0cfd557c769ab6647"
+admission = "not_admitted"
+
+[[external_dependencies]]
+id = "agent-keyring"
+repository = "https://git.dannyhunn.com/agents/agent-keyring.git"
+revision = "2476cc7ea36e9b9d6d27ac788c9363b51f4cb864"
+admission = "not_admitted"
+
+[[external_dependencies]]
+id = "agent-filesystem"
+repository = "https://git.dannyhunn.com/agents/agent-filesystem.git"
+revision = "5b723c9e7a67c35e7ed4d9475223dbab74ab112a"
+admission = "not_admitted"
+
+[[external_dependencies]]
+id = "agent-exec"
+repository = "https://git.dannyhunn.com/agents/agent-exec.git"
+revision = "00ef49a2c397e970704efafb8cf023ac96ebd51e"
+admission = "not_admitted"

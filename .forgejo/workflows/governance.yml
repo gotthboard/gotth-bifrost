@@ -1,0 +1,22 @@
+name: Bifrost governance
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out exact revision
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          fetch-depth: 2
+      - name: Validate governance contracts
+        run: python3 tools/governance.py validate
+      - name: Test governance validator
+        run: python3 -m unittest discover -s tools/tests -v
+      - name: Verify generated views
+        run: python3 tools/governance.py render --check
+      - name: Verify patch whitespace
+        run: git diff --check HEAD^ HEAD

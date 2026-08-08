@@ -1,0 +1,23 @@
+schema_version = 1
+authority = "Exactly two first-party out-of-the-box Bifrost HA deployment profiles."
+profiles = ["goka-native", "kubernetes-managed"]
+default_profile = "goka-native"
+simultaneous_management_coordinators_allowed = false
+canonical_authority = "bfw-core"
+fast_failover_authority = "native-node"
+release_policy = "Any release claiming HA-ready packages and verifies both profiles; v0.1 remains not admitted."
+
+[[profile_contracts]]
+id = "goka-native"
+management_coordinator = "goka"
+external_controller_substrate_required = false
+first_party = true
+packaged_out_of_box = true
+status = "planned"
+[[profile_contracts]]
+id = "kubernetes-managed"
+management_coordinator = "kubernetes"
+external_controller_substrate_required = true
+first_party = true
+packaged_out_of_box = true
+status = "planned"

@@ -1,15 +1,15 @@
 # Bifrost (BFW) Architecture
 
-Status: initial boundary architecture
+Status: active boundary and governance architecture; runtime not admitted
 
 ## Naming boundary
 
 **Bifrost** is the full product name; **BFW** is its canonical firewall
 shorthand (Bifrost Firewall), and `bfw` is the lowercase public namespace.
 Component names must compose beneath that namespace rather than inventing
-another product acronym. Internal working names such as `bifrostd` or
-`bifrost-web` remain provisional until executable, service, API, package, and
-upgrade naming is admitted as one compatibility contract.
+another product acronym. ADR-0002 settles `bfw`, `bfwd`, and `bfw-web` as the
+public executable role names; platform packages and service units preserve
+those names as one compatibility contract.
 
 ## Meta-repository boundary
 
@@ -26,6 +26,12 @@ service, routing plugin, platform backends, optional service plugins, SDKs, and
 installers live in separately versioned repositories. Once admitted, their
 exact revisions are pinned here by release metadata or Git submodules; source
 is not copied into the meta repository.
+
+Machine-readable governance under `governance/` is authoritative for component
+identity and pins, requirement state, Phase 0 status, release profiles, and lab
+state. Versioned shared envelope schemas live under `schemas/v1/`. Prose
+remains authoritative for normative product intent, but the validator requires
+matching IDs and rejects contradictory governance state.
 
 ## Control and data planes
 
@@ -89,6 +95,28 @@ operator / API
   each privileged operation against the declared contract.
 - Plugin or supervisor failure leaves native last-known-good policy active.
 
+## Cross-component transaction architecture
+
+`contracts/TRANSACTION-V1.md` and
+`schemas/v1/transaction.schema.json` define the shared transaction boundary.
+The core alone coordinates and commits; domain, platform, and provider
+participants retain their own typed authority:
+
+```text
+candidate at base generation
+  -> validate without native mutation
+  -> prepare immutable plan, preconditions, oracles, and rollback
+  -> apply generation-bound idempotent steps
+  -> verify complete observed state and packet/service oracles
+  -> commit the new canonical generation
+  -> or roll back and verify the recorded last-known-good pair
+```
+
+A lost reply, warning, partial result, stale generation, changed operand under
+an idempotency key, or unknown participant state cannot be interpreted as
+success. Coordinator restart resumes verification or rollback from its journal;
+it does not issue fresh authority for an ambiguous old transaction.
+
 ## Plugin architecture
 
 ```text
@@ -102,13 +130,15 @@ Bifrost portable core
 The Bifrost core contract owns shared configuration and transaction envelopes,
 permissions, idempotency, result framing, and rollback coordination. Each
 domain contract owns its schemas, desired state, typed plan semantics, and
-domain-specific rollback consequences; `bfw-routing` owns the routing domain.
+domain-specific rollback consequences; `bfw-switching` owns the Layer-2
+switching domain and `bfw-routing` owns the Layer-3 routing domain.
 The `rpc-plugin-system` substrate owns executable lifecycle and trust facts. It
 must not become firewall-policy or routing authority.
 
 Candidate plugin classes:
 
 - platform firewall and interface backends
+- `bfw-switching` Layer-2 domain plugin and its platform apply/verify adapters
 - `bfw-routing` routing-domain plugin and its platform apply/verify adapters
 - DHCP and DNS services
 - VPN providers
@@ -118,6 +148,45 @@ Candidate plugin classes:
 
 Core configuration, admission, audit, package verification, and recovery remain
 non-optional. Plugins cannot replace or weaken them.
+
+## Switching plugin boundary
+
+`bfw-switching` is the Layer-2 domain plugin. It owns:
+
+- bridge domains and VLAN membership, including access, trunk, native/PVID,
+  tagged/untagged egress, and allowed VLAN sets
+- learned and static forwarding-database intent, aging policy, and observations
+- STP, RSTP, and MSTP policy, port roles/states, guards, and loop prevention
+- LACP port-channel semantics and member eligibility/state
+- port isolation, storm control, IGMP/MLD snooping, and LLDP observations
+- deterministic switching-plan generation, applied-state verification,
+  switching UI schemas, audit facts, health, drift, and rollback effects
+
+It does not own physical port discovery or construction, IP addressing and
+routes, packet filtering/NAT, DHCP service state, credentials, authorization,
+or platform admission. Those remain `bfw-network`, `bfw-routing`,
+`bfw-firewall`, service, core, and platform responsibilities.
+
+```text
+operator / bfw / web
+  -> core validates and admits desired Layer-2 change
+  -> bfw-switching compiles a typed deterministic switching plan
+  -> admitted platform adapter applies software or admitted offloaded switching
+  -> bfw-switching and core compare bounded observed state with desired state
+  -> core commits, confirms, or rolls back the configuration revision
+```
+
+Linux software bridge/VLAN is the v0.1 baseline. Linux switchdev/DSA/devlink,
+FreeBSD bridge/VLAN, Windows Hyper-V vSwitch or another native equivalent, and
+vendor ASIC SDKs are distinct adapter profiles with declared semantic gaps.
+Hardware offload is never inferred from a device name and never bypasses the
+typed plan, observation, verification, audit, failure, or rollback contract.
+
+Potential loops, conflicting VLAN ownership, tag leakage, duplicate bridge
+membership, uncertain STP convergence, or unsupported required behavior fail
+closed. A management VLAN, bridge, uplink, native-VLAN, or port-channel change
+uses commit-confirmed unless an admitted local or out-of-band recovery path can
+prove continued access.
 
 ## Routing plugin boundary
 
@@ -131,7 +200,8 @@ non-optional. Plugins cannot replace or weaken them.
 - deterministic route-plan generation and applied-state verification
 - routing-specific UI schemas, typed actions, audit facts, and rollback effects
 
-It does not own interface/VLAN creation, DNS or DHCP, packet-filter/NAT policy,
+It does not own interface or VLAN/bridge creation, DNS or DHCP,
+packet-filter/NAT policy,
 credentials, process execution, global authorization, plugin lifecycle, or
 release admission. Those remain separate Bifrost or provider boundaries.
 
@@ -144,10 +214,158 @@ operator / bfw / web
   -> core commits or rolls back the configuration revision
 ```
 
-The core may coordinate a transaction containing firewall, interface, and
-routing steps, but it does not reimplement the routing domain. `bfw-routing`
+The core may coordinate a transaction containing firewall, port, switching,
+routing, and DHCP steps, but it does not reimplement those domains. Each owner
 must declare ordering, preconditions, reversibility, partial-failure semantics,
 and last-known-good consequences so the core can admit the whole transaction.
+
+## Deployment-role architecture
+
+`governance/deployment-profiles.toml` defines three roles over the same core,
+API, CLI, web shell, canonical configuration, audit history, and release:
+
+| Role | Required data-plane domains | Denied by default |
+| --- | --- | --- |
+| `router` | network, routing, firewall | user-traffic Layer-2 bridge forwarding |
+| `switch` | network, switching, routing | WAN-edge routing, NAT, and implicit Layer-4 policy |
+| `converged` | network, switching, routing, firewall | no admitted domain; all cross-domain effects remain explicitly configured |
+
+A management-only address is outside the user forwarding role. In switch mode
+it terminates authorized management traffic but cannot become a transit
+interface. Separately configured switch SVIs and routed switchports may use
+`bfw-routing` for inter-VLAN and local-fabric Layer-3 switching without
+enabling WAN-edge routing, NAT, or Layer-4-aware policy. Likewise, incidental
+OS bridges in router mode do not create a configurable switching domain or
+appear as switch authority.
+
+Layer terminology describes admitted packet effects, not component privilege:
+
+- Layer 2 switch effects—VLAN forwarding, FDB, STP-family control, and LACP—are
+  owned by `bfw-switching`.
+- Layer 3 switch and router effects—SVIs, routed ports, route tables/VRFs,
+  inter-VLAN, local-fabric, and edge routes—are owned by `bfw-routing`.
+- Layer 4-aware router effects—stateful TCP/UDP policy, NAT, port forwarding,
+  connection tracking, and transport-aware steering—are owned by
+  `bfw-firewall`.
+
+Layer 4 awareness does not silently grant reverse-proxy, TLS termination,
+payload inspection, application identity, or other Layer-7 authority. Those
+remain separately admitted components and contracts.
+
+Profiles are evaluated against the exact release composition and platform
+capability report. Required missing, unhealthy, incompatible, or unadmitted
+capabilities reject selection. Optional features remain absent rather than
+being emulated with weaker semantics. "Full-featured" describes the governed
+product direction; the selected profile exposes the admitted intersection of
+catalog, release, platform, driver, and hardware support.
+
+A role transition starts from a private candidate and computes removed,
+retained, and added forwarding effects. The core validates configuration
+compatibility, isolation, management reachability, dependencies, and rollback;
+orders domain withdrawal and activation; verifies native state and independent
+packet oracles; and commits only after confirmation. Restart, timeout, lost
+management, partial apply, or incomplete observation restores the verified
+last-known-good role and configuration or enters a conservative failed-closed
+state.
+
+## Distributed fabric architecture
+
+Fabric scope is orthogonal to deployment role: every router, switch, or
+converged node is either `standalone` or a member of one admitted fabric. The
+same canonical configuration, identity, API, CLI, audit, transaction, and
+release contracts apply. Fabric membership does not create a second management
+plane.
+
+`bfw-fabric` owns cluster topology, node capability/placement decisions,
+convergence intent, and the generation-bound multi-node transaction. It asks
+the existing domain owners to compile node-local plans:
+
+```text
+canonical signed fabric generation
+  -> bfw-fabric validates membership, topology, placement, and barriers
+  -> bfw-switching compiles node-local Layer-2/overlay effects
+  -> bfw-routing / bfw-frr compile routes and EVPN-class advertisements
+  -> bfw-firewall compiles node-local distributed policy placement
+  -> core coordinates staged apply, independent verification, commit/rollback
+```
+
+The fabric component cannot manufacture a bridge, route, or firewall rule and
+cannot call peer plugins as authority. Every node binds the plan to the same
+configuration generation, release/capability set, leader term, membership
+epoch, participant generations, and transaction identity.
+
+The Layer-2 fabric supports admitted VXLAN/GENEVE-class overlays and
+EVPN-class MAC/IP distribution with VNI/bridge-domain identity, split horizon,
+designated forwarding, bounded BUM replication, ARP/ND suppression, mobility
+sequence, duplicate endpoint detection, and bounded learning/aging. The Layer-3
+fabric supports VRFs, routed VNIs, distributed anycast gateways, ECMP,
+route-target import/export, explicitly authorized route leaking, and next-hop
+reachability. Dynamic protocol behavior is supplied through the typed
+`bfw-frr` contract; `bfw-fabric` does not become a BGP implementation.
+
+Distributed firewall policy is compiled from one canonical policy generation
+into deterministic node-local ingress, egress, transit, workload, and service
+placements. Mobility preserves endpoint/zone identity. Stateful flows declare
+whether symmetry is required, how paths are steered, which node owns state,
+whether state is replicated, and how stale or unavailable state behaves.
+Unknown placement or state ownership never widens connectivity.
+
+Membership uses cryptographic node identity and current liveness/generation
+proved by the admitted `rpc-plugin-system` substrate, with durable control
+credentials and rotation/revocation material held by `agent-keyring`.
+`bfw-identity` remains the generic human OIDC relying-party component and is
+not a node trust root. Enrollment/revocation, encrypted authenticated control
+channels, and compatible release/schema/capabilities are mandatory. Canonical
+mutations require quorum,
+monotonic generations, leader/term identity, fencing, durable journaling, and
+idempotent reconciliation. Minority or ambiguous partitions retain last-known-
+good local enforcement and cannot accept conflicting writes.
+
+Every fabric member has exactly one placement record for a generation, and a
+placement names at least one typed switch, route, or firewall plan. Duplicate,
+missing, non-member, or all-null placements fail validation rather than
+silently leaving a policy or forwarding gap.
+
+### First-party Kubernetes-managed HA
+
+A dedicated Kubernetes or K3s deployment may host `bfw-kubernetes-controller`
+as a first-party out-of-the-box management and orchestration plane. It holds no independent
+configuration authority: the canonical Bifrost API, authorization, audit,
+generation, transaction, and rollback contracts remain authoritative. Managed
+routers and switches run native signed Bifrost services plus an authenticated
+agent; they are not required to be Kubernetes workers or expose a container
+runtime.
+
+The small-site profile permits one controller and labels it non-HA. Its loss
+freezes new management mutations while nodes continue forwarding. The HA
+profile requires an odd quorum of at least three controller members across
+declared failure domains, with pinned durable storage and tested backup,
+restore, upgrade, and quorum-recovery procedures. Controller replicas do not
+replace native `bfw-ha` or `bfw-fabric` consensus, BFD, BGP/EVPN, ECMP,
+gateway ownership, state replication, fencing, or node-local rollback.
+
+The selected controller list is authoritative: its unique member count must
+match the declared profile, be odd for HA, and map every controller to a
+distinct admitted failure domain. Missing, duplicate, or unassigned members
+fail validation. The controller may manage standalone or fabric-scoped nodes;
+`bfw-fabric` is an integration, not a hard dependency of fleet management.
+
+The controller distributes mutually authenticated, signed, generation-bound
+typed plans. Each node independently authorizes, validates, applies, observes,
+and either confirms or rolls back its own native effects. Kubernetes API,
+scheduler, etcd, CNI, service network, overlay, storage, or controller failure
+denies new mutations but cannot be a dependency of packet forwarding or local
+recovery. A dedicated management VLAN or out-of-band path is preferred;
+shared-path deployments require explicit admission and commit-confirmed local
+recovery evidence.
+
+Underlay/overlay admission includes MTU and encapsulation overhead, PMTU,
+fragmentation, QoS/ECN preservation, hashing/entropy, loop prevention, BUM,
+and hardware-offload semantics. A fabric change stages by dependency and
+failure domain, uses readiness barriers/canaries and independent node/end-to-end
+oracles, and either converges within a bound or rolls back/islands nodes under
+an explicit safety policy. Control-plane loss never silently removes the last
+verified node-local policy.
 
 ## Capability plugin catalog
 
@@ -159,9 +377,9 @@ each step to its owning component.
 
 | Class | Planned plugins | Ownership summary |
 | --- | --- | --- |
-| Foundation | `bfw-firewall`, `bfw-network`, `bfw-routing`, `bfw-wireguard`, `bfw-reverse-proxy`, `bfw-ha` | packet/NAT policy; links/interfaces; routes; WireGuard peers/tunnels; proxy ingress; failover coordination |
+| Foundation | `bfw-firewall`, `bfw-network`, `bfw-switching`, `bfw-routing`, `bfw-wireguard`, `bfw-reverse-proxy`, `bfw-ha` | packet/NAT policy; ports/interfaces; Layer-2 switching; Layer-3 routes; WireGuard peers/tunnels; proxy ingress; failover coordination |
 | Network services | `bfw-dns`, `bfw-dhcp`, `bfw-ntp`, `bfw-ddns`, `bfw-acme`, `bfw-mdns` | separately supervised core network services and their bounded configuration/status |
-| Advanced network | `bfw-frr`, `bfw-ipsec`, `bfw-openvpn`, `bfw-qos`, `bfw-multiwan`, `bfw-cellular` | dynamic routing, alternate VPNs, shaping, uplink policy/failover, and modem integration |
+| Advanced network | `bfw-fabric`, `bfw-frr`, `bfw-ipsec`, `bfw-openvpn`, `bfw-qos`, `bfw-multiwan`, `bfw-cellular` | distributed fabrics, dynamic routing, alternate VPNs, shaping, uplink policy/failover, and modem integration |
 | Security/access | `bfw-ids`, `bfw-dns-filter`, `bfw-threat-intel`, `bfw-captive-portal`, `bfw-radius`, `bfw-upnp` | inspection, filtering, signed feeds, guest access, AAA integration, and constrained dynamic mappings |
 | Operations | `bfw-monitoring`, `bfw-logging`, `bfw-backup`, `bfw-support`, `bfw-notifications`, `bfw-updater` | metrics, event export, protected recovery artifacts, diagnostics, alert delivery, and signed updates |
 
@@ -240,7 +458,8 @@ publication are committed only with verified proxy readiness or rolled back.
 
 ### High-availability plugin boundary
 
-`bfw-ha` implements the portable HA control plane natively in Go. Keepalived is
+`bfw-ha` is formally named **GoKA** and implements the portable HA control
+plane as a clean-room native Go engine. Keepalived is
 a behavioral reference, not an embedded library, configured service, wrapped
 executable, adapter, or runtime dependency. On platforms where Bifrost owns the
 VRRP implementation, the plugin creates and validates protocol messages and
@@ -253,12 +472,26 @@ semantics reports the feature as unsupported rather than emulating it weakly.
 Protocol compatibility is proved independently against the applicable VRRP or
 platform specification and interoperable peers. Bifrost does not promise
 Keepalived configuration-file, CLI, API, extension, or bug compatibility, and
-no copied Keepalived implementation becomes a Bifrost public contract.
+no copied Keepalived implementation becomes a Bifrost public contract. GoKA is
+implemented from public VRRP specifications, independently authored state-
+machine and packet fixtures, and separately documented interoperability tests.
+Clean-room provenance, dependency/source scans, and license review are release
+evidence.
+
+An optional importer may translate only an exact documented Keepalived dialect
+subset into canonical GoKA intent. Unsupported directives, scripts,
+notification hooks, IPVS/load-balancer behavior, include/order ambiguity, and
+unknown semantics are hard errors. Imported text is never executed and does
+not become a continuing configuration authority.
 
 The plugin owns cluster membership intent, authenticated peer observations,
-virtual-address role intent, priority/preemption policy, health inputs,
+virtual-address role intent, priority/preemption and VRRP timer policy, bounded
+typed health inputs,
 configuration/state synchronization plans, transition ordering, HA UI, and
-failover audit facts. The network, routing, firewall, service, keyring, and
+failover audit facts. Health checks declare interval, timeout, rise/fall,
+weight, dependency, freshness, and incomplete behavior; arbitrary shell,
+inherited environment, and ambient process access are denied. The network,
+routing, firewall, service, keyring, and
 release authorities retain their domains. `bfw-ha` cannot seize an address,
 route, firewall role, or credential by calling a native command directly.
 
@@ -294,6 +527,52 @@ export channel.
   secrets and require explicit authority for external destinations or state
   changes.
 
+### Native Go IDS/IPS boundary
+
+`bfw-ids` is a native Go Snort-class detection engine, not a Snort process
+adapter. Its data path is:
+
+```text
+admitted capture point / platform capture adapter
+  -> packet and offload normalization
+  -> bounded fragment/stream/flow reconstruction
+  -> protocol decoders and canonical rule evaluation
+  -> typed alert plus bounded evidence reference
+  -> optional core-admitted bfw-firewall enforcement transaction
+```
+
+The engine owns packet normalization, flow/stream state, protocol decoding,
+signature evaluation, threshold/suppression state, alert formation, and
+detection health. It does not own interfaces, routes, firewall mutation,
+credentials, evidence-file authority, external feeds, or process execution.
+Feed credentials use `agent-keyring`; bounded PCAP/evidence artifacts use
+`agent-filesystem`; enforcement is a typed proposal admitted by the core and
+applied only by `bfw-firewall`.
+
+Passive IDS and inline IPS are distinct admitted modes. Installing a rule never
+enables inline enforcement. Each inline zone declares fail-open or fail-closed,
+bypass behavior, backlog/resource limits, watchdogs, and recovery. Unknown
+mode, packet loss, incomplete normalization, queue overflow, stream truncation,
+or decoder exhaustion is explicit health/evidence and never a successful claim
+of complete inspection.
+
+Bifrost owns a canonical rule IR. A clean-room Snort-rule importer targets an
+explicit dialect and feature matrix. Unsupported actions, keywords,
+preprocessors, PCRE constructs, decoder assumptions, or ambiguous semantics are
+hard errors. Safe matching uses bounded operators; a compatibility label never
+waives resource limits or completeness oracles.
+
+Rulesets are signed, provenance-bound, content-addressed, deterministically
+compiled, staged, atomically activated, expirable, and rollback-capable. Alerts
+carry rule/revision, capture point, normalized flow identity, classification,
+confidence, action, timestamps, and incompleteness facts. Raw payload or PCAP
+retention is opt-in, bounded, access-controlled, and separately audited.
+
+Platform capture adapters must expose timestamp, checksum/offload, VLAN-tag,
+multi-queue, zero-copy, injection, loss, and ordering semantics. Linux,
+FreeBSD, and Windows implementations are admitted independently; a Snort-class
+product goal is not a claim of complete Snort parity or endorsement.
+
 ## Management and plugin UI architecture
 
 The management path is intentionally one-way through the core:
@@ -311,10 +590,54 @@ local operator
   -> the same core API and admission path
 ```
 
-`bfwd` and `bfw-web` are provisional role names until public executable and
-service naming is admitted. The architectural boundary is not provisional: the
-web service is unprivileged, separately restartable, and incapable of direct
+ADR-0002 admits `bfwd` and `bfw-web` as public role names. The web service is
+unprivileged, separately restartable, and incapable of direct
 firewall, filesystem, keyring, execution-provider, or plugin-socket access.
+
+### Cisco IOS-style CLI architecture
+
+The `bfw` client deliberately adopts Cisco IOS command-line ergonomics while
+retaining Bifrost's transactional authority boundary:
+
+| Mode | Example prompt | Purpose |
+| --- | --- | --- |
+| user EXEC | `edge-1>` | bounded status and discovery |
+| privileged EXEC | `edge-1#` | authorized operational actions and configuration entry |
+| global configuration | `edge-1(config)#` | edit a private candidate configuration |
+| domain configuration | `edge-1(config-if)#`, `edge-1(config-router)#`, `edge-1(config-firewall)#` | edit one typed domain within that candidate |
+
+`enable` changes mode only after the core confirms current role and any required
+step-up. It is not a shared-password authority path. Contextual help,
+completion, and abbreviations come from one versioned grammar catalog filtered
+by operator permissions and admitted plugin state. Plugin additions are signed,
+declarative, namespaced grammar fragments bound to typed actions; executable
+parser extensions and shell escapes are forbidden.
+
+Configuration-mode input is parsed into a typed edit against a session-owned
+candidate and its base generation. A typical safe flow is:
+
+```text
+edge-1# configure terminal
+edge-1(config)# ...
+edge-1(config)# show configuration diff
+edge-1(config)# validate
+edge-1(config)# commit confirmed 300
+edge-1(config)# end
+edge-1# confirm
+```
+
+The core performs authorization, schema and cross-domain validation, conflict
+detection, deterministic planning, apply, verification, audit, and rollback.
+An expired candidate, stale base generation, conflicting commit, lost required
+confirmation, or failed verification cannot silently become current state.
+`abort`/`discard` removes the candidate without changing live state.
+
+`show running-config` is a deterministic, authorization-filtered rendering of
+canonical structured state. It is useful for operators, diffs, and migration,
+but is not a writable source of truth. Automation uses complete canonical
+commands or versioned structured output, never interactive abbreviation or
+terminal screen scraping. Sensitive input is excluded from history and all
+rendering and audit paths apply field-aware redaction.
 
 ### UI contribution package
 
@@ -430,8 +753,8 @@ Credential management is a separate trust boundary from action authorization:
 
 ```text
 browser or operator
-  -> unprivileged bifrost-web
-  -> bifrostd validates and admits the exact action
+  -> unprivileged bfw-web
+  -> bfwd validates and admits the exact action
   -> agent-keyring issues a scoped, short-lived lease or opaque reference
   -> admitted plugin or host-mediated executor performs the exact use
   -> Bifrost and agent-keyring record correlated, redacted audit evidence
@@ -543,7 +866,9 @@ provider-local compatibility shortcuts are forbidden.
 
 ## Recovery
 
-The detailed recovery model is not yet selected. Implementation is blocked
-until the project defines local-console recovery, last-known-good selection,
-interrupted-upgrade behavior, configuration export/import, and appliance-image
-rollback.
+ADR-0005 and `documents/RELEASE-RECOVERY.md` define the recovery baseline:
+verified last-known-good release/configuration pairs, A/B image activation where
+the platform supports it, bounded boot confirmation, rollback-compatible
+configuration migration, `commit confirmed` for management-risk changes, and a
+typed audited local-console recovery path. Exact boot selection and durability
+mechanics remain platform contracts and block each platform until tested.

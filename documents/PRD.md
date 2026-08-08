@@ -1,6 +1,6 @@
 # Bifrost (BFW) Product Requirements
 
-Status: initial planning baseline
+Status: active product and governance baseline; runtime not admitted
 
 ## Product objective
 
@@ -94,10 +94,11 @@ count.
   Catalog presence alone shall grant no authority and shall not imply that a
   component repository or runtime exists.
 - **BFW-PRD-052:** `bfw-firewall` shall own packet-filter, NAT, alias, schedule,
-  and state-policy semantics; `bfw-network` shall own interfaces, VLANs,
-  bridges, bonds/LAGs, MTU, DHCP-client, and link-state semantics; and
-  `bfw-routing` shall own routing semantics. Cross-domain changes shall use one
-  core-admitted transaction without collapsing these authorities.
+  and state-policy semantics; `bfw-network` shall own ports, interfaces, MTU,
+  DHCP-client, and link-state semantics; `bfw-switching` shall own Layer-2
+  VLAN, bridge, FDB, STP, and LACP semantics; and `bfw-routing` shall own
+  Layer-3 routing semantics. Cross-domain changes shall use one core-admitted
+  transaction without collapsing these authorities.
 - **BFW-PRD-053:** DNS, DHCP, NTP, dynamic DNS, ACME, and mDNS shall be
   separately versioned plugins (`bfw-dns`, `bfw-dhcp`, `bfw-ntp`, `bfw-ddns`,
   `bfw-acme`, and `bfw-mdns`) with bounded service configuration, status,
@@ -173,6 +174,389 @@ count.
   `agent-filesystem`, and `agent-exec` only through separately admitted,
   generation-bound provider authority. A plugin category or adapter choice
   shall not widen credential, path, process, network, or privilege scope.
+- **BFW-PRD-069:** The `bfw` client shall provide a Cisco IOS-style hierarchical
+  command line with user EXEC, privileged EXEC, global configuration, and
+  domain submodes, with stable prompts and the familiar `enable`, `disable`,
+  `configure terminal`, `exit`, and `end` transitions.
+- **BFW-PRD-070:** CLI mode transitions shall be presentation and workflow
+  state, not authority. `enable` and configuration entry shall require the
+  authenticated operator's current core authorization and any required
+  step-up; a shared enable password shall not grant or widen authority.
+- **BFW-PRD-071:** The interactive CLI shall provide contextual `?` help, tab
+  completion, command-history navigation, and unambiguous abbreviations.
+  Scripts and persisted command records shall use full canonical commands and
+  versioned machine-readable output rather than ambiguous abbreviations or
+  screen scraping.
+- **BFW-PRD-072:** Every CLI command shall parse into a versioned typed core API
+  action with schema-checked operands. The CLI shall not construct shell
+  commands, edit canonical or native configuration files, invoke plugin
+  sockets, or directly mutate firewall, routing, or service state.
+- **BFW-PRD-073:** Configuration-mode commands shall modify a private,
+  session-owned candidate bound to its operator, authorization context, base
+  configuration generation, expiry, and audit correlation. They shall not
+  mutate the running configuration before core admission and commit.
+- **BFW-PRD-074:** The CLI shall support candidate display and diff, explicit
+  validation, `commit`, bounded `commit confirmed`, and discard/abort. Commit
+  shall use the normal transactional apply, verify, audit, and rollback path;
+  stale generations, conflicts, disconnects, and missed confirmation shall
+  fail closed or restore the last known-good state as defined by the action.
+- **BFW-PRD-075:** `show` commands shall expose authorization-filtered running,
+  candidate, operational, health, and audit views with stable structured-output
+  forms. `show running-config` and any startup or recovery view shall be a
+  deterministic rendering of canonical state, never a second configuration
+  authority.
+- **BFW-PRD-076:** Configuration grammar shall provide deterministic
+  `no <command>` removal and `default <command>` reset semantics derived from
+  the admitted schema. Absence, deletion, inheritance, and defaulting shall
+  remain distinct where the domain model distinguishes them.
+- **BFW-PRD-077:** A signed plugin may contribute namespaced declarative CLI
+  grammar, help, schemas, and typed action bindings compatible with its admitted
+  release. It shall not inject parser code, add shell escapes, bypass core
+  authorization, or establish a second management plane.
+- **BFW-PRD-078:** CLI history, completion, diagnostics, output, audit, and
+  support artifacts shall redact or omit secrets and sensitive transient input.
+  Local recovery shall use the same typed core actions and bounded recovery
+  identity rather than direct host mutation.
+
+## Executable meta-repository governance
+
+- **BFW-PRD-079:** The meta repository shall maintain an authoritative
+  machine-readable component catalog and release composition containing every
+  component's repository, immutable revision or signed release, artifact
+  digests, API/schema/UI versions, dependencies, conflicts, platform state,
+  migration order, rollback mate, evidence hashes, and admission decision.
+- **BFW-PRD-080:** Every BFW requirement shall have a machine-readable trace
+  record with one owner, lifecycle status, blocking dependencies, planned or
+  executable verification, evidence references, and admission decision. The
+  trace ID set shall exactly match the PRD and implementation verification map.
+- **BFW-PRD-081:** The meta repository shall own versioned schemas for plugin
+  manifests, permissions and capabilities, compatibility, canonical
+  configuration, platform-neutral plans, transaction envelopes, audit events,
+  health/degradation, UI contributions, releases, and rollback records.
+- **BFW-PRD-082:** Phase 0 shall have an authoritative machine-readable
+  dashboard that pins each substrate revision and records required gates,
+  passed gates, gaps, evidence, review, admission, and whether Bifrost runtime
+  implementation is allowed. Missing evidence shall keep the gate blocked.
+- **BFW-PRD-083:** Material architecture choices shall use indexed ADRs with
+  explicit status, context, decision, consequences, alternatives, requirement
+  links, and supersession. Open choices shall not masquerade as accepted
+  compatibility contracts.
+- **BFW-PRD-084:** Bifrost shall maintain a formal threat model and trust-boundary
+  map covering management compromise, malicious plugins, stale generations,
+  supply-chain attacks, secret leakage, rollback, split brain, lockout,
+  recovery-console abuse, and fail-open packet paths, with requirement and
+  verification links for every threat.
+- **BFW-PRD-085:** Cross-component mutation shall use a versioned transaction
+  contract defining validate, prepare, apply, verify, commit, and rollback
+  phases; typed participants and effects; idempotency and generation rules;
+  partial-failure behavior; and last-known-good selection.
+- **BFW-PRD-086:** Meta-repository CI shall fail on naming drift, missing or
+  duplicate requirement IDs, trace disagreement, product runtime source,
+  invalid schemas/manifests, mutable or incomplete admitted pins, dependency
+  cycles, undeclared platform state, migration/rollback mismatch, suspected
+  secrets, changelog violations, stale generated views, or invalid evidence
+  hashes.
+- **BFW-PRD-087:** The first product profile shall remain deliberately narrow:
+  core, CLI, one web shell, identity boundary, plugin SDK, one initial platform,
+  firewall, network, switching, routing, DNS, DHCP, WireGuard, monitoring,
+  logging, and backup/recovery. Other catalog components shall remain explicitly deferred
+  until a later admitted profile.
+- **BFW-PRD-088:** Every component repository shall begin from versioned
+  bootstrap and admission templates covering PRD, architecture, implementation
+  specification, threat model, compatibility matrix, test plan, evidence
+  manifest, release manifest, and independent review.
+- **BFW-PRD-089:** Release and recovery design shall define signed artifacts,
+  SBOM and provenance, reproducible appliance composition, staged or atomic
+  update activation, interruption recovery, local-console rollback,
+  configuration migration, and verified last-known-good selection before any
+  runtime release is admitted.
+- **BFW-PRD-090:** System admission shall use a pinned, isolated test-lab
+  topology for Linux, FreeBSD, and Windows; upgrades and recovery; HA and split
+  brain; hostile management and plugin paths; and independent packet/state
+  completeness oracles. Missing image or environment pins shall block evidence.
+- **BFW-PRD-091:** Bifrost shall be both a managed Layer-2 switch system and a
+  Layer-3 router/firewall system. Switching shall be a first-class typed domain,
+  not an incidental side effect of interface configuration.
+- **BFW-PRD-092:** The separately versioned `bfw-switching` component shall own
+  bridge domains, VLAN membership and tagging, Layer-2 forwarding, loop-control
+  policy, and switching-specific observed state. `bfw-network` shall retain port
+  and interface construction, `bfw-routing` Layer-3 routing, and `bfw-firewall`
+  filtering and NAT.
+- **BFW-PRD-093:** The switching contract shall cover VLAN access, trunk,
+  native/PVID and allowed-list behavior; software bridges; learned and static
+  FDB entries; STP/RSTP/MSTP; LACP port channels; port isolation; storm control;
+  IGMP/MLD snooping; and LLDP observations, with explicit per-platform support.
+- **BFW-PRD-094:** Loop risk, contradictory VLAN ownership, tag leakage,
+  duplicate bridge membership, uncertain STP state, and unsupported required
+  switching behavior shall fail closed without exposing a wider broadcast
+  domain or bypassing the last known-good configuration.
+- **BFW-PRD-095:** Changes spanning ports, Layer-2 switching, Layer-3 routing,
+  firewall/NAT, DHCP, or management reachability shall be validated, ordered,
+  applied, observed, verified, and rolled back as one core-coordinated typed
+  transaction.
+- **BFW-PRD-096:** Platform adapters shall map switching plans to admitted native
+  facilities and declare semantic gaps. Linux software bridge/VLAN and
+  applicable switchdev/DSA/devlink, FreeBSD bridge/VLAN, Windows Hyper-V
+  vSwitch or an admitted equivalent, and vendor ASIC SDKs shall not be treated
+  as interchangeable or universally available.
+- **BFW-PRD-097:** Switching observed state shall expose authorized, bounded
+  views of VLAN membership, FDB learning/aging, STP role and state, LACP member
+  state, counters, offload state, health, and desired-versus-observed drift.
+- **BFW-PRD-098:** A change to a management VLAN, bridge, switch uplink, native
+  VLAN, or port channel that can remove the active management path shall require
+  commit-confirmed or an admitted local/OOB recovery path and shall roll back
+  before operator lockout when confirmation or verification fails.
+- **BFW-PRD-099:** The v0.1 profile shall include `bfw-switching` with a Linux
+  software-switching baseline. Hardware offload may be admitted only when its
+  platform adapter proves equivalent plan, observation, verification, failure,
+  and rollback semantics; absence of offload shall not block the baseline.
+- **BFW-PRD-100:** Bifrost shall be one full-featured network operating system
+  deployable in `router`, `switch`, or `converged` router-switch roles. The
+  roles shall be profiles of one product and configuration model, not separate
+  editions, forks, or mutually incompatible management planes.
+- **BFW-PRD-101:** The router role shall require admitted port/interface,
+  Layer-3 routing, and firewall policy capabilities while permitting
+  switching to remain disabled for user traffic. Internal implementation
+  bridges shall not silently create a managed switching domain.
+- **BFW-PRD-102:** The switch role shall require admitted port/interface and
+  Layer-2 switching capabilities and may enable admitted Layer-3 switching for
+  SVIs, routed switchports, and inter-VLAN/local-fabric routing. WAN-edge
+  routing and NAT shall remain denied by default. A bounded management address
+  shall not become a transit forwarding path.
+- **BFW-PRD-103:** The converged role shall enable admitted switching, routing,
+  and firewall domains under one canonical configuration and shall coordinate
+  inter-VLAN routing, routed ports, switched virtual interfaces, policy, DHCP,
+  and management reachability through core-owned typed transactions.
+- **BFW-PRD-104:** Role selection and transition shall validate component and
+  platform admission, configuration compatibility, management reachability,
+  forwarding isolation, and last-known-good recovery. A transition shall be a
+  candidate/commit-confirmed transaction and shall roll back on incomplete
+  verification or lost confirmation.
+- **BFW-PRD-105:** "Full-featured" shall mean the governed product capability
+  catalog is the intended product surface; it shall not imply that v0.1, every
+  platform, or every hardware target supports every capability. Unsupported or
+  unadmitted features shall be reported explicitly and fail closed when
+  required by a selected configuration or deployment role.
+- **BFW-PRD-106:** The switch role shall support Layer-2 access/trunk VLAN,
+  bridge, FDB, loop-control, and aggregation behavior plus Layer-3 switched
+  virtual interfaces, routed switchports, inter-VLAN routing, and local fabric
+  route domains where the selected platform admits them.
+- **BFW-PRD-107:** Layer-3 switching shall use `bfw-routing` plans and shall not
+  grant WAN-edge routing, NAT, or Layer-4 policy implicitly. Management-only
+  addresses and interfaces shall remain excluded from transit forwarding.
+- **BFW-PRD-108:** The router role shall support Layer-3 route forwarding and
+  Layer-4-aware stateful TCP/UDP policy, NAT, port forwarding, connection-state
+  handling, and transport-aware steering through separately owned routing and
+  firewall plans.
+- **BFW-PRD-109:** `bfw-routing` shall remain the Layer-3 forwarding authority;
+  `bfw-firewall` shall remain the Layer-4-aware state, policy, and NAT authority.
+  Neither ownership label shall imply application payload inspection, reverse
+  proxying, TLS termination, or Layer-7 identity policy.
+- **BFW-PRD-110:** Deployment profiles and observed capability reports shall
+  state their admitted data-plane layers and effects explicitly. Missing,
+  unsupported, or only partially observed required Layer-2, Layer-3, or
+  Layer-4-aware behavior shall reject activation and preserve last-known-good.
+- **BFW-PRD-111:** `bfw-ids` shall be a clean-room native Go implementation of
+  Snort-class IDS/IPS behavior. It shall not embed, invoke, supervise, require,
+  or copy the Snort runtime, executable, source tree, or private implementation.
+- **BFW-PRD-112:** The engine shall support passive IDS and separately admitted
+  inline IPS modes through explicit capture/injection adapters and capture-point
+  identities. Enabling prevention shall never be an implicit consequence of
+  installing rules or enabling observation.
+- **BFW-PRD-113:** Detection shall include bounded IP fragmentation and TCP
+  stream reassembly, flow tracking, direction/state semantics, protocol
+  normalization/decoding, content and safe regular-expression matching,
+  thresholds, suppression, references/classification, and evasion-resistant
+  overlap/checksum/truncation policy.
+- **BFW-PRD-114:** Bifrost shall own a canonical versioned IDS rule model. A
+  clean-room Snort-rule importer shall declare the exact supported dialect,
+  keywords, actions, protocol decoders, and option semantics. Unsupported or
+  ambiguous rules, PCRE constructs, preprocessors, or actions shall be rejected
+  with diagnostics rather than accepted with weaker behavior.
+- **BFW-PRD-115:** Packet, flow, stream, decoder, decompression, file-metadata,
+  rule, match, alert, and evidence work shall have explicit CPU, memory, byte,
+  depth, time, cardinality, and retention bounds. Exhaustion or incomplete
+  inspection shall be observable and shall never be reported as complete.
+- **BFW-PRD-116:** Rulesets and feeds shall be signed, provenance-bound,
+  content-addressed, compatibility-checked, staged, compiled deterministically,
+  activated atomically, versioned, auditable, expirable, and rollback-capable.
+- **BFW-PRD-117:** Alerts shall use a stable typed schema with rule/revision,
+  flow, capture point, timestamps, classification, confidence, action,
+  truncation/incompleteness, and bounded evidence references. Payload and PCAP
+  retention shall be explicit, access-controlled, redacted, and disabled by
+  default where not required.
+- **BFW-PRD-118:** IDS detections may propose drop, reject, rate-limit,
+  quarantine, or temporary-block effects, but only the core may authorize and
+  dispatch a typed `bfw-firewall` transaction. `bfw-ids` shall not mutate native
+  firewall, routing, switching, interface, or process state directly.
+- **BFW-PRD-119:** Inline IPS shall declare per-zone fail-open/fail-closed policy,
+  bypass availability, queue/backlog bounds, overload behavior, watchdogs,
+  health, confirmation, and recovery. A mode or failure-policy change shall be
+  transactional and shall never silently change enforcement behavior.
+- **BFW-PRD-120:** Platform adapters shall declare exact capture, injection,
+  timestamp, checksum/offload, VLAN-tag, multi-queue, zero-copy, and packet-loss
+  semantics. Linux, FreeBSD, and Windows mechanisms shall not be presumed
+  equivalent, and unmeasured loss or normalization gaps shall block admission.
+- **BFW-PRD-121:** Admission shall include canonical packet/flow corpora,
+  differential rule fixtures, fragmentation/stream/evasion suites, malformed
+  packet and rule fuzzing, deterministic alert oracles, restart/upgrade/rollback,
+  overload/loss accounting, race tests, and representative performance/resource
+  evidence for every supported platform and mode.
+- **BFW-PRD-122:** Bifrost shall not claim complete Snort rule, preprocessor,
+  decoder, performance, or detection parity. Compatibility claims shall name a
+  tested dialect/version and feature matrix, and Snort names/marks shall be used
+  only descriptively without implying endorsement.
+- **BFW-PRD-123:** Distributed operation shall be an orthogonal fabric scope:
+  any admitted router, switch, or converged node may be standalone or a fabric
+  member without creating a separate product edition or management authority.
+- **BFW-PRD-124:** `bfw-fabric` shall own cluster topology, node placement,
+  convergence, and multi-node transaction coordination. It shall not own
+  Layer-2 switching, Layer-3 routing, or firewall policy semantics, which remain
+  with `bfw-switching`, `bfw-routing`, and `bfw-firewall` on every node.
+- **BFW-PRD-125:** Fabric membership shall require cryptographic node identity,
+  explicit enrollment/revocation, current liveness/generation, compatible
+  release/schema/capability sets, authorized roles, and encrypted authenticated
+  control channels. Node reachability alone shall grant no fabric authority.
+- **BFW-PRD-126:** Canonical fabric intent shall use quorum/consensus, monotonic
+  generations, leader/term identity, fencing, idempotency, durable journals, and
+  deterministic reconciliation. Minority, stale, split-brain, or ambiguous
+  ownership partitions shall not accept conflicting mutations.
+- **BFW-PRD-127:** Distributed Layer-2 switching shall support admitted
+  VXLAN/GENEVE-class overlays and EVPN-class MAC/IP distribution, VNI/bridge
+  domains, split horizon, designated forwarding, BUM replication, ARP/ND
+  suppression, MAC mobility/duplication controls, and bounded learning/aging.
+- **BFW-PRD-128:** Distributed Layer-3 routing shall support VRFs, distributed
+  anycast gateways, routed VNIs, ECMP, route-target import/export, controlled
+  route leaking, next-hop reachability, and graceful convergence through typed
+  routing and dynamic-control-plane contracts.
+- **BFW-PRD-129:** Distributed firewall policy shall compile one canonical
+  generation into deterministic node-local enforcement placements. Ingress,
+  egress, transit, workload, and service policy shall preserve identity and
+  zone semantics across mobility; stateful flows shall declare symmetry,
+  steering, ownership, replication, failover, and stale-state behavior.
+- **BFW-PRD-130:** Fabric partition, node loss, control-plane loss, delayed or
+  reordered update, stale generation, topology loop, duplicate endpoint, route
+  conflict, policy-placement gap, or incomplete observation shall follow an
+  explicit safety policy and shall never silently widen connectivity.
+- **BFW-PRD-131:** Underlay and overlay plans shall validate encapsulation
+  overhead, MTU/PMTU, fragmentation policy, QoS markings, ECN, hashing, entropy,
+  loop prevention, multicast/BUM behavior, and hardware/offload semantic gaps
+  for every admitted path.
+- **BFW-PRD-132:** Fabric changes shall be staged and committed as generation-
+  bound multi-node transactions with dependency order, readiness barriers,
+  canaries where appropriate, independent per-node and end-to-end oracles,
+  bounded convergence deadlines, interruption recovery, and coordinated or
+  safely isolated rollback.
+- **BFW-PRD-133:** Node-local enforcement shall retain the last verified policy
+  during control-plane loss. Any fail-static, fail-isolated, fail-open, or
+  fail-closed exception shall be explicit per traffic class, bounded in time,
+  visible, audited, and incapable of overriding a stricter local safety floor.
+- **BFW-PRD-134:** Fabric observed state shall expose authorized topology,
+  membership, terms/generations, overlay peers, MAC/IP and route distribution,
+  policy placement, flow-state ownership, loss, convergence, drift, degraded
+  isolation, and rollback status without leaking credentials or payloads.
+- **BFW-PRD-135:** Admission shall cover at least three nodes, multiple failure
+  domains, asymmetric partitions, node/control-plane restart, endpoint mobility,
+  duplicate MAC/IP, route and policy churn, ECMP member loss, rolling upgrade,
+  rollback, scale/resource boundaries, deterministic packet/state oracles, and
+  latency/throughput/convergence distributions on every supported platform.
+- **BFW-PRD-136:** Bifrost shall offer a first-party Kubernetes-managed HA scope
+  in which a dedicated controller deployment coordinates canonical intent,
+  inventory, rollout, observation, and recovery for native managed nodes. It
+  shall not create a separate product edition or configuration authority.
+- **BFW-PRD-137:** A single dedicated controller may be admitted only as a
+  non-HA small-site profile whose loss freezes management. The HA controller
+  profile shall use at least three odd-numbered control-plane members across
+  separately identified failure domains and quorum-backed durable state.
+- **BFW-PRD-138:** Kubernetes, its API server, scheduler, CNI, service network,
+  overlay, and storage shall never be required for node-local packet forwarding,
+  fast failover, last-known-good enforcement, or local recovery.
+- **BFW-PRD-139:** Routers and switches shall run native signed Bifrost services
+  and an authenticated management agent. They shall not be required to join the
+  Kubernetes cluster as worker nodes or expose a container runtime.
+- **BFW-PRD-140:** Controller loss or partition shall deny new mutations while
+  managed nodes retain their last verified configuration and continue native
+  BFD, routing/EVPN, ECMP, gateway ownership, and firewall-state behavior.
+- **BFW-PRD-141:** Controller-to-node operations shall use mutually authenticated,
+  authorization-checked, signed, generation-bound typed plans with expiry,
+  idempotency, readiness, verification, audit, and deterministic rollback.
+- **BFW-PRD-142:** Production controller reachability shall use a separately
+  admitted dedicated management VLAN or out-of-band path where available.
+  Shared-path use shall require explicit risk acceptance, commit-confirmed
+  protection, local recovery, and a tested bootstrap/rebuild procedure.
+- **BFW-PRD-143:** Kubernetes integration shall pin and admit exact Kubernetes or
+  K3s, container-runtime, CNI, storage, image, chart/manifest, CRD, API, RBAC,
+  NetworkPolicy, Pod Security, provenance, upgrade, backup, and rollback contracts.
+- **BFW-PRD-144:** Admission shall test controller quorum/member loss, total
+  controller loss, API/etcd/CNI/storage failure, asymmetric management partition,
+  stale/replayed plans, node restart, autonomous forwarding, controller rebuild,
+  rolling upgrade/rollback, secret isolation, and recovery without widening
+  connectivity or interrupting an already verified forwarding state.
+- **BFW-PRD-145:** The native Go HA engine behind `bfw-ha` shall be named
+  **GoKA** and developed clean-room from public protocol specifications and
+  independently authored tests. It shall not embed, copy, link, invoke,
+  supervise, configure, or require Keepalived source, libraries, binaries, or
+  runtime behavior as implementation authority.
+- **BFW-PRD-146:** GoKA shall implement admitted VRRPv2/VRRPv3 IPv4/IPv6 virtual
+  router election semantics, priorities, advertisement/skew/master-down timers,
+  preemption policy, owner behavior, multicast or explicit unicast peers, and
+  protocol validation without silently extending authority.
+- **BFW-PRD-147:** GoKA shall emit typed generation-bound virtual-address,
+  neighbor-announcement, route, firewall-role, and service-role transition plans.
+  Only the core and owning network/routing/firewall/platform components may
+  authorize, apply, verify, or roll back those effects.
+- **BFW-PRD-148:** GoKA health tracking shall use bounded typed checks and
+  admitted plugin observations with explicit interval, timeout, rise/fall,
+  weight, dependency, freshness, and incomplete-health semantics. Arbitrary
+  shell commands, inherited environment, or ambient process access are denied.
+- **BFW-PRD-149:** Duplicate ownership, split brain, replay, stale generation,
+  peer ambiguity, timer exhaustion, clock anomaly, partial transition, restart,
+  and lost observation shall follow explicit fencing/quorum and fail-closed or
+  bounded last-known-good policy without silently widening connectivity.
+- **BFW-PRD-150:** Any Keepalived configuration importer shall name an exact
+  tested dialect and translate only a documented subset into canonical GoKA
+  intent. Unsupported directives, scripts, notification hooks, IPVS behavior,
+  ambiguous ordering, or incompatible semantics shall be hard errors.
+- **BFW-PRD-151:** Linux may use native Go VRRP packet handling and admitted
+  netlink effects; FreeBSD may map to separately admitted CARP mechanics; other
+  platforms shall publish exact semantic gaps and report unsupported behavior
+  rather than weakly emulate ownership or fencing.
+- **BFW-PRD-152:** GoKA observed state shall expose authorized instance, role,
+  peer, priority, timers, health, generation, transition, duplicate-owner,
+  degraded, and rollback facts with bounded cardinality and no credential,
+  packet-payload, or reusable authority leakage.
+- **BFW-PRD-153:** Admission shall include clean-room provenance/source scans,
+  protocol conformance and interoperable-peer matrices, deterministic state-
+  machine tests, packet corpus/fuzz/race/endurance tests, partitions/restarts,
+  hostile inputs, platform parity, upgrade/rollback, and latency/CPU/memory/
+  allocation evidence for every supported mode and platform.
+- **BFW-PRD-154:** Bifrost shall have exactly two first-party out-of-the-box HA
+  deployment profiles: `goka-native` and `kubernetes-managed`. They shall ship
+  as supported Bifrost composition choices rather than third-party add-ons.
+- **BFW-PRD-155:** Both HA profiles shall use the same canonical configuration,
+  core authorization, CLI, web/API, audit, transaction, compatibility,
+  observation, release, backup, and recovery contracts.
+- **BFW-PRD-156:** `goka-native` shall require no external orchestrator and shall
+  use GoKA/native Bifrost peers for management coordination, election, health,
+  fencing, and failover intent.
+- **BFW-PRD-157:** `kubernetes-managed` shall ship the Bifrost controller,
+  manifests/charts, CRDs, policies, and compatibility metadata out of the box,
+  while requiring an admitted Kubernetes/K3s environment as its selected
+  controller substrate.
+- **BFW-PRD-158:** Exactly one management-coordinator profile may own a given HA
+  domain. Kubernetes may coordinate GoKA or other admitted node-local mechanisms
+  but shall not become a competing writer or replace native fast failover.
+- **BFW-PRD-159:** Selecting or migrating HA profiles shall be an explicit
+  generation-bound, commit-confirmed transaction with compatibility preflight,
+  authority handoff, continuous forwarding or conservative isolation,
+  independent verification, and automatic rollback.
+- **BFW-PRD-160:** Capability negotiation shall distinguish packaged,
+  configured, controller-available, forwarding-ready, degraded, unsupported,
+  and admitted states. Merely shipping either profile shall grant no authority.
+- **BFW-PRD-161:** A release claiming out-of-the-box HA support shall package and
+  verify both first-party profiles, their schemas and recovery assets, cross-
+  profile migration, controller/node failure matrices, and identical policy
+  semantics without claiming that v0.1 or an unadmitted platform is HA-ready.
 
 ## Initial requirements
 
@@ -295,7 +679,8 @@ count.
 - Private `danny/Bifrost` repository exists on Forgejo with default branch
   `main`.
 - README states the cross-platform Go/native-engine architecture boundary,
-  plugin model, and planning-only status.
+  plugin model, governance-only meta-repository status, and absence of product
+  runtime code.
 - Canonical PRD, architecture, and implementation specification exist under
   `documents/` in the required order.
 - Meta-repository role and component map are explicit without a product Go
