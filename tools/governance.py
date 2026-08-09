@@ -242,6 +242,8 @@ def validate_phase0(findings: Findings, catalog: dict[str, Any]) -> dict[str, An
         for digest in entry.get("evidence", []):
             findings.require(bool(SHA256_RE.fullmatch(digest)), f"{dependency_id}: invalid Phase 0 evidence digest")
         admitted = entry.get("admission") == "admitted"
+        if admitted:
+            findings.require(external_by_id.get(dependency_id, {}).get("admission") == "admitted", f"{dependency_id}: Phase 0 admission outruns component catalog admission")
         grade = entry.get("grade")
         findings.require(grade in {"ungraded", "A", "A+"}, f"{dependency_id}: invalid Phase 0 grade")
         grade_evidence = entry.get("grade_evidence", [])
@@ -863,13 +865,15 @@ def render_phase0(phase0: dict[str, Any]) -> str:
         f"Beta/stable runtime allowed: **{str(phase0['beta_stable_runtime_allowed']).lower()}**\n",
         f"Out-of-alpha implementation allowed: **{str(phase0['out_of_alpha_implementation_allowed']).lower()}**\n",
         f"Minimum dependency grade: **{phase0['minimum_dependency_grade']}**\n",
-        "| Dependency | Revision | Grade | Grade evidence | Grade review | Gates | Review | Admission | Gaps |",
-        "| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+        "| Dependency | Revision | Grade | Grade evidence | Evidence revision | Grade reviewer | Grade review | Gates | Review | Admission | Gaps |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
     for entry in phase0["dependencies"]:
         gates = f"{len(entry['passed_gates'])}/{len(entry['required_gates'])}"
         gaps = "<br>".join(entry["gaps"]) or "none"
-        lines.append(f"| `{entry['id']}` | `{entry['revision']}` | {entry['grade']} | {len(entry['grade_evidence'])} | {entry['grade_review']} | {gates} | {entry['review']} | {entry['admission']} | {gaps} |")
+        evidence_revision = entry["grade_evidence_revision"] or "unbound"
+        reviewer = entry["grade_reviewer"] or "unassigned"
+        lines.append(f"| `{entry['id']}` | `{entry['revision']}` | {entry['grade']} | {len(entry['grade_evidence'])} | `{evidence_revision}` | `{reviewer}` | {entry['grade_review']} | {gates} | {entry['review']} | {entry['admission']} | {gaps} |")
     lines.append("")
     return "\n".join(lines)
 

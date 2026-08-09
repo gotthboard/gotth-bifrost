@@ -216,6 +216,8 @@ class GovernanceTests(unittest.TestCase):
                 "revision": "0" * 40,
                 "grade": "ungraded",
                 "grade_evidence": [],
+                "grade_evidence_revision": "",
+                "grade_reviewer": "",
                 "grade_review": "not_started",
                 "passed_gates": [],
                 "required_gates": ["windows", "review"],
@@ -228,6 +230,8 @@ class GovernanceTests(unittest.TestCase):
         self.assertIn("Beta/stable runtime allowed: **false**", rendered)
         self.assertIn("Out-of-alpha implementation allowed: **false**", rendered)
         self.assertIn("Minimum dependency grade: **A**", rendered)
+        self.assertIn("`unbound`", rendered)
+        self.assertIn("`unassigned`", rendered)
         self.assertIn("0/2", rendered)
         self.assertIn("native evidence absent", rendered)
 
@@ -251,7 +255,7 @@ class GovernanceTests(unittest.TestCase):
                 "passed_gates": [],
                 "required_gates": ["identity", "liveness"],
                 "review": "not_started",
-                "admission": "not_admitted",
+                "admission": "admitted",
                 "gaps": ["v2 release absent"],
             }],
         }
@@ -341,7 +345,7 @@ class GovernanceTests(unittest.TestCase):
             "external_dependencies": [{
                 "id": "agent-keyring",
                 "revision": "0" * 40,
-                "admission": "not_admitted",
+                "admission": "admitted",
             }]
         }
         phase0 = {
@@ -359,7 +363,7 @@ class GovernanceTests(unittest.TestCase):
                 "evidence": [],
                 "gaps": ["missing"],
                 "review": "not_started",
-                "admission": "not_admitted",
+                "admission": "admitted",
                 "grade": "ungraded",
             }],
         }
@@ -377,7 +381,7 @@ class GovernanceTests(unittest.TestCase):
             "external_dependencies": [{
                 "id": "agent-keyring",
                 "revision": revision,
-                "admission": "not_admitted",
+                "admission": "admitted",
             }]
         }
         phase0 = {
@@ -416,7 +420,7 @@ class GovernanceTests(unittest.TestCase):
             "external_dependencies": [{
                 "id": "agent-keyring",
                 "revision": revision,
-                "admission": "not_admitted",
+                "admission": "admitted",
             }]
         }
         phase0 = {
@@ -458,7 +462,7 @@ class GovernanceTests(unittest.TestCase):
             "external_dependencies": [{
                 "id": "agent-keyring",
                 "revision": revision,
-                "admission": "not_admitted",
+                "admission": "admitted",
             }]
         }
         phase0 = {
@@ -489,6 +493,44 @@ class GovernanceTests(unittest.TestCase):
         with mock.patch.object(governance, "load_toml", return_value=phase0):
             governance.validate_phase0(findings, catalog)
         self.assertEqual([], findings.errors)
+
+    def test_phase0_cannot_outrun_component_catalog_admission(self) -> None:
+        revision = "0" * 40
+        catalog = {
+            "external_dependencies": [{
+                "id": "agent-keyring",
+                "revision": revision,
+                "admission": "not_admitted",
+            }]
+        }
+        phase0 = {
+            "status": "passed",
+            "beta_stable_runtime_allowed": True,
+            "out_of_alpha_implementation_allowed": True,
+            "applies_to_channels": ["beta", "stable"],
+            "alpha_gate": "BFW-ALPHA-0",
+            "minimum_dependency_grade": "A",
+            "dependencies": [{
+                "id": "agent-keyring",
+                "revision": revision,
+                "status": "passed",
+                "required_gates": ["review"],
+                "passed_gates": ["review"],
+                "evidence": ["sha256:" + "a" * 64],
+                "gaps": [],
+                "review": "passed",
+                "admission": "admitted",
+                "grade": "A",
+                "grade_evidence": ["sha256:" + "b" * 64],
+                "grade_evidence_revision": revision,
+                "grade_reviewer": "independent-bifrost-review",
+                "grade_review": "passed",
+            }],
+        }
+        findings = governance.Findings()
+        with mock.patch.object(governance, "load_toml", return_value=phase0):
+            governance.validate_phase0(findings, catalog)
+        self.assertIn("admission outruns component catalog admission", "\n".join(findings.errors))
 
     def test_alpha_mutation_permission_cannot_outrun_minimum_gate(self) -> None:
         catalog = {
