@@ -27,20 +27,25 @@ inputs, not permanent ADR text. `governance/test-lab.toml` leaves them empty and
 blocks system admission until measured images are selected.
 
 The first BSD product image, when its later release profile is activated, is a
-generic x86-64 FreeBSD installation ISO built as a reduced NanoBSD-style
-appliance. It has an explicit hardware compatibility matrix and independent
-admission evidence. Hardware-specific images are deferred until an approved
-appliance product profile identifies exact hardware and support obligations.
+generic x86-64 FreeBSD live installation ISO with an explicit hardware
+compatibility matrix. It derives a deterministic hardware inventory and
+machine build manifest during installation, then creates a reduced
+NanoBSD-style installed appliance for that machine while retaining a signed
+generic recovery environment. Separately distributed prebuilt hardware-specific
+media and appliance SKUs are deferred until an approved product profile
+identifies exact hardware and support obligations.
 
 ## Consequences
 
 - v0.1 has one product data-plane target and a smaller test matrix.
 - Cross-platform contracts still cannot be Linux-specific shortcuts.
 - No FreeBSD, Windows, or Darwin product-support claim exists yet.
-- The planned generic FreeBSD image does not claim universal x86-64 support and
-  cannot inherit Alpine build, hardware, performance, or admission evidence.
-- Appliance-specific optimization remains out of scope until actual appliance
-  hardware and lifecycle obligations exist.
+- The planned generic FreeBSD live ISO does not claim universal x86-64 support
+  and cannot inherit Alpine build, hardware, performance, or admission
+  evidence.
+- Install-time machine tailoring is part of the generic live-installer profile;
+  a separately distributed appliance-specific SKU remains out of scope until
+  actual hardware and lifecycle obligations exist.
 
 ## Alternatives considered
 

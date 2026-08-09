@@ -230,10 +230,13 @@ repositories, and a successful installer exit without independent first-boot
 verification are not admissible release inputs or evidence.
 
 The planned first-party BSD appliance uses a reduced NanoBSD-style FreeBSD
-composition and is distributed initially as one generic x86-64 installation
-ISO with a published hardware matrix. It is not a universal x86-64 promise.
-Hardware-specific appliance images are deferred until an approved product
-profile names exact hardware, firmware, lifecycle, and support obligations.
+composition and is distributed initially as one generic x86-64 live installer
+ISO with a published hardware matrix. The live installer inventories the
+machine and deterministically creates a reduced machine-tailored installed
+system while retaining a signed generic recovery environment. It is not a
+universal x86-64 promise. Separately distributed prebuilt hardware-specific
+media and appliance SKUs are deferred until an approved product profile names
+exact hardware, firmware, lifecycle, and support obligations.
 FreeBSD and Alpine share product contracts but require independent images,
 platform adapters, hardware evidence, and admission decisions.
 

@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### 2026-08-09 15:51 CDT — Tailor the FreeBSD system during installation
+
+- Clarify that the initial BSD artifact is generic live installation media,
+  while the installed FreeBSD system is deterministically tailored to the
+  detected machine from signed offline inputs.
+- Make pinned prebuilt base/object sets plus machine-specific kernel/module
+  construction the default, with full on-target source compilation retained as
+  an explicit resource-estimated slow path.
+- Require normalized inventory, a content-addressed machine build manifest,
+  exact dependency closure, and a signed generic recovery kernel/environment.
+- Continue to defer only separately distributed prebuilt hardware-specific
+  media and appliance SKUs; no implementation, ISO build, disk mutation,
+  release, or distribution occurred.
+
 ### 2026-08-09 15:30 CDT — Select the initial BSD distribution profile
 
 - Keep Alpine Linux as the first Linux ISO and select FreeBSD as the canonical

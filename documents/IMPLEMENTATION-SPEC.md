@@ -391,14 +391,18 @@ update path.
 
 ### FreeBSD appliance and installer implementation contract
 
-The first BSD distribution target is a generic x86-64 FreeBSD installation
-ISO. `bfw-installer` shall consume an exact FreeBSD release/source revision,
-`src.conf`, kernel configuration, module/firmware/boot manifests, signed
-private-package repository snapshot, package names/versions/digests, Bifrost
-artifacts, filesystem/slot layout, service identities, migrations, rollback
-mates, hardware-matrix rows, SBOM, provenance, and builder identity. Outputs
-shall include the ISO, installed image or file manifest, boot artifacts,
-checksums, signatures, SBOM, provenance, and independent rebuild comparison.
+The first BSD distribution target is a generic x86-64 FreeBSD live installation
+ISO that produces a machine-tailored installed system. `bfw-installer` shall
+consume an exact FreeBSD release/source revision, source/object sets,
+`src.conf`, build toolchain, normalized inventory schema, signed tailoring
+policy, generic recovery kernel/environment, module/firmware/boot manifests,
+signed private-package repository snapshot, package names/versions/digests,
+Bifrost artifacts, filesystem/slot layout, service identities, migrations,
+rollback mates, hardware-matrix rows, SBOM, provenance, and builder identity.
+Media outputs shall include the ISO, boot and recovery artifacts, checksums,
+signatures, SBOM, provenance, and independent rebuild comparison. Each install
+shall additionally produce a content-addressed machine inventory, build plan,
+installed file manifest, slot digest, and verification record.
 
 The build shall use supported source-build controls and a NanoBSD-style
 appliance layout. The release manifest, not cleanup scripts, defines omissions.
@@ -408,6 +412,22 @@ filesystem-repair, observability, firmware, and driver capabilities match each
 admitted hardware row. Package installation shall come only from the pinned
 signed repository produced in an isolated builder.
 
+The live installer shall normalize CPU, boot, console, NIC, storage,
+virtualization, and firmware facts, reject incomplete, ambiguous, changed, or
+unsupported inventory, and derive the machine build plan deterministically
+from the signed tailoring policy before confirmation or disk mutation. The
+default path shall install pinned prebuilt base/object sets and packages and
+build only machine-specific kernel/modules when required. Full on-target
+`buildworld`/`buildkernel` is permitted only as an explicit resource-estimated
+slow path using the same offline inputs. Neither path may fetch mutable inputs.
+
+The primary kernel/module closure shall contain only the detected and required
+hardware plus platform and recovery-independent runtime dependencies. A signed
+generic recovery kernel/environment shall retain the admitted broad driver set,
+remain separately verifiable, and be bootable without widening packet-policy
+authority. The generated machine manifest is sealed into the installed slot
+and durable evidence; the ISO shall contain no release-signing private key.
+
 The installed system shall expose two independently verifiable code/root slots
 or an admitted equivalent, keep replaceable system content read-only or
 integrity verified, and separate durable configuration, audit/evidence, and
@@ -415,11 +435,13 @@ recovery state. Install and update use the canonical inspect, plan,
 confirm-destruction, stage, verify, activate, boot-confirm, and rollback
 transactions. Native in-place update success is not Bifrost admission evidence.
 
-The generic profile shall publish exact supported NIC, storage, boot,
-virtualization, and firmware rows. Unknown hardware fails before disk mutation.
-Hardware-specific images are outside this feature and require a separate
-product profile and workflow when Bifrost has exact appliance hardware to
-build and support.
+The generic live-media profile shall publish exact supported CPU, NIC, storage,
+boot, console, virtualization, and firmware rows. Unknown hardware and hardware
+changes that invalidate the sealed machine manifest fail before disk mutation
+or activation. Upgrade rebuilds the inactive slot against the current verified
+inventory and retains the last-known-good slot and generic recovery path.
+Separately distributed prebuilt hardware-specific media and appliance SKUs are
+outside this feature and require a distinct product profile and workflow.
 
 ## First learning-alpha vertical slice
 

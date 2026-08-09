@@ -14,7 +14,7 @@ class GovernanceTests(unittest.TestCase):
         findings = governance.run_validation(check_generated=True)
         self.assertEqual([], findings.errors)
 
-    def test_initial_freebsd_distribution_is_generic_and_independent(self) -> None:
+    def test_freebsd_live_media_produces_machine_tailored_install(self) -> None:
         workflow = governance.load_toml("workflow.toml")
         feature = next(
             entry
@@ -31,7 +31,9 @@ class GovernanceTests(unittest.TestCase):
             feature["dependencies"],
         )
         self.assertTrue(any("hardware matrix" in item for item in feature["blockers"]))
-        self.assertTrue(any("Hardware-specific" in item for item in feature["acceptance"]))
+        self.assertTrue(any("tailoring" in item for item in feature["acceptance"]))
+        self.assertTrue(any("machine-tailored" in item for item in feature["acceptance"]))
+        self.assertTrue(any("recovery" in item for item in feature["acceptance"]))
 
         catalog = governance.load_toml("governance/components.toml")
         installer = next(
@@ -48,14 +50,37 @@ class GovernanceTests(unittest.TestCase):
         self.assertEqual(["amd64"], target["architectures"])
         self.assertEqual("unpinned", target["status"])
         self.assertIn("generic x86-64", target["role"])
+        self.assertIn("machine-tailored", target["role"])
+
+        required_tests = set(lab["required_scenarios"])
+        self.assertIn("freebsd-machine-inventory-build-plan", required_tests)
+        self.assertIn(
+            "freebsd-machine-kernel-module-firmware-package-closure",
+            required_tests,
+        )
+        self.assertIn("freebsd-generic-recovery-boot", required_tests)
 
         plan = (
             governance.ROOT
             / "workflow/features/freebsd-generic-appliance-iso-v1/DECOMPOSITION.md"
         ).read_text()
         self.assertIn("universal x86-64 hardware support", plan)
-        self.assertIn("Hardware-specific images remain deferred", plan)
+        self.assertIn("machine-tailored system", plan)
+        self.assertIn("Separately distributed prebuilt hardware-specific", plan)
         self.assertIn("never admission evidence", plan)
+
+        prd = " ".join((governance.ROOT / "documents/PRD.md").read_text().split())
+        implementation = " ".join(
+            (governance.ROOT / "documents/IMPLEMENTATION-SPEC.md")
+            .read_text()
+            .split()
+        )
+        self.assertIn("machine-tailored installed system", prd)
+        self.assertIn("full on-target source build is an explicit optional slow path", prd)
+        self.assertIn("signed generic recovery kernel/environment", prd)
+        self.assertNotIn("Hardware-specific appliance images are deferred", prd)
+        self.assertIn("ISO shall contain no release-signing private key", implementation)
+        self.assertIn("Separately distributed prebuilt hardware-specific media", implementation)
 
     def test_switching_domain_is_composed_and_strict(self) -> None:
         with (governance.ROOT / "governance/components.toml").open("rb") as handle:

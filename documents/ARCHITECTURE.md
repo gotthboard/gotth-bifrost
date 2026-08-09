@@ -1164,13 +1164,14 @@ does not weaken Bifrost's provider-neutral domain contracts.
 ## FreeBSD appliance and installer architecture
 
 FreeBSD is the canonical base for Bifrost's first-party BSD appliance. Its
-initial distribution profile is a generic x86-64 installation ISO, not a
-vendor-appliance image and not a promise to boot every x86-64 machine. Each
-released composition pins the supported FreeBSD release and source revision,
-source-build options, kernel configuration, modules, firmware, boot artifacts,
-private package-repository snapshot, packages, builder, installer revision,
-ISO digest, and installed-image digest. The published hardware matrix is part
-of the signed release claim.
+initial distribution profile is a generic x86-64 live installation ISO that
+builds a machine-tailored installed system, not a vendor-appliance image and
+not a promise to boot every x86-64 machine. Each released composition pins the
+supported FreeBSD release and source revision, source/object sets, source-build
+options, build toolchain, inventory schema, tailoring policy, recovery
+kernel/environment, firmware, boot artifacts, private package-repository
+snapshot, packages, builder, installer revision, and ISO digest. The published
+live-media hardware matrix is part of the signed release claim.
 
 `bfw-installer` uses supported FreeBSD source-build controls and a NanoBSD-style
 appliance layout to produce read-only or integrity-verified system content,
@@ -1183,13 +1184,32 @@ signature-verification support, local recovery, filesystem repair,
 observability, promised firmware, and promised drivers remain present whenever
 the admitted profile requires them.
 
+After the live environment boots, the installer records normalized CPU, boot,
+console, NIC, storage, virtualization, and firmware facts and matches them to
+the signed hardware matrix. It deterministically derives a machine build
+manifest before destructive confirmation. The default path installs pinned
+prebuilt base sets and packages, then builds only the kernel/modules that must
+be machine-specific. A full on-target source build is an explicit slower mode,
+never an accidental consequence of installation. Both paths are offline and
+use the same signed inputs, dependency-closure rules, and resource bounds.
+
+The machine build manifest is content-addressed and sealed into both the
+installed slot and durable evidence; it is not falsely represented as a
+vendor-signed artifact created with a private key embedded in the ISO. Release
+signatures cover every selectable input and the deterministic selection policy.
+A signed generic recovery kernel/environment with the admitted broad driver set
+remains available so a bad inventory or over-reduced primary kernel cannot
+destroy local recovery.
+
 ```text
 immutable FreeBSD source, package, and Bifrost composition
-  -> isolated buildworld/buildkernel and signed package build
-  -> reproducible generic x86-64 ISO, installed image, SBOM, and provenance
+  -> isolated base/object/package and generic live-ISO build
+  -> reproducible generic x86-64 live ISO, SBOM, and provenance
   -> UEFI or legacy-BIOS boot on a published hardware-matrix row
+  -> normalized hardware inventory and deterministic machine build manifest
   -> stable target-disk inventory and explicit destructive confirmation
-  -> offline install into inactive/read-only system slots plus durable state
+  -> offline machine-tailored build/install into inactive system slots
+  -> retain signed generic recovery kernel/environment plus durable state
   -> first boot into an unconfigured fail-closed appliance
   -> independent native-state and packet verification before enrollment
 ```
@@ -1200,10 +1220,11 @@ platform admission by implication. Each has independent platform adapters,
 native-state oracles, installers, update mechanics, package/firmware manifests,
 hardware matrices, performance bounds, and verification evidence.
 
-Hardware-specific FreeBSD images are deferred. They require a later product
-profile naming exact boards, NICs, storage, firmware, boot path, lifecycle,
-replacement policy, and support obligations; the generic image is not silently
-relabelled as an appliance-specific artifact.
+Separately distributed prebuilt hardware-specific media and appliance SKUs are
+deferred. They require a later product profile naming exact boards, NICs,
+storage, firmware, boot path, lifecycle, replacement policy, and support
+obligations. This does not prohibit the generic live installer from producing
+the machine-tailored installed composition defined above.
 
 ## Recovery
 

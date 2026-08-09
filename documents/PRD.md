@@ -896,43 +896,59 @@ count.
   decomposition, and review may continue; additional product implementation,
   protocol breadth, secondary platforms, and beta/stable work remain blocked.
 - **BFW-PRD-223:** FreeBSD shall be the canonical base distribution for
-  Bifrost's first-party BSD appliance and bootable installation ISO. The
-  initial BSD profile shall target generic x86-64 systems rather than one
-  vendor appliance; every release shall pin an exact supported FreeBSD
+  Bifrost's first-party BSD appliance and bootable live installation ISO. The
+  initial BSD media shall boot an explicitly bounded generic x86-64 hardware
+  matrix, then produce a machine-tailored installed system rather than one
+  generic installed image. Every release shall pin an exact supported FreeBSD
   release and source revision, package repository snapshot, package set,
-  kernel, modules, firmware, boot artifacts, architecture, and image digest.
+  source/object sets, build toolchain, inventory schema, tailoring policy,
+  recovery kernel/environment, firmware, boot artifacts, architecture, and ISO
+  digest.
 - **BFW-PRD-224:** `bfw-installer` shall build the FreeBSD installation ISO and
-  installed appliance image from a declarative content-addressed composition
-  using supported FreeBSD source-build and NanoBSD-style appliance-image
-  mechanisms. Independent builds, signatures, SBOM, provenance, and input and
-  output digests are mandatory; the installer gains no packet-policy or
-  post-install configuration authority.
+  its complete offline source, object, package, firmware, and recovery inputs
+  from a declarative content-addressed composition using supported FreeBSD
+  source-build and NanoBSD-style appliance-image mechanisms. Independent media
+  builds, signatures, SBOM, provenance, and input and output digests are
+  mandatory; the installer gains no packet-policy or post-install
+  configuration authority.
 - **BFW-PRD-225:** The initial BSD ISO shall support an explicitly bounded
   generic x86-64 UEFI and legacy-BIOS hardware profile, complete offline
   installation, stable target-disk identity, exact destructive confirmation,
-  first-boot verification, and local-console recovery. Generic means the
-  published compatibility matrix, not every x86-64 machine. Hardware-specific
-  appliance images are deferred until a separately approved product profile
-  names exact hardware, firmware, lifecycle, and support obligations.
-- **BFW-PRD-226:** The installed FreeBSD appliance shall be reduced only by a
-  declarative `src.conf`, kernel configuration, package manifest, and signed
-  private package repository. It shall retain every admitted firewall,
-  routing, switching, HA, IPsec, audit, cryptographic, signature-verification,
-  console/SSH recovery, filesystem-repair, observability, firmware, and driver
-  dependency. Manual post-install deletion is unsupported release drift.
+  first-boot verification, and local-console recovery. Before disk mutation it
+  shall record the exact CPU, boot, console, NIC, storage, virtualization, and
+  firmware inventory, reject unsupported or incomplete inventory, and derive a
+  deterministic machine build manifest from the signed release policy. Generic
+  describes the live media's published compatibility matrix, not every x86-64
+  machine and not the installed-system composition.
+- **BFW-PRD-226:** The installed FreeBSD appliance shall be machine-tailored
+  only through the signed inventory schema and selection policy, declarative
+  `src.conf`, kernel/module configuration, package manifest, and signed private
+  package repository. The default offline path shall assemble the base system
+  from pinned prebuilt sets and build only machine-specific kernel/modules when
+  required; a full on-target source build is an explicit optional slow path.
+  Every path shall retain a signed generic recovery kernel/environment and
+  every admitted firewall, routing, switching, HA, IPsec, audit,
+  cryptographic, signature-verification, console/SSH recovery,
+  filesystem-repair, observability, firmware, and driver dependency. Manual
+  post-install deletion is unsupported release drift.
 - **BFW-PRD-227:** The initial FreeBSD appliance shall use replaceable
   read-only or integrity-verified system content, two independently verifiable
   code/root slots or a separately admitted equivalent, and separate durable
   configuration, audit/evidence, and recovery state. Signed update, bounded
   boot confirmation, migration, rollback, and recovery shall reuse the common
-  Bifrost release transaction rather than FreeBSD-native in-place mutation.
+  Bifrost release transaction, rebuild the inactive slot against the current
+  verified inventory and signed tailoring policy, and preserve the prior slot
+  and generic recovery environment rather than use FreeBSD-native in-place
+  mutation.
 - **BFW-PRD-228:** FreeBSD ISO admission shall independently cover reproducible
   builds, signatures/SBOM/provenance, UEFI and BIOS boot, offline installation,
-  wrong-disk and interruption safety, package and base-system drift, A/B
-  upgrade and rollback, recovery, resource bounds, and native PF, routing,
-  bridge/VLAN, CARP/pfsync, FRR, and packet/state-oracle behavior across every
-  supported hardware row. Linux evidence shall not admit FreeBSD or imply
-  cross-platform parity.
+  deterministic and tamper-evident hardware inventory and machine build plans,
+  exact driver/firmware/package closure, recovery-kernel boot, wrong-disk and
+  interruption safety, package and base-system drift, A/B upgrade and rollback,
+  hardware-change handling, recovery, build-time/resource bounds, and native
+  PF, routing, bridge/VLAN, CARP/pfsync, FRR, and packet/state-oracle behavior
+  across every supported hardware row. Linux evidence shall not admit FreeBSD
+  or imply cross-platform parity.
 
 ## Initial requirements
 

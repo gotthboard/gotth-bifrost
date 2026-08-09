@@ -21,12 +21,14 @@ keys, package versions/digests, kernel/modules/firmware, bootloader/initramfs,
 digest. Alpine edge and moving repository indexes are not release inputs.
 
 For the first-party BSD appliance, release input also includes the exact
-supported FreeBSD release and source revision, `src.conf`, kernel configuration,
-module/firmware/boot manifests, private package-repository snapshot and keys,
-package versions/digests, generic x86-64 hardware-matrix revision,
-`bfw-installer` revision, ISO digest, and installed-system manifest or image
-digest. Undeclared post-install deletion and moving package inputs are not
-release inputs.
+supported FreeBSD release and source revision, source/object sets, `src.conf`,
+build toolchain, normalized inventory schema, signed tailoring policy, generic
+recovery kernel/environment, module/firmware/boot manifests, private
+package-repository snapshot and keys, package versions/digests, generic x86-64
+live-media hardware-matrix revision, `bfw-installer` revision, and ISO digest.
+Each installation adds its content-addressed normalized hardware inventory,
+machine build plan, installed-system manifest, and slot digest. Undeclared
+post-install deletion and moving package inputs are not release inputs.
 
 ## Reproducible composition
 
@@ -94,7 +96,18 @@ installer exit code alone is not successful installation evidence.
 The signed Bifrost FreeBSD ISO performs the same bounded offline installation
 transaction against its independently admitted FreeBSD composition. It rejects
 hardware outside the published generic x86-64 matrix before disk mutation and
-records the exact matched boot, NIC, storage, virtualization, and firmware row.
+records normalized CPU, boot, console, NIC, storage, virtualization, and
+firmware facts. It derives and displays a deterministic machine build plan from
+the signed tailoring policy before destructive confirmation.
+
+The default path assembles pinned prebuilt base/object sets and packages and
+builds only machine-specific kernel/modules when required. A full on-target
+source build is an explicit resource-estimated slow path, not the default. Both
+paths are offline, produce a content-addressed installed-system manifest, and
+retain a separately verifiable signed generic recovery kernel/environment. No
+release-signing private key is present on the ISO; release signatures cover the
+selectable inputs and tailoring policy rather than pretending the generated
+machine manifest was signed at release time.
 
 Installation creates independently verifiable code/root slots plus separate
 durable configuration, audit/evidence, and recovery state. First boot remains

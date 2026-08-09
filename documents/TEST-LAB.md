@@ -126,6 +126,16 @@ fail-closed state, package drift, upgrade, boot confirmation, rollback, and
 local-console recovery. A booted live ISO or successful installer exit is not
 installed-appliance evidence.
 
+The FreeBSD live-installer matrix additionally proves deterministic normalized
+CPU, boot, console, NIC, storage, virtualization, and firmware inventory;
+machine build-plan derivation from signed policy; exact kernel/module/firmware/
+package closure; bounded default and optional full-source build resources;
+sealed installed manifests; generic recovery-kernel boot; inventory change;
+and inactive-slot rebuild/rollback. The generic live ISO and every selectable
+input must reproduce independently; a machine-tailored installed result is
+verified against its exact inventory and plan rather than compared with a
+fictional universal installed-image digest.
+
 The learning-alpha lane is a smaller matrix, not a weaker safety oracle. It
 uses one pinned disposable VM/hardware profile and proves install/boot/reset,
 the basic router path, the basic switch path, configuration persistence,

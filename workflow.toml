@@ -219,7 +219,7 @@ acceptance = ["The alpha scope is decomposed into exact component repositories, 
 
 [[features]]
 id = "freebsd-generic-appliance-iso-v1"
-title = "Generic x86-64 FreeBSD appliance installation ISO"
+title = "Generic FreeBSD live installer with machine-tailored installation"
 state = "planned"
 phase = "decomposition"
 risk = "critical"
@@ -229,9 +229,9 @@ requirements = ["BFW-PRD-223", "BFW-PRD-224", "BFW-PRD-225", "BFW-PRD-226", "BFW
 dependencies = ["routing-switching-protocol-suites-v1", "alpine-linux-appliance-iso-v1"]
 review = "pending"
 evidence = []
-blockers = ["active routing/switching workflow", "shared installer contract and Alpine ISO workflow incomplete", "exact supported FreeBSD release/source/package snapshot unselected", "generic x86-64 hardware matrix unselected", "FreeBSD installer and A/B safety evidence absent"]
+blockers = ["active routing/switching workflow", "shared installer contract and Alpine ISO workflow incomplete", "exact supported FreeBSD release/source/object/package snapshot and tailoring policy unselected", "generic x86-64 live-media hardware matrix unselected", "FreeBSD installer, machine-tailoring, and A/B safety evidence absent"]
 allowed_effects = ["read_only", "local_write"]
-acceptance = ["Exact FreeBSD source, build options, kernel, package, firmware, boot, installer, ISO, installed-image, and generic hardware-matrix identities are immutable.", "Offline install, hardware denial, exact-disk confirmation, dependency closure, interruption, dual-slot rollback, recovery, and independent PF/routing/bridge/CARP/FRR packet and native-state verification are decomposed into owned work.", "Hardware-specific appliance images remain outside this feature and require a separately approved product profile."]
+acceptance = ["Exact FreeBSD source/object sets, build toolchain, inventory schema, tailoring policy, recovery environment, packages, firmware, boot artifacts, installer, ISO, and live-media hardware-matrix identities are immutable.", "Offline inventory, deterministic machine build planning, exact kernel/module/firmware/package closure, generic recovery boot, exact-disk confirmation, interruption, dual-slot rebuild/rollback, and independent PF/routing/bridge/CARP/FRR packet and native-state verification are decomposed into owned work.", "The generic live installer produces a machine-tailored installed system; only separately distributed prebuilt hardware-specific media and appliance SKUs remain outside this feature."]
 
 [[coverage_subsystems]]
 id = "meta-governance"
@@ -281,11 +281,11 @@ id = "freebsd-generic-installer"
 owner = "bfw-installer,bfw-platform-freebsd,meta"
 risk = "critical"
 scope = ["documents/PRD.md", "documents/ARCHITECTURE.md", "documents/IMPLEMENTATION-SPEC.md", "documents/RELEASE-RECOVERY.md", "workflow/features/freebsd-generic-appliance-iso-v1"]
-required_harness = ["reproducible-build", "manifest-closure", "unsupported-hardware-denial", "wrong-disk", "offline-install", "power-loss", "dual-slot-rollback", "recovery", "native-state-packet-oracle", "cross-distribution-noninheritance"]
+required_harness = ["reproducible-build", "normalized-machine-inventory", "deterministic-build-plan", "machine-tailored-closure", "generic-recovery-boot", "manifest-closure", "unsupported-hardware-denial", "wrong-disk", "offline-install", "power-loss", "dual-slot-rollback", "recovery", "native-state-packet-oracle", "cross-distribution-noninheritance"]
 evidence = []
-known_gaps = ["Exact supported FreeBSD release and source revision are unselected.", "Private package snapshot and generic x86-64 hardware matrix are unselected.", "Installer and appliance artifacts do not exist.", "Independent FreeBSD platform admission evidence is absent."]
+known_gaps = ["Exact supported FreeBSD release, source/object sets, build toolchain, inventory schema, and tailoring policy are unselected.", "Private package snapshot and generic x86-64 live-media hardware matrix are unselected.", "Installer, machine-tailoring, recovery, and appliance artifacts do not exist.", "Independent FreeBSD platform admission evidence is absent."]
 plan = "workflow/features/freebsd-generic-appliance-iso-v1/DECOMPOSITION.md"
-next_increment = "Complete the generic FreeBSD ISO decomposition after the active routing/switching workflow and shared installer boundary are admitted."
+next_increment = "Complete the generic FreeBSD live-installer and machine-tailoring decomposition after the active routing/switching workflow and shared installer boundary are admitted."
 
 [[coverage_subsystems]]
 id = "release-composition"
