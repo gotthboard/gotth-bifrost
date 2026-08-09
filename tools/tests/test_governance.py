@@ -452,6 +452,44 @@ class GovernanceTests(unittest.TestCase):
         self.assertIn("grade review has not passed", joined)
         self.assertIn("out-of-alpha implementation flag", joined)
 
+    def test_phase0_accepts_complete_revision_bound_a_grade(self) -> None:
+        revision = "0" * 40
+        catalog = {
+            "external_dependencies": [{
+                "id": "agent-keyring",
+                "revision": revision,
+                "admission": "not_admitted",
+            }]
+        }
+        phase0 = {
+            "status": "passed",
+            "beta_stable_runtime_allowed": True,
+            "out_of_alpha_implementation_allowed": True,
+            "applies_to_channels": ["beta", "stable"],
+            "alpha_gate": "BFW-ALPHA-0",
+            "minimum_dependency_grade": "A",
+            "dependencies": [{
+                "id": "agent-keyring",
+                "revision": revision,
+                "status": "passed",
+                "required_gates": ["review"],
+                "passed_gates": ["review"],
+                "evidence": ["sha256:" + "a" * 64],
+                "gaps": [],
+                "review": "passed",
+                "admission": "admitted",
+                "grade": "A",
+                "grade_evidence": ["sha256:" + "b" * 64],
+                "grade_evidence_revision": revision,
+                "grade_reviewer": "independent-bifrost-review",
+                "grade_review": "passed",
+            }],
+        }
+        findings = governance.Findings()
+        with mock.patch.object(governance, "load_toml", return_value=phase0):
+            governance.validate_phase0(findings, catalog)
+        self.assertEqual([], findings.errors)
+
     def test_alpha_mutation_permission_cannot_outrun_minimum_gate(self) -> None:
         catalog = {
             "external_dependencies": [{
@@ -549,6 +587,54 @@ class GovernanceTests(unittest.TestCase):
         with mock.patch.object(governance, "load_toml", return_value=alpha):
             governance.validate_alpha(findings, catalog)
         self.assertIn("selected version is not v2", "\n".join(findings.errors))
+
+    def test_alpha_accepts_complete_minimum_admission(self) -> None:
+        revision = "0" * 40
+        catalog = {
+            "external_dependencies": [{
+                "id": "rpc-plugin-system",
+                "revision": revision,
+                "admission": "not_admitted",
+            }]
+        }
+        alpha = {
+            "gate_id": "BFW-ALPHA-0",
+            "full_admission_gate": "BFW-PHASE-0",
+            "status": "passed",
+            "source_implementation_phase0_exempt": True,
+            "offline_simulation_phase0_exempt": True,
+            "workflow_activation_required": True,
+            "host_network_mutation_allowed": True,
+            "installer_disk_mutation_allowed": True,
+            "alpha_distribution_allowed": True,
+            "production_allowed": False,
+            "platform": "linux",
+            "distribution": "alpine",
+            "architecture": "x86_64",
+            "runtime_contract": "rpc-plugin-system-v2",
+            "required_safety_gates": ["disk"],
+            "passed_safety_gates": ["disk"],
+            "evidence": ["sha256:" + "a" * 64],
+            "review": "passed",
+            "admission": "alpha_admitted",
+            "dependencies": [{
+                "id": "rpc-plugin-system",
+                "required_version": "2.x",
+                "selected_version": "2.0.0",
+                "revision": revision,
+                "status": "passed",
+                "required_gates": ["identity"],
+                "passed_gates": ["identity"],
+                "evidence": ["sha256:" + "b" * 64],
+                "gaps": [],
+                "review": "passed",
+                "admission": "alpha_admitted",
+            }],
+        }
+        findings = governance.Findings()
+        with mock.patch.object(governance, "load_toml", return_value=alpha):
+            governance.validate_alpha(findings, catalog)
+        self.assertEqual([], findings.errors)
 
 
 if __name__ == "__main__":

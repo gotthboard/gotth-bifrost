@@ -227,12 +227,17 @@ def validate_phase0(findings: Findings, catalog: dict[str, Any]) -> dict[str, An
     external_by_id = {entry["id"]: entry for entry in catalog.get("external_dependencies", [])}
     findings.require({entry.get("id") for entry in dependencies} == set(external_by_id), "Phase 0 dependency set differs from component catalog")
     findings.require(phase0.get("minimum_dependency_grade") == "A", "Phase 0 minimum dependency grade must remain A")
+    findings.require(phase0.get("status") in {"blocked", "passed"}, "Phase 0 has an invalid status")
     all_admitted = True
     for entry in dependencies:
         dependency_id = entry.get("id", "<missing>")
         required = set(entry.get("required_gates", []))
         passed = set(entry.get("passed_gates", []))
+        findings.require(bool(required), f"{dependency_id}: Phase 0 required gate set is empty")
         findings.require(passed <= required, f"{dependency_id}: passed unknown Phase 0 gate")
+        findings.require(entry.get("status") in {"blocked", "passed"}, f"{dependency_id}: invalid Phase 0 status")
+        findings.require(entry.get("review") in {"not_started", "failed", "passed"}, f"{dependency_id}: invalid Phase 0 review state")
+        findings.require(entry.get("admission") in {"not_admitted", "admitted", "rejected", "revoked"}, f"{dependency_id}: invalid Phase 0 admission")
         findings.require(entry.get("revision") == external_by_id.get(dependency_id, {}).get("revision"), f"{dependency_id}: Phase 0 revision differs from catalog")
         for digest in entry.get("evidence", []):
             findings.require(bool(SHA256_RE.fullmatch(digest)), f"{dependency_id}: invalid Phase 0 evidence digest")
@@ -255,7 +260,9 @@ def validate_phase0(findings: Findings, catalog: dict[str, Any]) -> dict[str, An
             and grade_reviewer != dependency_id
             and grade_review == "passed"
         )
-        all_admitted &= admitted and grade_admitted and passed == required and bool(entry.get("evidence")) and entry.get("review") == "passed"
+        dependency_ready = admitted and grade_admitted and passed == required and bool(entry.get("evidence")) and entry.get("review") == "passed"
+        findings.require((entry.get("status") == "passed") == dependency_ready, f"{dependency_id}: Phase 0 status does not match complete dependency admission state")
+        all_admitted &= dependency_ready and entry.get("status") == "passed"
         if admitted:
             findings.require(grade in {"A", "A+"}, f"{dependency_id}: admitted Phase 0 dependency is below A grade")
             findings.require(bool(grade_evidence), f"{dependency_id}: admitted Phase 0 grade lacks evidence")
@@ -323,7 +330,8 @@ def validate_alpha(findings: Findings, catalog: dict[str, Any]) -> dict[str, Any
             findings.require(bool(SHA256_RE.fullmatch(digest)), f"{dependency_id}: invalid Alpha evidence digest")
         admitted = entry.get("admission") == "alpha_admitted"
         ready = admitted and bool(selected_version) and bool(REVISION_RE.fullmatch(revision)) and passed == required and bool(entry.get("evidence")) and entry.get("review") == "passed"
-        dependencies_ready &= ready
+        findings.require((entry.get("status") == "passed") == ready, f"{dependency_id}: Alpha status does not match complete dependency admission state")
+        dependencies_ready &= ready and entry.get("status") == "passed"
         if admitted:
             findings.require(not entry.get("gaps"), f"{dependency_id}: alpha-admitted dependency retains gaps")
 

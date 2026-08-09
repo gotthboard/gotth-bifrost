@@ -44,9 +44,9 @@ successful operation cannot be relabelled or replayed as beta or stable. The
 alpha safety gate still requires stable disk selection, fail-closed packet
 state, secret custody, transactional configuration, stale-authority denial,
 and local reset/recovery before installation or network mutation is allowed.
-No broader implementation or release composition begins until every Phase 0
-dependency independently earns an A or A+ admission; alpha behavior and
-aggregate grades cannot satisfy that prerequisite.
+No implementation or release composition outside the exact alpha scope begins
+until every Phase 0 dependency independently earns an A or A+ admission; alpha
+behavior and aggregate grades cannot satisfy that prerequisite.
 
 ## Activation
 

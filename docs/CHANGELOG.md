@@ -30,7 +30,7 @@ Verification completed locally:
 
 - `python3 tools/governance.py render --check`
 - `python3 tools/governance.py validate`
-- `python3 -m unittest discover -s tools/tests -v` (27 tests)
+- `python3 -m unittest discover -s tools/tests -v` (29 tests)
 - `git diff --check`
 
 Risks / non-goals:
