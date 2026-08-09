@@ -530,7 +530,12 @@ class GovernanceTests(unittest.TestCase):
         findings = governance.Findings()
         with mock.patch.object(governance, "load_toml", return_value=phase0):
             governance.validate_phase0(findings, catalog)
-        self.assertIn("admission outruns component catalog admission", "\n".join(findings.errors))
+        errors = "\n".join(findings.errors)
+        self.assertIn("admission outruns component catalog admission", errors)
+        self.assertIn("status does not match complete dependency admission state", errors)
+        self.assertIn("beta/stable runtime flag does not match complete admission state", errors)
+        self.assertIn("out-of-alpha implementation flag does not match complete A-grade admission state", errors)
+        self.assertIn("Phase 0 status does not match complete admission state", errors)
 
     def test_alpha_mutation_permission_cannot_outrun_minimum_gate(self) -> None:
         catalog = {

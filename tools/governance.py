@@ -242,8 +242,9 @@ def validate_phase0(findings: Findings, catalog: dict[str, Any]) -> dict[str, An
         for digest in entry.get("evidence", []):
             findings.require(bool(SHA256_RE.fullmatch(digest)), f"{dependency_id}: invalid Phase 0 evidence digest")
         admitted = entry.get("admission") == "admitted"
+        catalog_admitted = external_by_id.get(dependency_id, {}).get("admission") == "admitted"
         if admitted:
-            findings.require(external_by_id.get(dependency_id, {}).get("admission") == "admitted", f"{dependency_id}: Phase 0 admission outruns component catalog admission")
+            findings.require(catalog_admitted, f"{dependency_id}: Phase 0 admission outruns component catalog admission")
         grade = entry.get("grade")
         findings.require(grade in {"ungraded", "A", "A+"}, f"{dependency_id}: invalid Phase 0 grade")
         grade_evidence = entry.get("grade_evidence", [])
@@ -262,7 +263,7 @@ def validate_phase0(findings: Findings, catalog: dict[str, Any]) -> dict[str, An
             and grade_reviewer != dependency_id
             and grade_review == "passed"
         )
-        dependency_ready = admitted and grade_admitted and passed == required and bool(entry.get("evidence")) and entry.get("review") == "passed"
+        dependency_ready = admitted and catalog_admitted and grade_admitted and passed == required and bool(entry.get("evidence")) and entry.get("review") == "passed"
         findings.require((entry.get("status") == "passed") == dependency_ready, f"{dependency_id}: Phase 0 status does not match complete dependency admission state")
         all_admitted &= dependency_ready and entry.get("status") == "passed"
         if admitted:
