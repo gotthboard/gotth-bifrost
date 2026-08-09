@@ -348,7 +348,7 @@ def validate_alpha(findings: Findings, catalog: dict[str, Any]) -> dict[str, Any
 
 # Complexity: time O(c + e), Omega(c), tight Theta(c + e) for catalog entries c
 # and dependency edges e; auxiliary space O(c).
-def validate_release(findings: Findings, catalog: dict[str, Any]) -> dict[str, Any]:
+def validate_release(findings: Findings, catalog: dict[str, Any], phase0: dict[str, Any], alpha: dict[str, Any]) -> dict[str, Any]:
     release = load_toml("governance/releases/v0.1.toml")
     catalog_by_id = {entry["id"]: entry for entry in catalog.get("components", [])}
     included = release.get("included", [])
@@ -357,6 +357,10 @@ def validate_release(findings: Findings, catalog: dict[str, Any]) -> dict[str, A
     findings.require(release.get("alpha_gate") == "BFW-ALPHA-0", "v0.1 alpha gate drifted")
     findings.require(release.get("phase0_gate") == "BFW-PHASE-0", "v0.1 Phase 0 gate drifted")
     findings.require(release.get("phase0_required_for") == ["beta", "stable"], "v0.1 Phase 0 channel policy drifted")
+    channel = release.get("channel")
+    findings.require(channel in {"design", "development", "alpha", "beta", "stable"}, "v0.1 release channel is invalid")
+    findings.require(release.get("status") in {"profile_only", "blocked", "passed"}, "v0.1 release status is invalid")
+    findings.require(release.get("admission") in {"not_admitted", "admitted", "rejected", "revoked"}, "v0.1 release admission is invalid")
     findings.require(len(included) == len(set(included)), "v0.1 includes duplicate component")
     findings.require(len(deferred) == len(set(deferred)), "v0.1 defers duplicate component")
     findings.require(not (set(included) & set(deferred)), "v0.1 included/deferred overlap")
@@ -375,6 +379,10 @@ def validate_release(findings: Findings, catalog: dict[str, Any]) -> dict[str, A
             findings.require(bool(entry.get("artifact_digests")), f"v0.1 {component_id}: admitted composition lacks artifacts")
             findings.require(bool(REVISION_RE.fullmatch(entry.get("rollback_mate", ""))), f"v0.1 {component_id}: admitted composition lacks rollback mate")
             findings.require(bool(entry.get("evidence_hashes")), f"v0.1 {component_id}: admitted composition lacks evidence")
+    if release.get("admission") == "admitted" and channel == "alpha":
+        findings.require(alpha.get("alpha_distribution_allowed") is True, "v0.1 alpha admission outruns BFW-ALPHA-0 distribution permission")
+    if release.get("admission") == "admitted" and channel in release.get("phase0_required_for", []):
+        findings.require(phase0.get("beta_stable_runtime_allowed") is True, "v0.1 beta/stable admission outruns complete BFW-PHASE-0 admission")
     findings.require(not (release.get("status") == "profile_only" and release.get("admission") == "admitted"), "profile-only v0.1 cannot be admitted")
     return release
 
@@ -935,7 +943,7 @@ def run_validation(check_generated: bool = True) -> Findings:
         catalog = validate_components(findings)
         phase0 = validate_phase0(findings, catalog)
         alpha = validate_alpha(findings, catalog)
-        validate_release(findings, catalog)
+        validate_release(findings, catalog, phase0, alpha)
         validate_schemas(findings)
         validate_deployment_profiles(findings)
         validate_kubernetes_ha(findings)

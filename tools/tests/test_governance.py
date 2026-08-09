@@ -683,6 +683,43 @@ class GovernanceTests(unittest.TestCase):
             governance.validate_alpha(findings, catalog)
         self.assertEqual([], findings.errors)
 
+    def test_release_admission_cannot_outrun_channel_gate(self) -> None:
+        catalog = {"components": []}
+        blocked_phase0 = {"beta_stable_runtime_allowed": False}
+        blocked_alpha = {"alpha_distribution_allowed": False}
+        base_release = {
+            "status": "passed",
+            "admission": "admitted",
+            "alpha_gate": "BFW-ALPHA-0",
+            "phase0_gate": "BFW-PHASE-0",
+            "phase0_required_for": ["beta", "stable"],
+            "included": [],
+            "deferred": [],
+            "composition": [],
+        }
+        cases = {
+            "alpha": "alpha admission outruns BFW-ALPHA-0 distribution permission",
+            "beta": "beta/stable admission outruns complete BFW-PHASE-0 admission",
+            "stable": "beta/stable admission outruns complete BFW-PHASE-0 admission",
+        }
+        for channel, expected in cases.items():
+            with self.subTest(channel=channel):
+                release = {**base_release, "channel": channel}
+                findings = governance.Findings()
+                with mock.patch.object(governance, "load_toml", return_value=release):
+                    governance.validate_release(findings, catalog, blocked_phase0, blocked_alpha)
+                self.assertIn(expected, "\n".join(findings.errors))
+
+        admitted_phase0 = {"beta_stable_runtime_allowed": True}
+        admitted_alpha = {"alpha_distribution_allowed": True}
+        for channel in cases:
+            with self.subTest(channel=channel, gates="admitted"):
+                release = {**base_release, "channel": channel}
+                findings = governance.Findings()
+                with mock.patch.object(governance, "load_toml", return_value=release):
+                    governance.validate_release(findings, catalog, admitted_phase0, admitted_alpha)
+                self.assertEqual([], findings.errors)
+
 
 if __name__ == "__main__":
     unittest.main()
