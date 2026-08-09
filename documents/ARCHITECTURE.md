@@ -1161,6 +1161,50 @@ FreeBSD and Windows remain separately admitted compatibility targets. They are
 not alternate bases for the Bifrost Linux ISO, and Alpine-specific packaging
 does not weaken Bifrost's provider-neutral domain contracts.
 
+## FreeBSD appliance and installer architecture
+
+FreeBSD is the canonical base for Bifrost's first-party BSD appliance. Its
+initial distribution profile is a generic x86-64 installation ISO, not a
+vendor-appliance image and not a promise to boot every x86-64 machine. Each
+released composition pins the supported FreeBSD release and source revision,
+source-build options, kernel configuration, modules, firmware, boot artifacts,
+private package-repository snapshot, packages, builder, installer revision,
+ISO digest, and installed-image digest. The published hardware matrix is part
+of the signed release claim.
+
+`bfw-installer` uses supported FreeBSD source-build controls and a NanoBSD-style
+appliance layout to produce read-only or integrity-verified system content,
+two independently verifiable code/root slots, and separate durable
+configuration, audit/evidence, and recovery state. Reduction is declarative:
+`src.conf`, kernel configuration, and the signed package manifest define every
+omission. Deleting files from an installed system is drift, not an image-build
+method. PF, routing, bridge/VLAN, CARP/pfsync, IPsec, audit, cryptographic and
+signature-verification support, local recovery, filesystem repair,
+observability, promised firmware, and promised drivers remain present whenever
+the admitted profile requires them.
+
+```text
+immutable FreeBSD source, package, and Bifrost composition
+  -> isolated buildworld/buildkernel and signed package build
+  -> reproducible generic x86-64 ISO, installed image, SBOM, and provenance
+  -> UEFI or legacy-BIOS boot on a published hardware-matrix row
+  -> stable target-disk inventory and explicit destructive confirmation
+  -> offline install into inactive/read-only system slots plus durable state
+  -> first boot into an unconfigured fail-closed appliance
+  -> independent native-state and packet verification before enrollment
+```
+
+The FreeBSD and Alpine artifacts share Bifrost schemas, authority boundaries,
+release semantics, UI/CLI behavior, and audit contracts. They do not share
+platform admission by implication. Each has independent platform adapters,
+native-state oracles, installers, update mechanics, package/firmware manifests,
+hardware matrices, performance bounds, and verification evidence.
+
+Hardware-specific FreeBSD images are deferred. They require a later product
+profile naming exact boards, NICs, storage, firmware, boot path, lifecycle,
+replacement policy, and support obligations; the generic image is not silently
+relabelled as an appliance-specific artifact.
+
 ## Recovery
 
 ADR-0005 and `documents/RELEASE-RECOVERY.md` define the recovery baseline:

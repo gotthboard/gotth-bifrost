@@ -227,3 +227,9 @@ Generated from `governance/requirements.toml`; do not edit by hand.
 | BFW-PRD-220 | `bfw-monitoring` | defined | `bfw-logging`, `BFW-ALPHA-0` | not_admitted |
 | BFW-PRD-221 | `meta` | defined | `BFW-PHASE-0`, `BFW-PRD-089`, `BFW-PRD-090` | not_admitted |
 | BFW-PRD-222 | `meta` | defined | `BFW-PHASE-0`, `rpc-plugin-system`, `agent-keyring`, `agent-filesystem`, `agent-exec` | not_admitted |
+| BFW-PRD-223 | `meta` | defined | `bfw-installer`, `bfw-platform-freebsd`, `BFW-PRD-008`, `BFW-PRD-089`, `BFW-PRD-090` | not_admitted |
+| BFW-PRD-224 | `bfw-installer` | defined | `BFW-PRD-039`, `BFW-PRD-089`, `bfw-platform-freebsd` | not_admitted |
+| BFW-PRD-225 | `bfw-installer` | defined | `bfw-cli`, `agent-keyring`, `agent-filesystem`, `bfw-platform-freebsd` | not_admitted |
+| BFW-PRD-226 | `bfw-installer` | defined | `bfw-core`, `bfw-platform-freebsd`, `bfw-logging` | not_admitted |
+| BFW-PRD-227 | `bfw-updater` | defined | `bfw-installer`, `bfw-backup`, `bfw-platform-freebsd`, `BFW-PRD-089` | not_admitted |
+| BFW-PRD-228 | `meta` | defined | `bfw-installer`, `bfw-updater`, `bfw-backup`, `bfw-platform-freebsd`, `BFW-PRD-090` | not_admitted |

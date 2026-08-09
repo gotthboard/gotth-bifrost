@@ -3,7 +3,7 @@
 Status: architecture baseline; implementation and platform evidence absent
 
 Requirements: BFW-PRD-006, BFW-PRD-031, BFW-PRD-039, BFW-PRD-049,
-BFW-PRD-074, BFW-PRD-079, BFW-PRD-089, BFW-PRD-209 through BFW-PRD-222
+BFW-PRD-074, BFW-PRD-079, BFW-PRD-089, BFW-PRD-209 through BFW-PRD-228
 
 ## Release inputs
 
@@ -19,6 +19,14 @@ supported Alpine stable patch release, immutable APK repository snapshot and
 keys, package versions/digests, kernel/modules/firmware, bootloader/initramfs,
 `bfw-installer` revision, ISO digest, and installed-system manifest or image
 digest. Alpine edge and moving repository indexes are not release inputs.
+
+For the first-party BSD appliance, release input also includes the exact
+supported FreeBSD release and source revision, `src.conf`, kernel configuration,
+module/firmware/boot manifests, private package-repository snapshot and keys,
+package versions/digests, generic x86-64 hardware-matrix revision,
+`bfw-installer` revision, ISO digest, and installed-system manifest or image
+digest. Undeclared post-install deletion and moving package inputs are not
+release inputs.
 
 ## Reproducible composition
 
@@ -80,6 +88,20 @@ layout, signatures, and first-boot selection are verified. The first boot is
 an unconfigured fail-closed appliance and must pass local core/platform/recovery
 checks before configuration enrollment. A booted ISO, completed copy, or zero
 installer exit code alone is not successful installation evidence.
+
+## Initial FreeBSD installation
+
+The signed Bifrost FreeBSD ISO performs the same bounded offline installation
+transaction against its independently admitted FreeBSD composition. It rejects
+hardware outside the published generic x86-64 matrix before disk mutation and
+records the exact matched boot, NIC, storage, virtualization, and firmware row.
+
+Installation creates independently verifiable code/root slots plus separate
+durable configuration, audit/evidence, and recovery state. First boot remains
+fail closed until the FreeBSD platform adapter, required services, local
+recovery, native PF/routing/bridge/CARP state, and packet oracles are complete.
+Alpine success, FreeBSD-native update success, or a booted generic kernel does
+not substitute for this evidence.
 
 ## Configuration migration
 

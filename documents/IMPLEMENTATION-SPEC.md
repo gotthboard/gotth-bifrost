@@ -389,6 +389,38 @@ support-lifecycle checks, and verified last-known-good rollback reuse the
 canonical release/recovery transaction rather than adding an installer-owned
 update path.
 
+### FreeBSD appliance and installer implementation contract
+
+The first BSD distribution target is a generic x86-64 FreeBSD installation
+ISO. `bfw-installer` shall consume an exact FreeBSD release/source revision,
+`src.conf`, kernel configuration, module/firmware/boot manifests, signed
+private-package repository snapshot, package names/versions/digests, Bifrost
+artifacts, filesystem/slot layout, service identities, migrations, rollback
+mates, hardware-matrix rows, SBOM, provenance, and builder identity. Outputs
+shall include the ISO, installed image or file manifest, boot artifacts,
+checksums, signatures, SBOM, provenance, and independent rebuild comparison.
+
+The build shall use supported source-build controls and a NanoBSD-style
+appliance layout. The release manifest, not cleanup scripts, defines omissions.
+A dependency-closure check shall prove that retained PF, routing, bridge/VLAN,
+CARP/pfsync, IPsec, audit, crypto/signature, console/SSH recovery,
+filesystem-repair, observability, firmware, and driver capabilities match each
+admitted hardware row. Package installation shall come only from the pinned
+signed repository produced in an isolated builder.
+
+The installed system shall expose two independently verifiable code/root slots
+or an admitted equivalent, keep replaceable system content read-only or
+integrity verified, and separate durable configuration, audit/evidence, and
+recovery state. Install and update use the canonical inspect, plan,
+confirm-destruction, stage, verify, activate, boot-confirm, and rollback
+transactions. Native in-place update success is not Bifrost admission evidence.
+
+The generic profile shall publish exact supported NIC, storage, boot,
+virtualization, and firmware rows. Unknown hardware fails before disk mutation.
+Hardware-specific images are outside this feature and require a separate
+product profile and workflow when Bifrost has exact appliance hardware to
+build and support.
+
 ## First learning-alpha vertical slice
 
 The preferred first runtime slice is an offline, pure configuration validator
@@ -628,3 +660,9 @@ slices and cannot cross the specific `BFW-ALPHA-0` effect gate that applies.
 | BFW-PRD-220 | bounded decision telemetry, provenance, redaction, known-limit, reset/recovery, and decision-log completeness tests |
 | BFW-PRD-221 | alpha-evidence non-promotion plus full Phase 0, B+ threshold, P0/P1, install/upgrade/rollback/recovery, and cold-review beta tests |
 | BFW-PRD-222 | per-dependency A/A+ evidence and independent-admission enforcement, no averaging/inheritance/demo substitution, and out-of-alpha implementation denial tests |
+| BFW-PRD-223 | exact supported FreeBSD release/source/package/kernel/module/firmware/boot/architecture/image pins and generic-profile claim tests |
+| BFW-PRD-224 | supported source-build/NanoBSD-style composition, isolated reproducibility, signature/SBOM/provenance, and installer-authority tests |
+| BFW-PRD-225 | generic x86-64 UEFI/BIOS matrix, offline install, stable disk identity, exact confirmation, unknown-hardware denial, and appliance-specific-profile exclusion tests |
+| BFW-PRD-226 | `src.conf`/kernel/package manifest closure, required capability retention, private-repository signature, and manual-deletion drift tests |
+| BFW-PRD-227 | read-only system, dual-slot activation, durable-state separation, boot confirmation, migration, rollback, and recovery tests |
+| BFW-PRD-228 | independent FreeBSD build/install/update/recovery plus PF/routing/bridge/CARP/FRR/native-state/packet and cross-platform non-inheritance tests |

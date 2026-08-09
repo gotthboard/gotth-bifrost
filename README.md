@@ -196,8 +196,9 @@ The initial capability catalog is intentionally split by ownership boundary:
   capabilities
 - `bfw-monitoring`, `bfw-logging`, `bfw-backup`, `bfw-support`,
   `bfw-notifications`, and `bfw-updater`: operational integrations
-- `bfw-installer`: reproducible signed Alpine Linux appliance installation ISO,
-  exact-disk installation, first-boot verification, and recovery media
+- `bfw-installer`: reproducible signed Alpine Linux and FreeBSD appliance
+  installation ISOs, exact-disk installation, first-boot verification, and
+  recovery media
 
 Names are planning identifiers until their repositories and public contracts
 are admitted. Catalog membership grants no runtime authority. Every plugin must
@@ -227,6 +228,14 @@ digest. `bfw-installer` builds signed reproducible offline media with explicit
 target-disk confirmation and verified recovery. Alpine edge, moving package
 repositories, and a successful installer exit without independent first-boot
 verification are not admissible release inputs or evidence.
+
+The planned first-party BSD appliance uses a reduced NanoBSD-style FreeBSD
+composition and is distributed initially as one generic x86-64 installation
+ISO with a published hardware matrix. It is not a universal x86-64 promise.
+Hardware-specific appliance images are deferred until an approved product
+profile names exact hardware, firmware, lifecycle, and support obligations.
+FreeBSD and Alpine share product contracts but require independent images,
+platform adapters, hardware evidence, and admission decisions.
 
 Sticky endpoint binding is available by contract in router, switch, and
 converged roles. Switched ports persist an admitted MAC/port/VLAN binding under

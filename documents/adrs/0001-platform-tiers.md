@@ -4,7 +4,8 @@ Status: Accepted
 
 Date: 2026-08-08
 
-Requirements: BFW-PRD-008, BFW-PRD-065, BFW-PRD-087, BFW-PRD-090
+Requirements: BFW-PRD-008, BFW-PRD-065, BFW-PRD-087, BFW-PRD-090,
+BFW-PRD-223 through BFW-PRD-228
 
 Supersedes: none
 
@@ -25,11 +26,21 @@ Exact OS releases, kernels, architectures, images, and digests are release
 inputs, not permanent ADR text. `governance/test-lab.toml` leaves them empty and
 blocks system admission until measured images are selected.
 
+The first BSD product image, when its later release profile is activated, is a
+generic x86-64 FreeBSD installation ISO built as a reduced NanoBSD-style
+appliance. It has an explicit hardware compatibility matrix and independent
+admission evidence. Hardware-specific images are deferred until an approved
+appliance product profile identifies exact hardware and support obligations.
+
 ## Consequences
 
 - v0.1 has one product data-plane target and a smaller test matrix.
 - Cross-platform contracts still cannot be Linux-specific shortcuts.
 - No FreeBSD, Windows, or Darwin product-support claim exists yet.
+- The planned generic FreeBSD image does not claim universal x86-64 support and
+  cannot inherit Alpine build, hardware, performance, or admission evidence.
+- Appliance-specific optimization remains out of scope until actual appliance
+  hardware and lifecycle obligations exist.
 
 ## Alternatives considered
 

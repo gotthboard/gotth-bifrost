@@ -65,6 +65,10 @@ required_scenarios = [
   "alpine-iso-reproducible-build-signature", "alpine-iso-uefi-bios-offline-install",
   "alpine-installer-disk-identity-confirmation", "alpine-install-interruption-power-loss",
   "alpine-appliance-upgrade-rollback-recovery",
+  "freebsd-iso-reproducible-build-signature", "freebsd-iso-uefi-bios-offline-install",
+  "freebsd-generic-hardware-matrix-denial", "freebsd-source-package-manifest-closure",
+  "freebsd-dual-slot-upgrade-rollback-recovery", "freebsd-pf-route-bridge-carp-frr-oracle",
+  "cross-distribution-evidence-noninheritance",
   "alpha-install-boot-reset", "alpha-basic-router-path",
   "alpha-basic-switch-path", "alpha-unknown-state-recovery",
   "alpha-channel-promotion-denial", "alpha-effect-gate-denial",
@@ -87,9 +91,9 @@ image_digest = ""
 status = "unpinned"
 
 [[targets]]
-id = "freebsd-compatibility"
+id = "freebsd-generic-x86-64"
 platform = "freebsd"
-role = "pf, route, CARP, plugin, upgrade, and recovery compatibility target"
+role = "planned generic x86-64 FreeBSD appliance ISO build, installation, PF, route, bridge, CARP, FRR, upgrade, and recovery target"
 os_release = ""
 kernel_or_runtime = ""
 architectures = ["amd64"]

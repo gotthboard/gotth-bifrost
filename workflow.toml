@@ -217,6 +217,22 @@ blockers = ["active routing/switching workflow", "Alpine ISO workflow incomplete
 allowed_effects = ["read_only", "local_write"]
 acceptance = ["The alpha scope is decomposed into exact component repositories, paths, owners, dependency order, supported and denied capabilities, evidence, and handoff criteria.", "Host network, installer disk, and distribution effects remain denied until BFW-ALPHA-0 passes.", "Out-of-alpha implementation remains denied until all four Phase 0 dependencies independently earn A or A+ admission."]
 
+[[features]]
+id = "freebsd-generic-appliance-iso-v1"
+title = "Generic x86-64 FreeBSD appliance installation ISO"
+state = "planned"
+phase = "decomposition"
+risk = "critical"
+path = "workflow/features/freebsd-generic-appliance-iso-v1"
+plan = "workflow/features/freebsd-generic-appliance-iso-v1/DECOMPOSITION.md"
+requirements = ["BFW-PRD-223", "BFW-PRD-224", "BFW-PRD-225", "BFW-PRD-226", "BFW-PRD-227", "BFW-PRD-228"]
+dependencies = ["routing-switching-protocol-suites-v1", "alpine-linux-appliance-iso-v1"]
+review = "pending"
+evidence = []
+blockers = ["active routing/switching workflow", "shared installer contract and Alpine ISO workflow incomplete", "exact supported FreeBSD release/source/package snapshot unselected", "generic x86-64 hardware matrix unselected", "FreeBSD installer and A/B safety evidence absent"]
+allowed_effects = ["read_only", "local_write"]
+acceptance = ["Exact FreeBSD source, build options, kernel, package, firmware, boot, installer, ISO, installed-image, and generic hardware-matrix identities are immutable.", "Offline install, hardware denial, exact-disk confirmation, dependency closure, interruption, dual-slot rollback, recovery, and independent PF/routing/bridge/CARP/FRR packet and native-state verification are decomposed into owned work.", "Hardware-specific appliance images remain outside this feature and require a separately approved product profile."]
+
 [[coverage_subsystems]]
 id = "meta-governance"
 owner = "meta"
@@ -259,6 +275,17 @@ evidence = []
 known_gaps = ["rpc-plugin-system is ungraded.", "agent-keyring is ungraded.", "agent-filesystem is ungraded.", "agent-exec is ungraded."]
 plan = "workflow/PHASE0-ADMISSION-PLAN.md"
 next_increment = "Admit each exact dependency revision independently at A or A+; do not aggregate grades."
+
+[[coverage_subsystems]]
+id = "freebsd-generic-installer"
+owner = "bfw-installer,bfw-platform-freebsd,meta"
+risk = "critical"
+scope = ["documents/PRD.md", "documents/ARCHITECTURE.md", "documents/IMPLEMENTATION-SPEC.md", "documents/RELEASE-RECOVERY.md", "workflow/features/freebsd-generic-appliance-iso-v1"]
+required_harness = ["reproducible-build", "manifest-closure", "unsupported-hardware-denial", "wrong-disk", "offline-install", "power-loss", "dual-slot-rollback", "recovery", "native-state-packet-oracle", "cross-distribution-noninheritance"]
+evidence = []
+known_gaps = ["Exact supported FreeBSD release and source revision are unselected.", "Private package snapshot and generic x86-64 hardware matrix are unselected.", "Installer and appliance artifacts do not exist.", "Independent FreeBSD platform admission evidence is absent."]
+plan = "workflow/features/freebsd-generic-appliance-iso-v1/DECOMPOSITION.md"
+next_increment = "Complete the generic FreeBSD ISO decomposition after the active routing/switching workflow and shared installer boundary are admitted."
 
 [[coverage_subsystems]]
 id = "release-composition"

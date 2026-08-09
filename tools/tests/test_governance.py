@@ -14,6 +14,49 @@ class GovernanceTests(unittest.TestCase):
         findings = governance.run_validation(check_generated=True)
         self.assertEqual([], findings.errors)
 
+    def test_initial_freebsd_distribution_is_generic_and_independent(self) -> None:
+        workflow = governance.load_toml("workflow.toml")
+        feature = next(
+            entry
+            for entry in workflow["features"]
+            if entry["id"] == "freebsd-generic-appliance-iso-v1"
+        )
+        self.assertEqual("planned", feature["state"])
+        self.assertEqual(
+            [f"BFW-PRD-{number}" for number in range(223, 229)],
+            feature["requirements"],
+        )
+        self.assertEqual(
+            ["routing-switching-protocol-suites-v1", "alpine-linux-appliance-iso-v1"],
+            feature["dependencies"],
+        )
+        self.assertTrue(any("hardware matrix" in item for item in feature["blockers"]))
+        self.assertTrue(any("Hardware-specific" in item for item in feature["acceptance"]))
+
+        catalog = governance.load_toml("governance/components.toml")
+        installer = next(
+            entry for entry in catalog["components"] if entry["id"] == "bfw-installer"
+        )
+        self.assertEqual({"linux", "freebsd"}, set(installer["platforms"]))
+        self.assertIn("bfw-platform-linux", installer["dependencies"])
+        self.assertIn("bfw-platform-freebsd", installer["dependencies"])
+
+        lab = governance.load_toml("governance/test-lab.toml")
+        target = next(
+            entry for entry in lab["targets"] if entry["id"] == "freebsd-generic-x86-64"
+        )
+        self.assertEqual(["amd64"], target["architectures"])
+        self.assertEqual("unpinned", target["status"])
+        self.assertIn("generic x86-64", target["role"])
+
+        plan = (
+            governance.ROOT
+            / "workflow/features/freebsd-generic-appliance-iso-v1/DECOMPOSITION.md"
+        ).read_text()
+        self.assertIn("universal x86-64 hardware support", plan)
+        self.assertIn("Hardware-specific images remain deferred", plan)
+        self.assertIn("never admission evidence", plan)
+
     def test_switching_domain_is_composed_and_strict(self) -> None:
         with (governance.ROOT / "governance/components.toml").open("rb") as handle:
             catalog = tomllib.load(handle)

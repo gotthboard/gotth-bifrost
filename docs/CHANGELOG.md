@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+### 2026-08-09 15:30 CDT — Select the initial BSD distribution profile
+
+- Keep Alpine Linux as the first Linux ISO and select FreeBSD as the canonical
+  first-party BSD distribution.
+- Define the initial BSD artifact as one generic x86-64 NanoBSD-style
+  installation ISO with a finite published hardware matrix, declarative source,
+  kernel, and package reduction, and independent FreeBSD admission evidence.
+- Defer hardware-specific appliance images until a separate approved product
+  profile names exact hardware, firmware, lifecycle, and support obligations.
+- Add BFW-PRD-223 through BFW-PRD-228 and a planned strict-workflow feature;
+  no implementation, ISO build, package fetch, disk mutation, release, or
+  distribution occurred.
+
 ### 2026-08-09 02:49 CDT — Make workflow state and remaining work executable
 
 Affected files:
