@@ -2,6 +2,54 @@
 
 ## Unreleased
 
+### 2026-08-09 01:08–01:40 CDT — Define network suites, sticky ports, and Alpine Linux appliance distribution
+
+Affected files:
+
+- `README.md`
+- `components/README.md`
+- `documents/`
+- `governance/`
+- `workflow.toml`
+- `workflow/`
+- `workflow.events.jsonl`
+
+Explanation:
+
+Replace vague dynamic-routing and broad switching language with explicit,
+matrix-defined routing and switching protocol suites. BGP remains owned by
+`bfw-frr` behind the typed `bfw-routing` authority boundary. Add OSPF, IS-IS,
+RIP/RIPng, Babel, multicast, MPLS/SR/TE, BFD, redistribution, VLAN/provider
+bridging, STP-family, aggregation/multi-chassis, discovery, snooping, access/
+link security, overlays, resilient fabrics, DCB/TSN, and OAM contracts. Define
+capability, security, convergence, lifecycle, observability, scale, resource,
+interoperability, threat, and isolated-lab behavior without claiming runtime
+support. Add distinct persistent sticky endpoint bindings for switched
+MAC/port/VLAN and routed interface/VRF/MAC/IP identities, with drop-and-alarm
+violations and no silent relearning. Establish Alpine Linux as the canonical
+first-party Linux appliance and installer-ISO base, add the deferred
+`bfw-installer` component, define an Alpine 3.24 stable/x86-64 starting target,
+and require exact immutable release inputs, reproducible signed offline media,
+stable target-disk confirmation, first-boot verification, and recovery.
+
+Verification completed before commit:
+
+- `python tools/governance.py validate`
+- `python tools/governance.py render --check`
+- `python -m unittest discover -s tools/tests -v`
+- `git diff --check`
+
+Risks / non-goals:
+
+- Dynamic routing and expanded switching remain deferred outside v0.1; no
+  protocol process, peer session, route/switch mutation, repository, release,
+  or deployment is created.
+- Alpine ISO work is a separate planned workflow behind the current active
+  routing/switching design; no installer repository, ISO, disk write, package
+  fetch, boot, or appliance support claim is created.
+- “All flavors” is an exact published matrix, not an impossible claim covering
+  every obsolete, proprietary, experimental, or future extension.
+
 ### 2026-08-08 12:39–14:01 CDT — Build and Judge the executable Bifrost governance tree
 
 Commit: current commit; hash assigned by Git after commit

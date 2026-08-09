@@ -79,6 +79,9 @@ operator / API
   it never becomes configuration authority
 - **CLI:** `bfw` uses the same API contracts and provides local recovery without
   directly mutating firewall state
+- **distribution builder:** separately versioned `bfw-installer` produces the
+  signed reproducible Alpine Linux ISO and installed appliance image from an
+  immutable release composition; it has no runtime packet-policy authority
 - **evidence plane:** audit events, metrics, logs, diagnostics, and support
   bundles with secret redaction
 
@@ -218,6 +221,206 @@ The core may coordinate a transaction containing firewall, port, switching,
 routing, and DHCP steps, but it does not reimplement those domains. Each owner
 must declare ordering, preconditions, reversibility, partial-failure semantics,
 and last-known-good consequences so the core can admit the whole transaction.
+
+### Comprehensive BGP suite boundary
+
+`bfw-frr` is the separately supervised BGP protocol adapter. The admitted FRR
+build owns wire-protocol parsing, capability negotiation, BGP session state,
+Adj-RIB-In/Out, BGP policy evaluation, and its protocol-local Loc-RIB. It runs
+with ambient forwarding mutation disabled or contained: selected BGP routes
+cross a typed, generation-bound boundary into `bfw-routing`, which validates
+route ownership, next-hop reachability, VRF/table scope, loops, policy, and
+platform support before compiling the canonical route plan. FRR, its CLI, and
+its configuration files never become an alternate route authority.
+
+```text
+operator / bfw / web
+  -> core admits typed BGP intent
+  -> bfw-routing validates route-domain ownership and dependencies
+  -> bfw-frr compiles provider configuration for one pinned FRR capability set
+  -> admitted FRR instance negotiates peers and computes protocol-local state
+  -> bfw-frr emits typed candidate routes and complete protocol observations
+  -> bfw-routing compiles/admits the canonical platform route plan
+  -> independent protocol, native-route, and packet oracles verify convergence
+  -> core commits or rolls back the configuration generation
+```
+
+The BGP contract is a matrix, not a boolean. It records peer topology modes;
+IPv4/IPv6 transport; every enabled AFI/SAFI; negotiated capabilities; import,
+export, and leak-prevention policy; authentication and routing-security
+mechanisms; platform/provider support; limits; and interoperability evidence.
+The required family surface includes unicast, multicast, labeled-unicast,
+VPNv4/VPNv6, EVPN, FlowSpec, route-target constraints, MVPN, BGP-LS, and SR
+Policy. A release may admit these independently, but it must publish every gap
+and cannot use one family's success as evidence for another.
+
+Peer modes include eBGP, iBGP, route-reflector client/server, confederation,
+route-server, multihop, numbered/unnumbered, dynamic-neighbor/listen, peer-group,
+and VRF-scoped operation. Route reflection, confederation, route-server, VPN,
+EVPN, and FlowSpec policies retain distinct typed semantics; they are not
+flattened into a generic text route-map whose evaluation order is hidden.
+
+Authentication material for TCP MD5, TCP-AO, or later admitted mechanisms is
+owned by `agent-keyring` and delivered only through a bounded endpoint-
+specific use. RPKI origin validation, ASPA, BGPsec, BGP Roles/OTC, GTSM,
+prefix/attribute limits, and own-prefix/own-AS leak controls are explicit
+capability/policy states. If a required validator, trust anchor, key, peer
+identity, or current validation generation is unavailable, the affected
+session/family follows its declared fail-closed or last-known-good policy and
+cannot silently become unvalidated.
+
+Configuration lifecycle uses a candidate generation, semantic validation,
+peer-impact and route-delta preview, provider syntax preflight, staged apply,
+bounded convergence observation, and commit or rollback. Management-path
+risk requires commit-confirmed. Timeout, process loss, partial family
+activation, RIB/FIB disagreement, cursor gaps, and incomplete telemetry are
+unknown/degraded states requiring reconciliation, never proof of success.
+
+Protocol telemetry is bounded and typed. `bfw-frr` may expose authorized peer,
+family, capability, route-decision, policy, validation, restart, BFD, and
+convergence facts; BMP and MRT destinations require separate authority and
+retention/redaction limits. Raw daemon text, unbounded route dumps, and
+provider-private state do not become canonical audit evidence.
+
+The BGP suite remains deferred outside v0.1. No BGP session, FRR process,
+component repository, route mutation, or support claim exists merely because
+this architecture is specified.
+
+### Comprehensive routing-protocol suite
+
+`bfw-routing` owns one canonical protocol-independent route model and the
+installed-route plan. Protocol engines remain separately supervised adapters.
+The first provider is `bfw-frr`, whose documented suite includes BGP, OSPFv2,
+OSPFv3, RIPv1/RIPv2/RIPng, IS-IS, PIM/MSDP, LDP, BFD, Babel, VRRP, and alpha
+EIGRP/NHRP support. Provider documentation is inventory, not admission: every
+protocol/version/feature/platform row still requires a typed contract and
+evidence. GoKA retains Bifrost HA/VRRP ownership; FRR's VRRP implementation
+cannot create a second HA authority.
+
+```text
+typed protocol intent
+  -> core admission
+  -> bfw-routing ownership, recursion, redistribution, and route-policy checks
+  -> one admitted protocol-provider adapter
+  -> protocol-local adjacency/database/RIB computation
+  -> typed candidate routes, withdrawals, and completeness observations
+  -> bfw-routing canonical selection and platform route plan
+  -> independent native-state and packet oracle
+```
+
+The routing matrix separates BGP; OSPFv2/v3; IS-IS; RIP/RIPng; Babel; EIGRP;
+NHRP; IGMP/MLD/PIM/MSDP multicast routing; LDP/MPLS; SR-MPLS/SRv6; RSVP-TE;
+PCEP; and BFD. It also keeps named unsupported rows for protocols not supplied
+by the admitted provider, including mesh/IoT, deprecated, experimental, and
+vendor fabrics. A new provider is a new supervised component boundary, not a
+reason to add protocol parsing or daemon control to core.
+
+Redistribution is an explicit typed edge between two protocol domains. It
+preserves source protocol, route identity, policy generation, tags/communities,
+metric mapping, scope, validation state, and loop-prevention provenance. The
+default graph contains no redistribution edges. A candidate graph is rejected
+if feedback, unbounded amplification, ambiguous preference, or incomplete
+withdrawal cannot be excluded.
+
+BFD is a shared liveness service keyed by endpoint, interface/VRF, mode,
+authentication, timers, and generation. Consumers subscribe to typed liveness
+facts and apply their own dampened transition policy; they do not launch
+duplicate sessions or reinterpret an old discriminator after restart.
+
+Cross-protocol convergence is complete only when protocol databases, candidate
+routes, the canonical RIB, the native FIB, dependent policy, and independent
+packet paths agree for one generation. Missing database pages, provider loss,
+partial redistribution, unknown withdrawal, or RIB/FIB drift is degraded and
+blocks commit or triggers the admitted conservative recovery policy.
+
+Dynamic routing beyond the already defined static/local v0.1 route scope is
+deferred. This architecture creates no protocol daemon or route.
+
+### Comprehensive switching-protocol suite
+
+`bfw-switching` owns canonical Layer-2 topology and protocol intent. Native
+kernel/bridge mechanisms, switch daemons, ASIC SDKs, and vendor agents are
+platform/provider adapters; none may bypass the typed plan, observed-state,
+verification, audit, or rollback boundary. `bfw-routing`, `bfw-fabric`,
+`bfw-qos`, `bfw-identity`, `bfw-dhcp`, `bfw-firewall`, and `agent-keyring`
+retain their respective Layer-3, fabric, queue, identity, lease, enforcement,
+and secret authorities.
+
+The switching matrix has independent rows for VLAN/802.1Q and provider
+bridging/Q-in-Q; MVRP/GVRP/VTP; STP/RSTP/MSTP and vendor PVST profiles; static
+LAG/LACP and multi-chassis variants; LLDP/LLDP-MED and vendor discovery;
+IGMP/MLD snooping and MVR; 802.1X/EAPOL, MACsec/MKA, and port protections;
+VXLAN/GENEVE/NVGRE overlays; SPB/TRILL/ERPS/REP/vendor fabrics; DCB/TSN/QoS;
+and Ethernet OAM. Standards-track, legacy, vendor, hardware, and deprecated
+profiles remain distinct. Similar names or packet formats do not establish
+semantic parity.
+
+```text
+typed switching intent
+  -> core admission and cross-domain dependency resolution
+  -> bfw-switching topology/protocol compiler
+  -> admitted software, daemon, or hardware adapter
+  -> protocol and native-state convergence
+  -> independent control-frame and packet-path oracle
+  -> commit or rollback
+```
+
+Peer control frames are untrusted. BPDU, LACPDU, LLDP, EAPOL, OAM, discovery,
+multicast, and overlay inputs are parsed with exact dialects and byte,
+cardinality, timer, rate, topology, and retained-state bounds. A peer's claim
+about identity, root/role, aggregation, VLAN, management address, endpoint, or
+health is an observation subject to policy; it is never configuration
+authority.
+
+Management-risking VLAN, STP, LAG, overlay, multi-chassis, or port-security
+changes require independent path preflight and commit-confirmed rollback. A
+loop, duplicate owner, split brain, ambiguous native VLAN, cross-tenant leak,
+partial offload, incomplete observation, or unsupported semantic gap fails
+closed or isolates the affected scope according to an explicit policy.
+
+The v0.1 software-switch baseline remains limited to its already declared
+VLAN, FDB, STP, LACP, snooping, and local Layer-3 subset. The broader switching
+matrix is deferred and cannot be inferred from this architecture.
+
+### Sticky endpoint-binding architecture
+
+Sticky ports are two explicit endpoint-security mechanisms under one operator
+contract; they are not multi-WAN flow affinity and are not one fake abstraction
+over incompatible data structures.
+
+For a switched port, `bfw-switching` owns a sticky binding whose key contains
+the physical or logical port generation, bridge domain, VLAN/PVID, source MAC,
+and optional authenticated endpoint identity. Dynamic learning creates a
+bounded `pending` observation. Only the configured enrollment policy and core
+admission can promote it to persistent canonical state. Static FDB entries,
+sticky entries, ordinary learned entries, LAG membership, overlays, and
+hardware-offloaded entries remain distinct and cannot silently replace one
+another.
+
+For a routed port, `bfw-network` identifies the interface and link generation;
+`bfw-routing` owns VRF, encapsulation, address-family, and neighbor scope; and
+`bfw-firewall` owns source enforcement. The sticky key includes interface
+generation, VRF, VLAN or other encapsulation, address family, MAC when the link
+has one, and admitted IP address or prefix. ARP, NDP, DHCP, authenticated
+access, and configured facts are typed evidence inputs, not independent
+authority. A routed endpoint binding does not manufacture an FDB entry or a
+route.
+
+```text
+bounded endpoint observation
+  -> pending binding with exact port/interface generation and scope
+  -> policy validation and operator/automatic-enrollment admission
+  -> cross-domain prepare and independent conflict check
+  -> provider enforcement plus observed-state/packet verification
+  -> active persistent binding or rollback
+```
+
+Unknown, excess, moved, duplicated, stale, or provider-disputed identities
+default to drop and alarm. Explicit profiles may restrict, quarantine, or
+disable the affected port, but a violation never causes automatic relearning
+or replacement. Clearing or replacing a binding is a new authorized audited
+transaction. Reboot, upgrade, failover, interface recreation, LAG change, and
+rollback bind to generations so a stale port identity cannot inherit access.
 
 ## Deployment-role architecture
 
@@ -863,6 +1066,58 @@ trash/recovery semantics, executable identity, account/sandbox/resource
 controls, cancellation/process-tree behavior, opaque lifecycle references,
 and consistent audit redaction. Unsupported security semantics fail closed;
 provider-local compatibility shortcuts are forbidden.
+
+## Alpine Linux appliance and installer architecture
+
+Alpine Linux is the canonical base distribution for Bifrost's first-party
+Linux appliance. The initial design baseline is Alpine 3.24 stable. Each
+released composition pins an exact patch release and immutable repository
+snapshot, package set, signing keys, kernel, modules, firmware, bootloader,
+initramfs, CPU architecture, installer source revision, ISO digest, and
+installed-image digest. Alpine edge and live repository resolution are build
+inputs only for development experiments and are forbidden in admitted release
+composition.
+
+`bfw-installer` is a separately versioned distribution component. It consumes
+the signed Bifrost release composition and produces a bootable installation ISO
+and installed appliance image; it does not own policy, credentials, interfaces,
+routes, switching, or post-install configuration. The meta repository pins the
+installer revision and every input/output digest. Independent rebuilds compare
+the ISO, boot artifacts, packages, SBOM, and provenance rather than trusting a
+successful installer exit status.
+
+```text
+immutable Alpine and Bifrost release composition
+  -> isolated reproducible image build
+  -> signed ISO, SBOM, provenance, and checksums
+  -> UEFI or legacy-BIOS boot on an admitted x86-64 profile
+  -> hardware inventory and stable target-disk identity
+  -> explicit destructive confirmation naming that disk
+  -> offline staged install and verification
+  -> first boot into an unconfigured fail-closed appliance
+  -> local recovery/bootstrap or authenticated configuration enrollment
+```
+
+The installer never chooses a target from `/dev` enumeration order alone and
+never performs a destructive write before showing stable device identity,
+capacity, model/serial when available, planned layout, and the exact data-loss
+boundary. Cancellation, power loss, media corruption, or package verification
+failure leaves the target either recognizably uninstalled or recoverable; it
+cannot report partial installation as bootable success. Secrets are entered at
+the local console or enrolled after boot and are not embedded in media, logs,
+kernel arguments, environment, or reusable answer files.
+
+The installed system is a declared appliance, not a general-purpose Alpine
+host with an undocumented pile of packages. Its package/service set, boot and
+init behavior, writable state, service identities, network defaults, and
+kernel/runtime features are release artifacts. Bifrost configuration,
+evidence, and recovery state are separated from replaceable system content.
+Ad-hoc `apk` changes and repository drift are unsupported release drift and
+must be surfaced; they do not silently become the new normal.
+
+FreeBSD and Windows remain separately admitted compatibility targets. They are
+not alternate bases for the Bifrost Linux ISO, and Alpine-specific packaging
+does not weaken Bifrost's provider-neutral domain contracts.
 
 ## Recovery
 

@@ -113,13 +113,24 @@ packet-filter policy remain separate contracts. Platform adapters may use
 software switching or separately admitted hardware offload; catalog membership
 does not claim universal ASIC or vendor-SDK support.
 
+Comprehensive routing and switching are matrix claims, not product adjectives.
+Routing rows cover BGP, OSPFv2/v3, IS-IS, RIP/RIPng, Babel, EIGRP, NHRP,
+multicast routing, LDP/MPLS/SR/TE, and BFD. Switching rows cover VLAN/provider
+bridging, STP-family, LACP/multi-chassis, discovery, multicast snooping,
+port-access/link security, overlays, ring/fabric protocols, DCB/TSN, and OAM.
+Every row names its standard or dialect, exact provider/platform/hardware path,
+limits, semantic gaps, interoperability evidence, and admission state.
+
 The initial capability catalog is intentionally split by ownership boundary:
 
 - `bfw-firewall`: packet-filter, NAT, aliases, schedules, and state policy
 - `bfw-network`: physical/logical ports, interface construction, MTU, and link state
 - `bfw-switching`: bridges, VLAN access/trunk membership, FDB, STP, LACP,
-  isolation, storm control, snooping, and LLDP observations
-- `bfw-routing`: static and policy routing, gateways, ECMP, and route health
+  switched sticky endpoint bindings, isolation, storm control, snooping, and
+  LLDP observations
+- `bfw-routing`: canonical static, policy, and dynamic-route semantics,
+  routed sticky endpoint scope, redistribution, gateways, ECMP, route health,
+  and comprehensive protocol matrix ownership
 - `bfw-dns`, `bfw-dhcp`, `bfw-ntp`, `bfw-ddns`, `bfw-acme`, and `bfw-mdns`:
   separately supervised core network services
 - `bfw-wireguard`: site-to-site and per-device remote-access WireGuard
@@ -131,8 +142,11 @@ The initial capability catalog is intentionally split by ownership boundary:
   virtual addresses, health, state/configuration synchronization, and failover
   through VRRP/CARP or safe platform-equivalent mechanisms without running
   Keepalived code, binaries, configuration authority, or runtime
-- `bfw-frr`, `bfw-ipsec`, `bfw-openvpn`, `bfw-qos`, `bfw-multiwan`, and
-  `bfw-cellular`: advanced routing, VPN, traffic, and uplink capabilities
+- `bfw-frr`: comprehensive BGP protocol/session integration with an exact
+  peer-mode, AFI/SAFI, capability, security, scale, and interoperability matrix;
+  all candidate routes still cross the typed `bfw-routing` authority boundary
+- `bfw-ipsec`, `bfw-openvpn`, `bfw-qos`, `bfw-multiwan`, and `bfw-cellular`:
+  advanced VPN, traffic, and uplink capabilities
 - `bfw-fabric`: distributed Layer-2 overlays, Layer-3/anycast routing, policy
   placement, node convergence, and fabric transaction coordination
 - `bfw-kubernetes-controller`: first-party dedicated Kubernetes/K3s management,
@@ -142,6 +156,8 @@ The initial capability catalog is intentionally split by ownership boundary:
   capabilities
 - `bfw-monitoring`, `bfw-logging`, `bfw-backup`, `bfw-support`,
   `bfw-notifications`, and `bfw-updater`: operational integrations
+- `bfw-installer`: reproducible signed Alpine Linux appliance installation ISO,
+  exact-disk installation, first-boot verification, and recovery media
 
 Names are planning identifiers until their repositories and public contracts
 are admitted. Catalog membership grants no runtime authority. Every plugin must
@@ -162,6 +178,22 @@ topology, placement, convergence, and multi-node transaction intent; it does
 not own Layer-2 semantics, routes, or firewall policy. Those remain compiled by
 `bfw-switching`, `bfw-routing`, and `bfw-firewall` and enforced locally on each
 node under one signed configuration generation.
+
+The first-party Bifrost Linux appliance is based on Alpine Linux and is
+distributed as a bootable installation ISO. The initial design target is
+Alpine 3.24 stable on x86-64; every released ISO must pin the exact patch,
+repository snapshot, package/kernel/firmware set, installer revision, and image
+digest. `bfw-installer` builds signed reproducible offline media with explicit
+target-disk confirmation and verified recovery. Alpine edge, moving package
+repositories, and a successful installer exit without independent first-boot
+verification are not admissible release inputs or evidence.
+
+Sticky endpoint binding is available by contract in router, switch, and
+converged roles. Switched ports persist an admitted MAC/port/VLAN binding under
+`bfw-switching`; routed ports persist an admitted interface/VRF/MAC/IP neighbor
+binding coordinated by `bfw-network`, `bfw-routing`, and `bfw-firewall`.
+Unknown, moved, excessive, stale, or disputed endpoints default to drop and
+alarm rather than silent relearning.
 
 WireGuard enrollment may use OIDC to authenticate an operator or user, but a
 WireGuard peer remains a per-device cryptographic identity. Private and

@@ -93,6 +93,10 @@ settles `bfw`, `bfwd`, and `bfw-web` as the public executable role names.
 - define the `bfw-routing` domain model, typed plan, platform-adapter,
   apply/verify, ordering, failure, recovery, UI, and audit contracts without
   implementing them in this repository
+- define `bfw-frr` as the comprehensive BGP protocol adapter with an exact
+  provider/platform/peer-mode/AFI-SAFI/capability/security/scale/interoperability
+  matrix, typed candidate-route boundary, staged lifecycle, bounded telemetry,
+  and no direct canonical route authority
 - define the OIDC provider profile, Authorization Code + PKCE flow, discovery
   and token validation, key rotation, explicit claim mapping, assurance/step-up,
   keyring use, opaque local sessions, logout/revocation, outage, audit, and
@@ -105,6 +109,9 @@ settles `bfw`, `bfwd`, and `bfw-web` as the public executable role names.
 - define `bfw-switching` as the Layer-2 authority for bridge domains, VLAN
   membership, FDB, STP, LACP, isolation, storm control, multicast snooping,
   LLDP observations, platform semantic gaps, and management-path recovery
+- define switched and routed sticky endpoint-binding variants, bounded
+  enrollment, generation-bound persistence, violation behavior, cross-domain
+  enforcement, observation, clearing/replacement, and rollback
 - define machine-readable router, switch, and converged deployment profiles,
   role-specific enabled/denied forwarding effects, management-only addressing,
   capability admission, and transactional role transitions
@@ -135,6 +142,9 @@ settles `bfw`, `bfwd`, and `bfw-web` as the public executable role names.
   observability, rollback, scale, and admission contracts
 - define last-known-good, confirmation timer, rollback, and interrupted-upgrade
   behavior
+- define the separately versioned `bfw-installer`, exact Alpine Linux stable
+  inputs, reproducible signed offline ISO/image build, destructive-disk
+  confirmation, first-boot verification, package-drift, and recovery contracts
 - define independent correctness oracles for compiled and applied policy
 - decompose the first narrow vertical slice
 - maintain the authoritative component/release catalog, requirement registry,
@@ -156,13 +166,183 @@ This is a dependency order, not permission to create every repository at once:
 8. `bfw-acme` and `bfw-ddns`, followed by `bfw-reverse-proxy`
 9. `bfw-monitoring`, `bfw-logging`, and `bfw-backup`
 10. `bfw-ha` and `bfw-multiwan`
-11. `bfw-ids`, `bfw-frr`, and the remaining catalog plugins as their contracts
+11. `bfw-installer` after the first complete Linux release composition and
+    recovery contract
+12. `bfw-ids`, `bfw-frr`, and the remaining catalog plugins as their contracts
     and user need justify them
 
 Each component begins with its own PRD, architecture, implementation spec,
 contract tests, platform matrix, and narrow vertical slice. The meta repository
 admits and pins it only after independent verification. This sequence does not
 override the Phase 0 substrate gate.
+
+### BGP suite implementation contract
+
+Before `bfw-frr` runtime work, its component repository shall define and
+version these public artifacts:
+
+- BGP desired-state, policy, peer, peer-group, family, capability, validation,
+  limit, and authentication-reference schemas
+- an exact FRR build/platform capability matrix with `unsupported`, `partial`,
+  `experimental`, `supported`, and `admitted` states
+- candidate-route and withdrawal records crossing from `bfw-frr` to
+  `bfw-routing`, bound to peer, family, VRF, policy, validation, source FRR
+  generation, and immutable route identity
+- bounded peer, Adj-RIB-In/Out, Loc-RIB, decision, rejection, graceful-restart,
+  BFD, convergence, BMP/MRT, health, and drift observations
+- candidate/preflight/apply/converge/commit/rollback transaction records with
+  immutable request and generation identities
+
+The minimum matrix has distinct rows for eBGP, iBGP, route reflection,
+confederations, route-server mode, multihop, numbered/unnumbered peers, dynamic
+neighbors, and VRF-scoped sessions. AFI/SAFI rows cover IPv4/IPv6 unicast and
+multicast, labeled-unicast, VPNv4/VPNv6, EVPN, IPv4/IPv6 and VPN FlowSpec,
+route-target constraints, MVPN, BGP-LS, and SR Policy. Negotiated capabilities,
+security mechanisms, policy/attribute coverage, limits, and interop peers are
+cross-products where semantics differ; a blanket family-level pass is invalid.
+
+Provider configuration shall be generated deterministically from typed intent,
+never accepted as an unbounded raw FRR/vtysh fragment. The implementation may
+use only the management and observation interfaces admitted for the pinned FRR
+build. Shell parsing, scraping human output as authority, inherited daemon
+configuration, ambient sockets, and direct operator access to provider mutation
+interfaces are denied.
+
+The apply sequence is candidate validation, route-domain dependency validation,
+keyring-use admission, provider syntax/semantic preflight, route-delta and peer-
+reset preview, staged provider activation, session/family convergence,
+candidate-route handoff to `bfw-routing`, native route and packet verification,
+and commit. Failure or interruption before verified commit restores the prior
+provider and canonical-route generation or enters a visible conservative
+degraded state when rollback completeness cannot be proven.
+
+The first implementation slice is IPv4/IPv6 unicast eBGP/iBGP in an isolated
+lab with deny-default policy, no direct FIB mutation, typed candidate routes,
+RPKI-state plumbing, bounded observations, restart/rollback, and independent
+FRR/BIRD/GoBGP peers. That slice proves the boundary; it does not authorize a
+universal-support claim. Later slices admit matrix rows independently.
+
+### Routing-protocol suite implementation contract
+
+The `bfw-routing` contract shall define one provider-neutral adjacency,
+protocol database, candidate-route, withdrawal, redistribution, liveness,
+selection, canonical-RIB, native-FIB, convergence, and observation vocabulary.
+Provider adapters may add typed extensions but cannot replace common identity,
+generation, bounds, failure, audit, or rollback fields with raw daemon text.
+
+The machine-readable matrix shall include separate rows for BGP; OSPFv2/v3;
+IS-IS; RIPv1/v2/RIPng; Babel; EIGRP; NHRP; IGMP/MLD/PIM-SM/SSM/DM/MSDP;
+LDP/MPLS; SR-MPLS/SRv6; RSVP-TE; PCEP; and BFD, plus explicit unsupported rows
+for named mesh, IoT, deprecated, and vendor protocols. Each row pins standards
+interpretations, provider version/status, platform data-plane requirements,
+authentication, topology, features, limits, interop peers, and admission.
+
+Redistribution is represented as a directed graph whose edges name exact
+source/destination protocols and families, match/set policy, metric mapping,
+tag/provenance encoding, maximum route cardinality, loop-prevention rule,
+withdrawal behavior, and generation. Static/connected origination uses the
+same explicit edge model. An absent edge means deny.
+
+Routing rollout proceeds protocol by protocol: isolated parser/model tests,
+provider dry-run, independent-peer adjacency, candidate-route completeness,
+canonical RIB/FIB application, packet oracle, restart/withdrawal, then bounded
+multi-protocol redistribution. Alpha or legacy provider features remain
+unsupported until their own hostile-input, failure, and interop evidence passes.
+
+### Switching-protocol suite implementation contract
+
+The `bfw-switching` component shall maintain a machine-readable matrix for:
+
+- 802.1Q VLAN/access/trunk/native/translation, 802.1ad/Q-in-Q, MVRP/GVRP, and
+  explicit vendor VTP compatibility
+- STP/RSTP/MSTP and explicit PVST+/Rapid-PVST+ compatibility
+- static LAG/LACP and separate MLAG/MC-LAG/ICCP/vendor multi-chassis profiles
+- LLDP/LLDP-MED and separately identified vendor discovery protocols
+- IGMP/MLD snooping, querier/proxy capability, MVR, and multicast bounds
+- 802.1X/EAPOL, MAB, MACsec/MKA, DHCP snooping, DAI, IP Source Guard, RA Guard,
+  and typed dependencies on identity/DHCP/firewall/keyring authorities
+- VXLAN/GENEVE/NVGRE data planes with EVPN control delegated to routing/fabric
+- SPB, TRILL, ERPS, REP, FabricPath, and other ring/fabric compatibility rows
+- DCB/PFC/ETS/DCBX, TSN/gPTP/shaping/preemption/filtering, and QoS ownership
+- 802.3ah, 802.1ag CFM, and Y.1731 OAM
+
+Each row pins standard/dialect, provider/platform/hardware identity, topology,
+frame/TLV semantics, timers, state machine, bounds, dependency effects,
+observation completeness, interop fixtures, recovery, and admission. Provider
+configuration fragments, vendor CLI, and hardware self-report are never the
+canonical model.
+
+The first broader switching slice remains the v0.1 Linux software baseline.
+Every additional protocol row begins in an isolated namespace/lab with hostile
+control frames and an independent control-frame/native-state/packet oracle.
+Hardware and multi-chassis rows additionally require semantic-parity, fencing,
+partition, upgrade, and rollback evidence before they can replace or augment a
+software path.
+
+### Sticky endpoint-binding implementation contract
+
+The public model shall expose a discriminated `sticky_endpoint_binding` with
+`switched` and `routed` variants. Common fields include binding identity,
+configuration and participant generations, port/interface identity, enrollment
+policy, endpoint identity/provenance, cardinality limit, violation profile,
+created/confirmed/expiry times, state, last observation, and audit correlation.
+Unknown fields or a variant missing a required scope fail validation.
+
+The switched variant additionally requires bridge domain, VLAN/PVID, source
+MAC, learning source, FDB class, and hardware/offload state. The routed variant
+requires VRF, encapsulation/VLAN, address family, IP address or prefix, MAC when
+the link supplies one, neighbor-evidence type/generation, and the exact
+`bfw-network`, `bfw-routing`, and `bfw-firewall` enforcement participants.
+
+Lifecycle is `observed -> pending -> admitted -> active`, with explicit
+`violating`, `quarantined`, `stale`, `unsupported`, `clearing`, and `removed`
+states. Learning never writes canonical configuration by itself. Promotion,
+replacement, clearing, migration, and expiration require typed idempotent
+requests and compare-and-swap generations. The default violation result is
+drop plus bounded alert/audit; automatic relearn and permit-on-provider-error
+are forbidden.
+
+The first implementation slice uses Linux software bridge/nftables/netlink
+fixtures with one switched access port and one routed Ethernet port. It covers
+first observation, explicit admission, persistence, reboot, MAC/IP move,
+duplicate endpoint, limit overflow, stale interface generation, LAG/VLAN
+change, provider disagreement, clearing, and rollback before any hardware
+offload or automatic-enrollment row is admitted.
+
+### Alpine appliance and installer implementation contract
+
+`bfw-installer` shall consume a release manifest containing the exact Alpine
+release, repository snapshot and keys, APK package names/versions/digests,
+kernel/modules/firmware, bootloader/initramfs, architecture, Bifrost component
+artifacts, defaults, filesystem layout, service identities, migrations,
+rollback mates, SBOM, provenance, and builder identity. Its outputs are the ISO,
+boot artifacts, installed-system image or file manifest, checksums, signatures,
+SBOM, provenance, and a reproducibility comparison record.
+
+The initial design/test target is Alpine Linux 3.24.1 on x86-64 with both UEFI
+and legacy BIOS boot. That version is a starting pin, not admission: repository
+snapshot and image digests remain required. A later patch or stable-branch
+migration changes the release composition and reruns the full image,
+installation, boot, network, upgrade, and rollback matrix. Alpine edge is
+rejected by schema and build policy.
+
+The build runs in an isolated environment against content-addressed inputs;
+network resolution during the reproducible phase is denied. The installer
+state machine is `inspect -> plan -> confirm-destruction -> stage -> verify ->
+activate-boot -> verify-first-boot`. Target identity uses stable hardware facts
+and revalidates immediately before the first write. Every destructive stage is
+journaled sufficiently to distinguish untouched, resumable, rollbackable, and
+manual-recovery outcomes after interruption.
+
+The installed image boots with no forwarding or management exposure beyond
+the explicit bootstrap/recovery contract. It separates replaceable system
+content from durable Bifrost configuration, audit/evidence, and recovery state;
+enforces the declared package/service set; and reports local package or
+repository mutation as drift. Installer media and unattended inputs contain no
+reusable secrets. Signed staged/A-B update, bounded boot confirmation, Alpine
+support-lifecycle checks, and verified last-known-good rollback reuse the
+canonical release/recovery transaction rather than adding an installer-owned
+update path.
 
 ## First candidate vertical slice
 
@@ -340,3 +520,56 @@ mutation, daemonization, and web administration remain later slices.
 | BFW-PRD-159 | profile selection/migration preflight, commit-confirmed, handoff, continuity/isolation, verification, and rollback tests |
 | BFW-PRD-160 | packaged/configured/controller/forwarding/degraded/unsupported/admitted capability-state tests |
 | BFW-PRD-161 | release composition, recovery assets, cross-profile migration, failure matrix, semantic parity, and no-v0.1-overclaim checks |
+| BFW-PRD-162 | process/route/interface/credential/authorization boundary and direct-FIB-mutation denial tests |
+| BFW-PRD-163 | machine-readable exact-build capability matrix completeness, cross-product, unsupported/partial, and no-boolean-overclaim checks |
+| BFW-PRD-164 | eBGP/iBGP, reflector, confederation, route-server, multihop, numbered/unnumbered, dynamic-neighbor, peer-group, VRF, and per-family tests |
+| BFW-PRD-165 | independent AFI/SAFI conformance, isolation, unsupported-provider, semantic-gap, route import/export, and withdrawal tests |
+| BFW-PRD-166 | capability negotiation, mismatch, downgrade, refresh, restart, Add-Path, extended-next-hop/message, label, and Roles/OTC tests |
+| BFW-PRD-167 | typed import/export policy ordering, matching/setting, default-deny, ambiguity rejection, attribute/community, and deterministic replay tests |
+| BFW-PRD-168 | peer binding, GTSM, limit, MD5/AO keyring, RPKI, ASPA, BGPsec, Roles/OTC, bogon/own-route, outage, and secret-leakage tests |
+| BFW-PRD-169 | BFD, graceful shutdown/restart/LLGR, stale/EOR, dampening, advertisement, Add-Path withdrawal, next-hop, ECMP, and restart tests |
+| BFW-PRD-170 | reproducible best-path/multipath/reflection/confederation/route-server/VPN/EVPN/FlowSpec decision and rejection-reason tests |
+| BFW-PRD-171 | candidate/preflight/preview/apply/converge/confirm/reconcile/interruption/rollback and management-lockout tests |
+| BFW-PRD-172 | bounded peer/RIB/policy/validation/convergence/drift telemetry plus authorized BMP/MRT destination, retention, and redaction tests |
+| BFW-PRD-173 | CLI/web typed-action, authorization, visibility, preview, clear/refresh, confirmation, rollback, degradation, and direct-provider denial tests |
+| BFW-PRD-174 | malformed-message corpus/fuzz, leak/hijack/churn/partition, cardinality/byte/rate/queue/CPU/memory/time bounds, scale, and endurance evidence |
+| BFW-PRD-175 | pinned-RFC interpretation and FRR/BIRD/GoBGP/vendor interop matrix plus unsupported/partial/experimental disclosure and claim lint |
+| BFW-PRD-176 | provider-neutral route model, admitted-provider boundary, exact suite matrix, alternate-provider isolation, and unsupported-row tests |
+| BFW-PRD-177 | OSPFv2/v3 area/network/election/LSA/SPF/external/auth/GR/TE/SR conformance, fuzz, scale, restart, and interop tests |
+| BFW-PRD-178 | IS-IS level/adjacency/DIS/area/metric/topology/auth/overload/leak/GR/TE/SR TLV, fuzz, scale, restart, and interop tests |
+| BFW-PRD-179 | RIP v1/v2/RIPng, Babel, EIGRP, NHRP exact feature/status, legacy/alpha deny-default, auth, malformed-input, convergence, and interop tests |
+| BFW-PRD-180 | IGMP/MLD/PIM/MSDP RP/RPF/join/prune/register/assert/source-group/boundary/state-limit and Layer-2 ownership tests |
+| BFW-PRD-181 | LDP/targeted-LDP/MPLS/BGP-label/SR-MPLS/SRv6/RSVP-TE/PCEP capability, label/SID/path authority, platform, and unsupported-row tests |
+| BFW-PRD-182 | shared BFD ownership, mode/timer/auth/discriminator/generation/bounds/dampening/duplicate-session and consumer-race tests |
+| BFW-PRD-183 | deny-default directed redistribution graph, metric/tag/provenance/loop/cardinality/withdrawal/preview and all-enabled-pair tests |
+| BFW-PRD-184 | adjacency identity/interface/VRF/family/capability/timer/limit/generation/keyring and trust-outage tests |
+| BFW-PRD-185 | cross-protocol adjacency/SPF/vector/path/recursion/preference/ECMP/BFD/GR/stale/FIB/rollback convergence and completeness tests |
+| BFW-PRD-186 | bounded typed CLI/web/API/audit protocol database/RIB/decision/timer/auth/redistribution/drift and raw-provider-authority denial tests |
+| BFW-PRD-187 | pinned provider/platform/standard interop, malformed corpus/fuzz, topology/partition/restart/upgrade, loop/leak, scale/resource, FIB, and packet evidence |
+| BFW-PRD-188 | deprecated/experimental/alpha/proprietary/unavailable named-row denial, semantic-gap, provider-boundary, and support-claim tests |
+| BFW-PRD-189 | release-composition protocol-row and redistribution-cross-product completeness, recovery, failure-matrix, and branding-inference denial tests |
+| BFW-PRD-190 | switching matrix completeness across standard/dialect/provider/platform/hardware/role/topology/limit/interop/admission states and no-device-name inference |
+| BFW-PRD-191 | 802.1Q/access/trunk/native/PVID/priority/allow/translation/Q-in-Q/MVRP/GVRP/VTP semantics, isolation, malformed-frame, and interop tests |
+| BFW-PRD-192 | STP/RSTP/MSTP/PVST dialect, region/root/cost/role/state/timer/topology/BPDU/edge/guard, loop, restart, and interop tests |
+| BFW-PRD-193 | static-LAG/LACP actor/partner/key/state/timer/selection/min-links/hash/churn/fallback plus MLAG/ICCP/vendor fencing/split-brain tests |
+| BFW-PRD-194 | LLDP/LLDP-MED and vendor-discovery TLV/dialect/bounds/age/identity/address-filter/untrusted-input/interoperability tests |
+| BFW-PRD-195 | IGMP/MLD snooping/querier/proxy/router-port/fast-leave/unknown-multicast/MVR/group-source-limit/aging and L3-ownership tests |
+| BFW-PRD-196 | 802.1X/EAPOL/MAB/VLAN-ACL/MACsec-MKA/DHCP-snooping/DAI/IPSG/RA-Guard dependency, secret, bypass, failure, and port-isolation tests |
+| BFW-PRD-197 | VXLAN/GENEVE/NVGRE VTEP/VNI/split-horizon/BUM/ARP-ND/mobility/duplication/MTU plus EVPN authority and tenant-isolation tests |
+| BFW-PRD-198 | SPB/TRILL/ERPS/REP/FabricPath/ring/stack/fabric exact-status, no-weak-emulation, loop/partition/recovery, and vendor-interop tests |
+| BFW-PRD-199 | 802.1p/PFC/ETS/DCBX/congestion/802.1AS/Qav/Qbv/Qbu/Qci/Qcc timing/queue/resource/QoS-boundary and semantic-gap tests |
+| BFW-PRD-200 | 802.3ah/802.1ag/Y.1731 domain/association/endpoint/CCM/loopback/linktrace/loss/delay/rate and diagnostic-authority tests |
+| BFW-PRD-201 | topology/preflight/management-path/stage/converge/control-frame/native/packet/confirm/interruption/rollback and lockout/loop tests |
+| BFW-PRD-202 | bounded bridge/VLAN/port/protocol/LAG/discovery/multicast/security/overlay/OAM/offload/convergence/drift UI and completeness tests |
+| BFW-PRD-203 | dialect/platform/hardware/peer malformed-control fuzz, loop/storm/partition/churn/leakage/rollback/scale/resource and honest-claim matrix |
+| BFW-PRD-204 | router/switch/converged sticky-binding variant, role-boundary, sticky-flow-confusion, and unsupported-link tests |
+| BFW-PRD-205 | switched port-generation/bridge/VLAN/MAC enrollment, persistence, limits, static/FDB/LAG/overlay/offload conflict tests |
+| BFW-PRD-206 | routed interface-generation/VRF/encapsulation/AF/MAC/IP ARP/NDP/DHCP evidence and cross-domain enforcement tests |
+| BFW-PRD-207 | unknown/excess/move/duplicate/stale/spoof/provider-disagreement drop, alarm, restrict/quarantine/disable, and no-relearn tests |
+| BFW-PRD-208 | typed lifecycle, CAS/idempotency, observation/UI/audit, reboot/upgrade/failover/recreation/migration/rollback tests |
+| BFW-PRD-209 | Alpine 3.24 stable baseline, exact patch/repository/package/kernel/firmware/architecture/image pin, edge and moving-input denial tests |
+| BFW-PRD-210 | separately versioned installer, content-addressed composition, reproducible ISO/image, signature/SBOM/provenance, and no-policy-authority tests |
+| BFW-PRD-211 | x86-64 UEFI/BIOS, offline install, stable disk identity, exact destructive confirmation, and installer secret-leakage tests |
+| BFW-PRD-212 | minimal package/service, boot/init, system/state separation, least privilege, fail-closed startup, and package/repository drift tests |
+| BFW-PRD-213 | signed stage/A-B activation, boot confirmation, migration, Alpine support-lifecycle, last-known-good, and console-recovery tests |
+| BFW-PRD-214 | reproducible rebuild, media/DB corruption, destructive-stage interruption/power loss, hardware rejection, install/upgrade/rollback/recovery/resource and packet-state oracle matrix |

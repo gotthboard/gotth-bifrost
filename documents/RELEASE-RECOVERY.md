@@ -3,7 +3,7 @@
 Status: architecture baseline; implementation and platform evidence absent
 
 Requirements: BFW-PRD-006, BFW-PRD-031, BFW-PRD-039, BFW-PRD-049,
-BFW-PRD-074, BFW-PRD-079, BFW-PRD-089
+BFW-PRD-074, BFW-PRD-079, BFW-PRD-089, BFW-PRD-209 through BFW-PRD-214
 
 ## Release inputs
 
@@ -13,6 +13,12 @@ CLI versions, platform image digests, dependency and conflict closure,
 migration order, rollback mates, SBOM and provenance digests, evidence hashes,
 and an admission decision. Source commits and packaged artifact digests are
 both required.
+
+For the first-party Linux appliance, release input also includes the exact
+supported Alpine stable patch release, immutable APK repository snapshot and
+keys, package versions/digests, kernel/modules/firmware, bootloader/initramfs,
+`bfw-installer` revision, ISO digest, and installed-system manifest or image
+digest. Alpine edge and moving repository indexes are not release inputs.
 
 ## Reproducible composition
 
@@ -47,6 +53,21 @@ closed.
 
 Platforms without safe A/B mechanics require a separately admitted equivalent;
 in-place replacement is not assumed safe.
+
+## Initial Alpine installation
+
+The signed Bifrost Alpine ISO performs a complete offline install from the same
+content-addressed composition used for release admission. Before any write it
+records stable target-disk identity, shows the exact planned layout and loss
+boundary, and requires explicit destructive confirmation naming that target.
+It revalidates disk identity immediately before the first write and journals
+destructive stages so interruption cannot be mistaken for success.
+
+Installation ends only after boot artifacts, system content, durable-state
+layout, signatures, and first-boot selection are verified. The first boot is
+an unconfigured fail-closed appliance and must pass local core/platform/recovery
+checks before configuration enrollment. A booted ISO, completed copy, or zero
+installer exit code alone is not successful installation evidence.
 
 ## Configuration migration
 

@@ -15,8 +15,8 @@ for humans and must not override the machine-readable catalog.
 | `bfw-core` | canonical configuration, admission, transaction coordination, audit, reconciliation, and recovery | planned; repository not created |
 | `bfw-cli` | unprivileged Cisco IOS-style `bfw` command-line and local-recovery client; modal grammar maps to typed core actions and candidate transactions | planned; repository not created |
 | `bfw-web` | independent unprivileged web/API presentation service and trusted UI shell | planned; repository not created |
-| `bfw-switching` | Layer-2 bridge domains, VLAN membership, FDB, STP, LACP, isolation, storm control, multicast snooping, LLDP observations, and switching rollback effects | planned; repository not created |
-| `bfw-routing` | routing domain, deterministic route plans, platform apply/verify adapters, routing UI contribution, and routing rollback effects | planned; repository not created |
+| `bfw-switching` | canonical Layer-2 topology plus comprehensive switching-protocol/mechanism matrix, switched sticky endpoint bindings, deterministic plans, provider/platform apply/verify, UI, observation, and rollback | planned; repository not created |
+| `bfw-routing` | canonical Layer-3 route semantics plus comprehensive routing-protocol matrix, routed sticky endpoint scope, redistribution, deterministic plans, provider/platform apply/verify, UI, observation, and rollback | planned; repository not created |
 | `bfw-firewall` | packet-filter, NAT, aliases, schedules, state policy, deterministic policy plans, and native apply/verify adapters | planned; repository not created |
 | `bfw-network` | physical/logical ports, interface construction, MTU, DHCP client, and link-state ownership | planned; repository not created |
 | `bfw-wireguard` | WireGuard site-to-site tunnels, per-device remote access, enrollment, peer state, key rotation, and VPN UI | planned; repository not created |
@@ -30,10 +30,12 @@ for humans and must not override the machine-readable catalog.
 | `bfw-platform-freebsd` | FreeBSD pf, bridge/VLAN, routing, interface, CARP, and service adapters | planned; repository not created |
 | `bfw-platform-windows` | Windows Filtering Platform, admitted Hyper-V vSwitch/equivalent, IP Helper, interface, routing, and service adapters | planned; repository not created |
 | network-service plugins | `bfw-dns`, `bfw-dhcp`, `bfw-ntp`, `bfw-ddns`, `bfw-acme`, and `bfw-mdns` | planned; repositories not created |
-| advanced-network plugins | `bfw-frr`, `bfw-ipsec`, `bfw-openvpn`, `bfw-qos`, `bfw-multiwan`, and `bfw-cellular` | planned; repositories not created |
+| `bfw-frr` | comprehensive BGP protocol/session adapter with an exact capability matrix and typed candidate-route handoff to `bfw-routing`; no direct canonical route authority | deferred; repository not created |
+| other advanced-network plugins | `bfw-ipsec`, `bfw-openvpn`, `bfw-qos`, `bfw-multiwan`, and `bfw-cellular` | planned; repositories not created |
 | `bfw-ids` | native Go Snort-class IDS/IPS engine: capture normalization, flow/stream state, protocol decoding, rules, alerts/evidence, and typed enforcement proposals | deferred; repository not created |
 | other security plugins | `bfw-dns-filter`, `bfw-threat-intel`, `bfw-captive-portal`, `bfw-radius`, and `bfw-upnp` | planned; repositories not created |
 | operations plugins | `bfw-monitoring`, `bfw-logging`, `bfw-backup`, `bfw-support`, `bfw-notifications`, and `bfw-updater` | planned; repositories not created |
+| `bfw-installer` | separately versioned reproducible signed Alpine Linux appliance installation ISO, exact-disk installation, first-boot verification, and recovery media with no packet-policy authority | deferred; repository not created |
 
 Catalog names are settled planning identifiers. They create no runtime or
 release authority until their repositories, public contracts, exact revisions,
@@ -61,6 +63,14 @@ artifacts, rollback mates, evidence, and admission are recorded here.
   through typed plans; it does not seize those domains directly. Its portable
   control logic is clean-room Go and does not copy, embed, invoke, supervise,
   configure, or require Keepalived.
+- `bfw-frr` owns BGP wire/session behavior for one exact admitted FRR build. It
+  exports typed candidate routes and observations to `bfw-routing`; it cannot
+  write canonical routes, hold ambient peer keys, or treat provider CLI/config
+  text as Bifrost authority.
+- `bfw-installer` owns image-build and installation mechanics only. It consumes
+  an immutable release composition and cannot configure post-install packet
+  policy, retain installer secrets, choose a disk by unstable enumeration, or
+  create an updater path outside the signed release/recovery contract.
 - Every plugin declares compatible platforms, dependencies, conflicts,
   permissions, schemas, UI contracts, health, migration/rollback behavior,
   and release evidence before it can be pinned here.

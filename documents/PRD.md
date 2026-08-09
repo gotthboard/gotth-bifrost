@@ -557,6 +557,289 @@ count.
   verify both first-party profiles, their schemas and recovery assets, cross-
   profile migration, controller/node failure matrices, and identical policy
   semantics without claiming that v0.1 or an unadmitted platform is HA-ready.
+- **BFW-PRD-162:** Bifrost shall provide a comprehensive BGP suite through the
+  separately supervised `bfw-frr` component and the typed `bfw-routing`
+  contract. `bfw-frr` shall own BGP protocol/session behavior but shall not
+  become canonical route, interface, credential, authorization, process,
+  release, or platform-mutation authority.
+- **BFW-PRD-163:** Every admitted release shall publish a machine-readable BGP
+  capability matrix keyed by exact FRR build, platform, transport, peer mode,
+  AFI/SAFI, extension, security mechanism, scale bound, interoperability
+  result, and admission state. “All BGP” shall mean the complete declared
+  matrix, never an unqualified promise about every historical, proprietary,
+  experimental, or future extension.
+- **BFW-PRD-164:** BGP peer and topology contracts shall cover IPv4 and IPv6
+  eBGP and iBGP, full-mesh and route-reflector client/server operation,
+  confederations, route-server policy, multihop, numbered and admitted
+  unnumbered sessions, dynamic-neighbor/listen ranges, peer groups, VRFs, and
+  independently bounded per-peer/per-family activation.
+- **BFW-PRD-165:** The minimum multiprotocol matrix shall explicitly address
+  IPv4/IPv6 unicast and multicast, IPv4/IPv6 labeled-unicast, VPNv4/VPNv6,
+  L2VPN EVPN, IPv4/IPv6 and VPN FlowSpec, route-target constraints, multicast
+  VPN, BGP-LS, and SR Policy families. Each family is independently admitted;
+  a missing provider/platform mechanism is `unsupported`, not silently
+  omitted, translated, or weakened.
+- **BFW-PRD-166:** Capability negotiation shall explicitly model four-octet
+  ASNs, multiprotocol capability, route refresh and enhanced route refresh,
+  graceful and long-lived graceful restart, Add-Path, extended next hop,
+  extended messages, multiple labels, BGP Roles/Only-to-Customer, and any
+  family-specific capability required by the declared matrix. A capability
+  mismatch shall degrade or deny only according to explicit policy.
+- **BFW-PRD-167:** BGP import/export policy shall be typed, ordered,
+  deterministic, direction- and family-specific, default-deny where required,
+  and capable of matching and setting prefixes, next hops, AS paths, origins,
+  local preference, MED, weights, tags, route targets, and standard, extended,
+  large, and well-known communities without accepting ambiguous text order.
+- **BFW-PRD-168:** BGP security shall include explicit peer identity, local and
+  remote AS, source/interface/VRF binding, GTSM/TTL policy, max-prefix and
+  prefix/attribute limits, TCP MD5 and TCP-AO capability states, keyring-owned
+  authentication material, RPKI origin validation, ASPA and BGPsec capability
+  states, BGP Roles/OTC leak prevention, bogon/own-prefix/own-AS controls, and
+  fail-closed handling of unavailable required validation data.
+- **BFW-PRD-169:** BGP convergence shall model BFD, graceful shutdown, graceful
+  restart, long-lived graceful restart, End-of-RIB, stale-route handling,
+  route dampening, minimum advertisement behavior, Add-Path withdrawal,
+  next-hop tracking, ECMP, restart, upgrade, and control-plane loss without
+  retaining routes beyond their admitted lifetime or completeness proof.
+- **BFW-PRD-170:** BGP selection and export shall be deterministic for a fixed
+  input generation and shall preserve all decision inputs and rejection
+  reasons needed to reproduce best-path, multipath, route-reflection,
+  confederation, route-server, VPN/EVPN, FlowSpec, and leak-prevention results.
+- **BFW-PRD-171:** BGP configuration and lifecycle changes shall use staged,
+  generation-bound, idempotent transactions with syntax/semantic preflight,
+  peer-impact and route-delta preview, dependency order, bounded convergence,
+  commit-confirmed for management-risking changes, independent observation,
+  interruption recovery, and verified rollback. A timeout is an unknown
+  outcome requiring reconciliation, not success.
+- **BFW-PRD-172:** BGP observed state shall expose bounded authorized peer,
+  capability, AFI/SAFI, Adj-RIB-In/Out, Loc-RIB, accepted/rejected route,
+  best-path, policy, RPKI/ASPA/BGPsec, BFD, graceful-restart, convergence,
+  generation, and drift facts. BMP and MRT export shall be explicit,
+  destination-scoped, bounded, redacted, and never an ambient data-exfiltration
+  channel.
+- **BFW-PRD-173:** The CLI and web contribution shall provide typed BGP
+  configuration, neighbor/family/policy status, received/advertised route
+  inspection, capability and validation evidence, route refresh/clear actions,
+  preview, confirmation, rollback, and degraded diagnostics through core
+  authorization. UI or CLI reachability shall grant no protocol or route
+  authority.
+- **BFW-PRD-174:** BGP work shall have explicit peer, prefix, path, attribute,
+  community, update-rate, message-size, queue, CPU, memory, time, telemetry,
+  and retained-history bounds. Admission shall include malformed OPEN/UPDATE/
+  NOTIFICATION/ROUTE-REFRESH fuzzing, attribute/error-handling corpora, churn,
+  route leaks/hijacks, restart, partition, scale, endurance, and resource-
+  exhaustion evidence.
+- **BFW-PRD-175:** BGP admission shall pin standards/RFC interpretations and an
+  interoperability matrix including at least independent FRR, BIRD, and GoBGP
+  peers plus available vendor implementations. Every unsupported, partial,
+  experimental, vendor-specific, or semantic-gap entry shall be visible; no
+  release may claim universal BGP support from configuration parsing or a
+  single successful session.
+- **BFW-PRD-176:** Bifrost shall publish a comprehensive routing-protocol
+  matrix owned by `bfw-routing`. `bfw-frr` may provide protocols implemented by
+  the exact admitted FRR build; a protocol absent from that provider requires
+  a separately admitted adapter or an explicit `unsupported` state rather than
+  a weak emulation or hidden omission.
+- **BFW-PRD-177:** OSPF contracts shall cover OSPFv2 and OSPFv3, IPv4/IPv6
+  address families, areas and interface/network types, DR/BDR election,
+  stub/totally-stubby/NSSA behavior, virtual links where admitted, ABR/ASBR,
+  summarization, external routes, authentication, graceful restart, opaque/
+  extended LSAs, traffic-engineering and segment-routing capability states,
+  and exact LSA/flooding/SPF limits.
+- **BFW-PRD-178:** IS-IS contracts shall cover Level 1, Level 2, and L1/L2,
+  point-to-point and broadcast adjacencies, DIS election, areas/NET/system ID,
+  wide metrics, multi-topology IPv4/IPv6, authentication, overload/attached
+  bits, graceful restart, route leaking, TE, SR-MPLS/SRv6 capability states,
+  and bounded LSP/TLV/flooding/SPF behavior.
+- **BFW-PRD-179:** Distance-vector, mesh, and legacy profiles shall explicitly
+  cover RIPv1, RIPv2, RIPng, Babel, EIGRP, and NHRP capability states. RIPv1,
+  alpha provider features, unauthenticated modes, and vendor-specific behavior
+  are disabled by default and require isolated compatibility admission; parser
+  presence shall not imply production support.
+- **BFW-PRD-180:** Multicast-routing contracts shall cover IGMPv2/v3, MLDv1/v2,
+  PIM-SM/SSM/DM for IPv4/IPv6 where implemented, RP/BSR and static-RP policy,
+  MSDP, source/group policy, RPF, joins/prunes/registers, assert/DR state,
+  anycast-RP capability, boundary/scoping, and bounded multicast-route and
+  replication state without collapsing Layer-2 snooping ownership.
+- **BFW-PRD-181:** Label and path-control profiles shall explicitly model LDP,
+  targeted LDP, MPLS label allocation/retention, BGP labeled routes, SR-MPLS,
+  SRv6, RSVP-TE, PCEP, and traffic-engineering capability states. Only rows
+  backed by an admitted provider and platform forwarding contract may install
+  labels, SIDs, tunnels, or programmed paths.
+- **BFW-PRD-182:** BFD shall be one shared, typed liveness service for admitted
+  routing, HA, and fabric consumers with asynchronous and demand capability
+  states, single/multihop and echo profiles, explicit timers/multipliers,
+  authentication, discriminator/generation identity, resource bounds, and
+  dampened consumer reactions. No protocol may create an untracked competing
+  BFD session for the same ownership key.
+- **BFW-PRD-183:** Redistribution among connected, static, BGP, OSPF, IS-IS,
+  RIP/RIPng, Babel, EIGRP, multicast, label, and provider-specific domains shall
+  be explicit, directional, tagged, metric-mapped, loop-prevented, bounded, and
+  previewable. No protocol shall redistribute every learned route by default or
+  erase source/provenance needed to prevent feedback.
+- **BFW-PRD-184:** Every routing adjacency shall bind protocol, peer/router
+  identity, interface/VRF, address family, local identity, authentication
+  reference, expected capabilities, timers, limits, generation, and policy.
+  Protocol authentication material remains in `agent-keyring`; missing current
+  trust or validation state follows explicit fail-closed/last-known-good policy.
+- **BFW-PRD-185:** Cross-protocol convergence shall model adjacency changes,
+  election/SPF/distance-vector/path-vector updates, recursive next hops,
+  redistribution, route preference/administrative distance, ECMP, BFD,
+  graceful restart, stale state, FIB programming, rollback, and control-plane
+  loss with deterministic event and completeness boundaries.
+- **BFW-PRD-186:** CLI, web, API, audit, and observation surfaces shall expose
+  typed protocol-specific configuration, adjacency/database/RIB state,
+  decisions, rejects, timers, authentication/validation status, convergence,
+  redistribution provenance, and drift through bounded pages and actions. Raw
+  provider CLI/configuration remains diagnostic input, not authority.
+- **BFW-PRD-187:** Routing-protocol admission shall include exact provider and
+  platform versions, standards interpretations, independent peers, malformed
+  packet/TLV/LSA/LSP/update fuzzing, topology/partition/restart/upgrade cases,
+  redistribution-loop and route-leak tests, convergence, scale, endurance,
+  CPU/memory/queue bounds, native-route state, and end-to-end packet oracles.
+- **BFW-PRD-188:** Deprecated, experimental, alpha, proprietary, or unavailable
+  routing protocols and extensions shall remain named matrix rows with exact
+  denial or gap reasons. Bifrost shall not claim support for IGRP, OLSR/OLSRv2,
+  BATMAN, RPL, vendor fabrics, or a future protocol unless a separate provider,
+  ownership, security, failure, interop, and admission contract proves it.
+- **BFW-PRD-189:** A release claiming comprehensive routing support shall prove
+  every advertised protocol row and every enabled redistribution pair under
+  the same pinned component composition, recovery assets, and cross-protocol
+  failure matrix. Unadvertised or unsupported rows cannot be inferred from FRR
+  branding or another protocol's success.
+- **BFW-PRD-190:** Bifrost shall publish a comprehensive switching-protocol and
+  mechanism matrix owned by `bfw-switching`, keyed by standard/dialect,
+  provider/platform/hardware path, deployment role, topology, limits,
+  interoperability evidence, and admission state. Switching protocol support
+  is not inferred from a Linux bridge, ASIC name, or vendor-compatible CLI.
+- **BFW-PRD-191:** VLAN and provider-bridging profiles shall cover 802.1Q access,
+  trunk, native/PVID, priority-tagged, allowed-VLAN and VLAN translation
+  semantics; 802.1ad/Q-in-Q; MVRP and legacy GVRP capability states; and VTP or
+  other vendor propagation only as isolated explicit compatibility profiles.
+- **BFW-PRD-192:** Loop-prevention profiles shall cover STP, RSTP, and MSTP,
+  bridge/region identity, timer/root/path-cost/port-role/state semantics,
+  topology changes, BPDU handling, edge/PortFast, BPDU/root/loop guards, and
+  PVST+/Rapid-PVST+ only as explicit vendor interoperability profiles.
+- **BFW-PRD-193:** Link-aggregation profiles shall cover static LAG and LACP,
+  actor/partner/system/key/port state, active/passive mode, timers, selection,
+  min-links, hashing, member churn, and fallback. MLAG/MC-LAG, ICCP, vPC/VSS,
+  chassis stacking, and vendor multi-chassis mechanisms require separately
+  matrixed peer/state/fencing/split-brain contracts.
+- **BFW-PRD-194:** Discovery and topology profiles shall cover LLDP and LLDP-MED
+  with bounded typed TLVs, age/expiry, identity, management-address filtering,
+  and authorization; CDP, EDP, FDP, NDP, and other vendor discovery protocols
+  are explicit compatibility rows and never trusted configuration authority.
+- **BFW-PRD-195:** Layer-2 multicast profiles shall cover IGMP and MLD snooping,
+  querier/proxy capability states, router-port discovery, fast leave, unknown-
+  multicast policy, MVR, group/source limits, aging, and control/data-plane
+  completeness while coordinating rather than duplicating Layer-3 multicast
+  routing.
+- **BFW-PRD-196:** Port-access and link-protection profiles shall cover 802.1X/
+  EAPOL authenticator behavior, MAC Authentication Bypass capability, dynamic
+  VLAN/ACL inputs, MACsec/802.1AE and MKA capability, DHCP snooping, Dynamic ARP
+  Inspection, IP Source Guard, RA Guard, and storm/loop protection through
+  typed identity, keyring, DHCP, firewall, and switching dependencies.
+- **BFW-PRD-197:** Overlay switching profiles shall cover VXLAN, GENEVE, and
+  explicitly admitted NVGRE compatibility; VTEP, VNI/bridge-domain, split-
+  horizon, BUM, ARP/ND suppression, endpoint mobility/duplication, and MTU
+  semantics; and EVPN control only through the routing/fabric BGP contract.
+- **BFW-PRD-198:** Advanced resiliency/fabric rows shall explicitly address
+  SPB/802.1aq, TRILL, G.8032 ERPS, REP, FabricPath, Shortest Path Bridging,
+  proprietary ring/stack/fabric systems, and provider deprecation state. No
+  unsupported mechanism shall be approximated by STP or MLAG while retaining
+  its name.
+- **BFW-PRD-199:** Data-center bridging, QoS, and TSN rows shall explicitly
+  address 802.1p priority, PFC/802.1Qbb, ETS/DCBX/802.1Qaz, congestion
+  notification, 802.1AS/gPTP, Qav/Qbv/Qbu/Qci/Qcc capability states, timing,
+  queue/class/resource bounds, and the separate `bfw-qos` authority boundary.
+- **BFW-PRD-200:** Ethernet OAM rows shall cover 802.3ah link OAM, 802.1ag CFM,
+  ITU-T Y.1731 capability, maintenance domains/associations/endpoints,
+  continuity/loopback/linktrace/loss/delay observations, rate limits, and
+  strict separation between diagnostics and mutation authority.
+- **BFW-PRD-201:** Switching protocol changes shall use deterministic candidate
+  topology validation, protocol/provider preflight, management-path analysis,
+  staged ordering, bounded convergence, independent BPDU/LACP/LLDP/OAM/native-
+  state and packet observation, commit-confirmed where lockout or loops are
+  possible, interruption recovery, and verified rollback.
+- **BFW-PRD-202:** Switching observed state and UI/CLI shall expose bounded
+  bridge/VLAN, port role/state, protocol peer, timer, LAG/member, discovery,
+  multicast, access-security, overlay, OAM, offload, convergence, loss, drift,
+  and rollback facts without trusting peer advertisements or hardware self-
+  report as complete evidence.
+- **BFW-PRD-203:** Switching admission shall include standards/dialect fixtures,
+  Linux software and admitted hardware paths, independent bridge/vendor peers,
+  malformed BPDU/LACPDU/LLDP/EAPOL/OAM fuzzing, loops/storms/partitions/member
+  churn, cross-VLAN/tenant leakage, management rollback, scale/endurance/
+  resource evidence, and a claim matrix that leaves every unsupported,
+  partial, proprietary, or deprecated row visible.
+- **BFW-PRD-204:** Bifrost shall support persistent sticky endpoint bindings on
+  ports in switch, router, and converged appliance roles. This is endpoint
+  identity enforcement, not `bfw-multiwan` sticky-flow selection, and each
+  role shall use its owning Layer-2 or Layer-3 mechanism rather than pretending
+  that a bridge FDB exists on a routed port.
+- **BFW-PRD-205:** A switched sticky binding shall bind an admitted source MAC
+  to an exact physical or logical port generation, bridge domain, VLAN/PVID,
+  and optional authenticated endpoint identity. Learning shall use an explicit
+  bounded enrollment policy, persist only after admission, enforce per-port and
+  per-VLAN limits, coexist deterministically with static FDB entries, and deny
+  ambiguous LAG, overlay, or hardware-offload semantics.
+- **BFW-PRD-206:** A routed sticky binding shall bind an admitted endpoint to an
+  exact interface generation, VRF, encapsulation/VLAN, address family, MAC when
+  present, and IP address or prefix using bounded ARP, NDP, DHCP, or configured
+  evidence. `bfw-network`, `bfw-routing`, and `bfw-firewall` shall coordinate
+  neighbor and source enforcement without turning the binding into route,
+  credential, or general firewall authority.
+- **BFW-PRD-207:** Sticky-binding violations, including unknown endpoints,
+  excess cardinality, MAC/IP movement, duplicate identity, stale interface
+  generation, spoofed neighbor state, or provider disagreement, shall default
+  to drop and alarm. Explicit profiles may restrict, quarantine, or disable a
+  port, but shall never silently permit, relearn, or overwrite the admitted
+  binding; recovery requires an authorized audited action.
+- **BFW-PRD-208:** Sticky enrollment, activation, clearing, replacement,
+  migration, expiration, and rollback shall be typed, idempotent,
+  generation-bound transactions. UI/CLI and audit shall distinguish learned,
+  pending, admitted, active, violating, quarantined, stale, and unsupported
+  states, and reboot, upgrade, failover, interface recreation, LAG membership
+  change, and last-known-good recovery shall preserve or conservatively reject
+  bindings without widening access.
+- **BFW-PRD-209:** Alpine Linux shall be the canonical base distribution for
+  Bifrost's first-party Linux appliance and bootable installation ISO. The
+  initial design baseline is the supported Alpine 3.24 stable branch; every
+  Bifrost release shall pin an exact Alpine patch release, repository snapshot,
+  package set, kernel, firmware, architecture, and image digest. Alpine edge or
+  an unpinned moving repository shall never be a release input.
+- **BFW-PRD-210:** The separately versioned `bfw-installer` component shall
+  build the Bifrost Alpine installation ISO and installed appliance image from
+  a declarative, content-addressed release composition. ISO, boot artifacts,
+  packages, configuration defaults, SBOM, provenance, and signatures shall be
+  reproducible and independently verifiable; the installer shall have no
+  packet-policy or post-install configuration authority.
+- **BFW-PRD-211:** The initial Linux ISO shall support x86-64 UEFI and legacy
+  BIOS installation, local-console recovery, and a complete offline install.
+  It shall identify hardware and target disks before mutation, require an
+  explicit destructive confirmation naming the exact target, never select a
+  disk by unstable enumeration alone, and preserve no installation secrets in
+  media, logs, command lines, or reusable answer files.
+- **BFW-PRD-212:** The installed Alpine appliance shall use a minimal declared
+  package and service set, a pinned boot chain and init contract, read-only or
+  integrity-verified system content where supported, separate durable Bifrost
+  configuration/evidence state, least-privilege service identities, and
+  fail-closed startup. Ad-hoc package installation or repository drift is not
+  part of the supported appliance contract and shall be detected as release
+  drift rather than normalized as healthy state.
+- **BFW-PRD-213:** Alpine appliance updates shall follow the signed staged or
+  A/B release, bounded boot-confirmation, configuration migration,
+  last-known-good, and local recovery contracts. A Bifrost release shall not be
+  built from an unsupported Alpine branch, and loss of upstream security
+  support shall trigger a blocked release or an admitted base-version
+  migration rather than silent continued distribution.
+- **BFW-PRD-214:** Alpine ISO and installed-image admission shall cover
+  reproducible rebuilds, signature/SBOM/provenance verification, UEFI and BIOS
+  boot, offline installation, exact-disk confirmation, interruption at every
+  destructive stage, power loss, corrupt media/package databases, unsupported
+  hardware, clean install, upgrade, migration, rollback, recovery-console use,
+  resource bounds, and independent post-boot packet/state completeness on each
+  admitted architecture and hardware profile.
 
 ## Initial requirements
 

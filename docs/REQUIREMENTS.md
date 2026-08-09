@@ -166,3 +166,56 @@ Generated from `governance/requirements.toml`; do not edit by hand.
 | BFW-PRD-159 | `bfw-core` | verified | `bfw-ha`, `bfw-kubernetes-controller` | not_admitted |
 | BFW-PRD-160 | `meta` | verified | `bfw-ha`, `bfw-kubernetes-controller` | not_admitted |
 | BFW-PRD-161 | `meta` | verified | `BFW-PRD-087`, `BFW-PRD-090` | not_admitted |
+| BFW-PRD-162 | `bfw-frr` | defined | `BFW-PHASE-0`, `bfw-routing`, `rpc-plugin-system` | not_admitted |
+| BFW-PRD-163 | `meta` | defined | `bfw-frr`, `BFW-PRD-090` | not_admitted |
+| BFW-PRD-164 | `bfw-frr` | defined | `bfw-network`, `bfw-routing` | not_admitted |
+| BFW-PRD-165 | `bfw-frr` | defined | `bfw-routing` | not_admitted |
+| BFW-PRD-166 | `bfw-frr` | defined | `bfw-routing` | not_admitted |
+| BFW-PRD-167 | `bfw-frr` | defined | `bfw-routing` | not_admitted |
+| BFW-PRD-168 | `bfw-frr` | defined | `agent-keyring`, `bfw-routing` | not_admitted |
+| BFW-PRD-169 | `bfw-frr` | defined | `bfw-network`, `bfw-routing`, `bfw-ha` | not_admitted |
+| BFW-PRD-170 | `bfw-frr` | defined | `bfw-routing` | not_admitted |
+| BFW-PRD-171 | `bfw-core` | defined | `bfw-frr`, `bfw-routing`, `BFW-PRD-089` | not_admitted |
+| BFW-PRD-172 | `bfw-frr` | defined | `bfw-monitoring`, `bfw-logging` | not_admitted |
+| BFW-PRD-173 | `bfw-plugin-sdk` | defined | `bfw-frr`, `bfw-web`, `bfw-cli` | not_admitted |
+| BFW-PRD-174 | `bfw-frr` | defined | `BFW-PHASE-0`, `BFW-PRD-090` | not_admitted |
+| BFW-PRD-175 | `meta` | defined | `bfw-frr`, `BFW-PRD-089`, `BFW-PRD-090` | not_admitted |
+| BFW-PRD-176 | `bfw-routing` | defined | `BFW-PHASE-0`, `bfw-frr` | not_admitted |
+| BFW-PRD-177 | `bfw-routing` | defined | `bfw-frr`, `bfw-network` | not_admitted |
+| BFW-PRD-178 | `bfw-routing` | defined | `bfw-frr`, `bfw-network` | not_admitted |
+| BFW-PRD-179 | `bfw-routing` | defined | `bfw-frr` | not_admitted |
+| BFW-PRD-180 | `bfw-routing` | defined | `bfw-frr`, `bfw-network`, `bfw-switching` | not_admitted |
+| BFW-PRD-181 | `bfw-routing` | defined | `bfw-frr`, `bfw-network` | not_admitted |
+| BFW-PRD-182 | `bfw-routing` | defined | `bfw-network`, `bfw-ha`, `bfw-fabric` | not_admitted |
+| BFW-PRD-183 | `bfw-routing` | defined | `bfw-frr` | not_admitted |
+| BFW-PRD-184 | `bfw-routing` | defined | `agent-keyring`, `bfw-network` | not_admitted |
+| BFW-PRD-185 | `bfw-routing` | defined | `bfw-frr`, `bfw-network`, `bfw-ha` | not_admitted |
+| BFW-PRD-186 | `bfw-plugin-sdk` | defined | `bfw-routing`, `bfw-web`, `bfw-cli` | not_admitted |
+| BFW-PRD-187 | `bfw-routing` | defined | `BFW-PHASE-0`, `BFW-PRD-090` | not_admitted |
+| BFW-PRD-188 | `meta` | defined | `bfw-routing`, `BFW-PRD-089` | not_admitted |
+| BFW-PRD-189 | `meta` | defined | `bfw-routing`, `BFW-PRD-089`, `BFW-PRD-090` | not_admitted |
+| BFW-PRD-190 | `bfw-switching` | defined | `BFW-PHASE-0`, `bfw-network` | not_admitted |
+| BFW-PRD-191 | `bfw-switching` | defined | `bfw-network` | not_admitted |
+| BFW-PRD-192 | `bfw-switching` | defined | `bfw-network` | not_admitted |
+| BFW-PRD-193 | `bfw-switching` | defined | `bfw-network`, `bfw-ha` | not_admitted |
+| BFW-PRD-194 | `bfw-switching` | defined | `bfw-network` | not_admitted |
+| BFW-PRD-195 | `bfw-switching` | defined | `bfw-network`, `bfw-routing` | not_admitted |
+| BFW-PRD-196 | `bfw-switching` | defined | `bfw-identity`, `bfw-dhcp`, `bfw-firewall`, `agent-keyring` | not_admitted |
+| BFW-PRD-197 | `bfw-switching` | defined | `bfw-network`, `bfw-routing`, `bfw-fabric`, `bfw-frr` | not_admitted |
+| BFW-PRD-198 | `bfw-switching` | defined | `bfw-network`, `bfw-ha`, `bfw-fabric` | not_admitted |
+| BFW-PRD-199 | `bfw-switching` | defined | `bfw-network`, `bfw-qos` | not_admitted |
+| BFW-PRD-200 | `bfw-switching` | defined | `bfw-network`, `bfw-monitoring` | not_admitted |
+| BFW-PRD-201 | `bfw-core` | defined | `bfw-switching`, `bfw-network`, `BFW-PRD-089` | not_admitted |
+| BFW-PRD-202 | `bfw-plugin-sdk` | defined | `bfw-switching`, `bfw-web`, `bfw-cli`, `bfw-monitoring`, `bfw-logging` | not_admitted |
+| BFW-PRD-203 | `meta` | defined | `bfw-switching`, `BFW-PRD-089`, `BFW-PRD-090` | not_admitted |
+| BFW-PRD-204 | `bfw-core` | defined | `bfw-network`, `bfw-switching`, `bfw-routing`, `bfw-firewall` | not_admitted |
+| BFW-PRD-205 | `bfw-switching` | defined | `bfw-network`, `BFW-PRD-201` | not_admitted |
+| BFW-PRD-206 | `bfw-routing` | defined | `bfw-network`, `bfw-firewall`, `bfw-dhcp`, `BFW-PRD-085` | not_admitted |
+| BFW-PRD-207 | `bfw-core` | defined | `bfw-switching`, `bfw-routing`, `bfw-firewall`, `bfw-monitoring`, `bfw-logging` | not_admitted |
+| BFW-PRD-208 | `bfw-plugin-sdk` | defined | `bfw-core`, `bfw-network`, `bfw-switching`, `bfw-routing`, `bfw-firewall`, `bfw-web`, `bfw-cli` | not_admitted |
+| BFW-PRD-209 | `meta` | defined | `bfw-installer`, `BFW-PRD-008`, `BFW-PRD-089`, `BFW-PRD-090` | not_admitted |
+| BFW-PRD-210 | `bfw-installer` | defined | `BFW-PRD-039`, `BFW-PRD-089` | not_admitted |
+| BFW-PRD-211 | `bfw-installer` | defined | `bfw-cli`, `agent-keyring`, `agent-filesystem` | not_admitted |
+| BFW-PRD-212 | `bfw-installer` | defined | `bfw-core`, `bfw-platform-linux`, `bfw-updater`, `bfw-logging` | not_admitted |
+| BFW-PRD-213 | `bfw-updater` | defined | `bfw-installer`, `bfw-backup`, `BFW-PRD-089` | not_admitted |
+| BFW-PRD-214 | `meta` | defined | `bfw-installer`, `bfw-updater`, `bfw-backup`, `BFW-PRD-090` | not_admitted |

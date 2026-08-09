@@ -5,7 +5,7 @@ channel = "design"
 status = "profile_only"
 admission = "not_admitted"
 platforms = ["linux"]
-platform_policy = "Linux is the first implementation profile; exact OS, kernel, architecture, and image digests remain required before implementation admission."
+platform_policy = "Alpine Linux 3.24 stable is the first Linux design baseline; exact patch release, repository snapshot, kernel, architecture, and image digests remain required before implementation admission."
 phase0_gate = "BFW-PHASE-0"
 phase0_required = true
 transaction_contract = "bfw.transaction/v1-draft"
@@ -40,7 +40,7 @@ deferred = [
   "bfw-ipsec", "bfw-openvpn", "bfw-qos", "bfw-multiwan", "bfw-cellular",
   "bfw-ids", "bfw-fabric", "bfw-kubernetes-controller", "bfw-dns-filter", "bfw-threat-intel", "bfw-captive-portal",
   "bfw-radius", "bfw-upnp", "bfw-support", "bfw-notifications",
-  "bfw-updater",
+  "bfw-updater", "bfw-installer",
 ]
 
 [[composition]]

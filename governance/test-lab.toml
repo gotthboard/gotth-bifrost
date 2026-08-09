@@ -43,6 +43,28 @@ required_scenarios = [
   "ha-profile-exact-two-packaged", "ha-profile-shared-contract-parity",
   "ha-profile-competing-coordinator-denial", "ha-profile-cross-migration",
   "ha-profile-migration-interruption-rollback", "ha-profile-release-composition",
+  "bgp-ebgp-ibgp-policy", "bgp-reflector-confederation-route-server",
+  "bgp-multiprotocol-family-matrix", "bgp-capability-mismatch",
+  "bgp-origin-path-leak-validation", "bgp-gr-llgr-bfd-addpath",
+  "bgp-evpn-vpn-flowspec-isolation", "bgp-rib-fib-reconciliation",
+  "bgp-malformed-update-fuzz-resource", "bgp-bmp-mrt-bounds-redaction",
+  "bgp-upgrade-rollback-convergence", "bgp-interop-matrix",
+  "routing-ospfv2-v3-area-lsa-spf", "routing-isis-l1-l2-multitopology",
+  "routing-rip-ripng-babel-legacy-alpha", "routing-pim-msdp-multicast",
+  "routing-ldp-mpls-sr-te", "routing-shared-bfd-consumers",
+  "routing-redistribution-loop-withdrawal", "routing-cross-protocol-convergence",
+  "routing-malformed-control-fuzz-resource", "routing-provider-interop-matrix",
+  "switching-vlan-qinq-registration", "switching-stp-rstp-mstp-vendor",
+  "switching-lacp-multichassis-partition", "switching-lldp-vendor-discovery",
+  "switching-snooping-mvr", "switching-dot1x-macsec-port-protection",
+  "switching-overlay-tenant-isolation", "switching-ring-fabric-semantics",
+  "switching-dcb-tsn-qos", "switching-ethernet-oam",
+  "switching-malformed-control-fuzz", "switching-provider-hardware-interop",
+  "sticky-switch-enroll-move-violation", "sticky-router-enroll-move-violation",
+  "sticky-binding-reboot-upgrade-rollback",
+  "alpine-iso-reproducible-build-signature", "alpine-iso-uefi-bios-offline-install",
+  "alpine-installer-disk-identity-confirmation", "alpine-install-interruption-power-loss",
+  "alpine-appliance-upgrade-rollback-recovery",
 ]
 required_evidence = [
   "image-and-artifact-digests", "host-and-network-facts", "test-command",
@@ -54,8 +76,8 @@ required_evidence = [
 [[targets]]
 id = "linux-primary"
 platform = "linux"
-role = "primary v0.1 build, policy, upgrade, and recovery target"
-os_release = ""
+role = "primary Alpine Linux appliance ISO build, installation, policy, upgrade, and recovery target"
+os_release = "Alpine Linux 3.24.1 design target; image digest unpinned"
 kernel_or_runtime = ""
 architectures = ["amd64"]
 image_digest = ""
@@ -115,6 +137,16 @@ count = 4
 id = "service-fixture"
 purpose = "DNS, DHCP, OIDC, ACME, VPN, proxy, logging, and update fixtures."
 count = 2
+
+[[roles]]
+id = "routing-peer"
+purpose = "Independent FRR, BIRD, GoBGP, protocol-specific, and available vendor peers across BGP and non-BGP routing topology, capability, security, convergence, redistribution, and interoperability tests."
+count = 8
+
+[[roles]]
+id = "switch-protocol-peer"
+purpose = "Independent software bridges, protocol daemons, and available vendor/hardware peers for switching control-plane, isolation, convergence, partition, semantic-parity, and interoperability tests."
+count = 6
 
 [[roles]]
 id = "witness"

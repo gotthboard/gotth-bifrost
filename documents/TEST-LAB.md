@@ -80,6 +80,52 @@ interrupted cross-profile authority handoff, continuous forwarding or
 conservative isolation, commit-confirmed rollback, recovery assets, and release
 composition without treating an unadmitted v0.1 profile as HA-ready.
 
+BGP admission adds at least six independent peers capable of FRR, BIRD,
+GoBGP, and available vendor implementations. The lab crosses eBGP/iBGP,
+reflector, confederation, route-server, multihop, numbered/unnumbered, dynamic,
+peer-group, and VRF topologies with every declared AFI/SAFI and negotiated
+capability. Independent route and packet oracles cover policy order,
+route-target/VRF isolation, leak/hijack prevention, RPKI/ASPA/BGPsec capability
+state, FlowSpec/EVPN/VPN behavior, Add-Path, BFD, GR/LLGR, restart, upgrade,
+RIB/FIB disagreement, malformed-message fuzzing, churn, scale, BMP/MRT bounds,
+redaction, convergence, and rollback. Provider self-reporting and one
+established session are not completeness evidence.
+
+The routing-peer pool additionally covers OSPFv2/v3, IS-IS, RIP/RIPng, Babel,
+EIGRP/NHRP status, IGMP/MLD/PIM/MSDP, LDP/MPLS/SR/TE, and shared BFD. Tests
+cross adjacency/election/database/flooding, authentication, malformed control
+traffic, partitions, recursive next hops, every enabled redistribution edge,
+withdrawal, restart/upgrade, convergence, resource bounds, canonical RIB/native
+FIB agreement, and packet reachability. Legacy, alpha, and unavailable provider
+rows must demonstrate denial rather than fake compatibility.
+
+Switching-protocol peers cover VLAN/Q-in-Q/registration, STP/RSTP/MSTP and
+vendor dialects, LACP and multi-chassis failure, LLDP/vendor discovery,
+IGMP/MLD snooping/MVR, 802.1X/MACsec and port protections, overlays, ring/fabric
+profiles, DCB/TSN, and Ethernet OAM. Hostile control-frame injection, loops,
+storms, partitions, duplicate ownership, cross-VLAN/tenant leakage, hardware
+offload drift, management lockout, upgrade, convergence, and rollback are
+observed independently from the device/provider under test.
+
+Sticky-binding admission uses independent endpoint generators on switched and
+routed ports. It covers bounded observation and explicit enrollment, persisted
+MAC/port/VLAN binding, routed interface/VRF/MAC/IP neighbor binding, duplicate
+and moved endpoints, limit overflow, spoofed ARP/NDP/DHCP evidence, LAG/VLAN
+and interface-generation changes, hardware/provider disagreement, reboot,
+failover, upgrade, clear/replace, quarantine, last-known-good rollback, and
+packet-oracle proof that a violation never widens access or silently relearns.
+
+The primary Linux image target is Alpine Linux 3.24.1 on x86-64, but remains
+unpinned and unadmitted until an exact repository snapshot, kernel, package,
+firmware, installer, ISO, and installed-image digest exist. Installer admission
+performs independent reproducible rebuilds and covers UEFI and legacy BIOS,
+offline install, stable target-disk identity and destructive confirmation,
+wrong/removed/renumbered disk, interruption and power loss at every write
+stage, corrupt media and APK database, unsupported hardware, first-boot
+fail-closed state, package drift, upgrade, boot confirmation, rollback, and
+local-console recovery. A booted live ISO or successful installer exit is not
+installed-appliance evidence.
+
 Every run records immutable image/artifact/release digests, host and topology
 facts, commands, time bounds, configuration and participant generations,
 packet/state completeness oracles, redacted logs, rollback result, and review.
