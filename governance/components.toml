@@ -7,7 +7,7 @@ authority = "This file is authoritative for component identity and composition m
 [platforms]
 known = ["linux", "freebsd", "windows", "darwin"]
 admitted = []
-policy = "Every component must explicitly declare assessed, unsupported, or unassessed platform state before admission."
+policy = "Every component must explicitly declare unassessed, planned, assessed, or unsupported platform state; admitted components require assessed platform state and admitted dependencies."
 
 [[components]]
 id = "bfw-core"
@@ -827,7 +827,7 @@ platform_status = "unassessed"
 migration_order = 135
 rollback_mate = ""
 evidence_hashes = []
-status = "deferred"
+status = "planned"
 admission = "not_admitted"
 
 [[components]]
@@ -840,14 +840,14 @@ artifact_digests = []
 api_version = "0.1-draft"
 schema_version = "1-draft"
 ui_version = "1-draft"
-dependencies = ["bfw-core", "bfw-cli", "bfw-updater", "bfw-backup", "bfw-platform-linux", "bfw-platform-freebsd"]
+dependencies = []
 conflicts = []
-platforms = ["linux", "freebsd"]
+platforms = []
 platform_status = "unassessed"
 migration_order = 136
 rollback_mate = ""
 evidence_hashes = []
-status = "deferred"
+status = "planned"
 admission = "not_admitted"
 
 [[external_dependencies]]

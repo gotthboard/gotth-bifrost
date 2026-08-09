@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### 2026-08-09 16:41 CDT — Reconcile release and installer governance
+
+- Add `alpha` to the admitted release schema and require independent
+  per-platform evidence plus pinned build/distribution components.
+- Separate `bfw-installer` build composition from installed runtime
+  composition and include `bfw-updater` in the v0.1 runtime profile.
+- Remove false Linux/FreeBSD runtime dependencies from the distribution
+  builder; platform-image admission remains bound to each release target.
+- Repair stale Phase 0 README wording and the Alpine-only component-map entry.
+- Require assessed platform state and admitted dependencies before component
+  admission, with regression coverage for every repaired contradiction.
+
 ### 2026-08-09 16:09 CDT — Tailor the Alpine system during installation
 
 - Apply the same generic-live-media/machine-tailored-install contract to the

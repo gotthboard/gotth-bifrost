@@ -1,0 +1,55 @@
+{
+  "schema_file": "release.schema.json",
+  "valid": true,
+  "instance": {
+    "schema": "bfw.release/v1",
+    "release_id": "bfw.release-test",
+    "version": "1.0.0-alpha.1",
+    "channel": "alpha",
+    "platforms": [
+      {
+        "name": "linux",
+        "image_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+        "hardware_matrix_digest": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+        "evidence_hashes": ["sha256:3333333333333333333333333333333333333333333333333333333333333333"]
+      }
+    ],
+    "components": [
+      {
+        "id": "bfw.core",
+        "repository": "https://example.invalid/bfw-core.git",
+        "revision": "0000000000000000000000000000000000000000",
+        "artifact_digests": ["sha256:4444444444444444444444444444444444444444444444444444444444444444"],
+        "api_version": "1.0",
+        "schema_version": "1.0",
+        "ui_version": "none",
+        "migration_order": 10,
+        "rollback_mate": "5555555555555555555555555555555555555555",
+        "evidence_hashes": ["sha256:6666666666666666666666666666666666666666666666666666666666666666"]
+      }
+    ],
+    "builders": [
+      {
+        "id": "bfw.installer",
+        "repository": "https://example.invalid/bfw-installer.git",
+        "revision": "7777777777777777777777777777777777777777",
+        "artifact_digests": ["sha256:8888888888888888888888888888888888888888888888888888888888888888"],
+        "api_version": "1.0",
+        "schema_version": "1.0",
+        "ui_version": "none",
+        "migration_order": 136,
+        "rollback_mate": "9999999999999999999999999999999999999999",
+        "evidence_hashes": ["sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"]
+      }
+    ],
+    "configuration_schema": "1.0",
+    "transaction_contract": "1.0",
+    "sbom_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "provenance_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "signature_ref": "alpha-signing-role-1",
+    "migration_order": ["bfw.core"],
+    "rollback_release": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "evidence_hashes": ["sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"],
+    "admission": "admitted"
+  }
+}

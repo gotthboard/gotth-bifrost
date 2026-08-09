@@ -186,9 +186,10 @@ alpha experiment appears successful.
   observability, rollback, scale, and admission contracts
 - define last-known-good, confirmation timer, rollback, and interrupted-upgrade
   behavior
-- define the separately versioned `bfw-installer`, exact Alpine Linux stable
-  inputs, reproducible signed offline ISO/image build, destructive-disk
-  confirmation, first-boot verification, package-drift, and recovery contracts
+- define the separately versioned `bfw-installer`, exact Alpine Linux and
+  FreeBSD inputs, reproducible signed offline ISO/image builds, deterministic
+  machine tailoring, destructive-disk confirmation, first-boot verification,
+  package-drift, and recovery contracts
 - define independent correctness oracles for compiled and applied policy
 - decompose the first narrow vertical slice
 - maintain the authoritative component/release catalog, requirement registry,
@@ -208,10 +209,11 @@ This is a dependency order, not permission to create every repository at once:
 6. `bfw-dhcp`
 7. `bfw-wireguard`
 8. `bfw-acme` and `bfw-ddns`, followed by `bfw-reverse-proxy`
-9. `bfw-monitoring`, `bfw-logging`, and `bfw-backup`
+9. `bfw-monitoring`, `bfw-logging`, `bfw-backup`, and `bfw-updater`
 10. `bfw-ha` and `bfw-multiwan`
-11. `bfw-installer` after the first complete Linux release composition and
-    recovery contract
+11. `bfw-installer` after the release-schema and recovery contracts, and before
+    the first complete Alpine release composition; FreeBSD output admission
+    remains a later independent platform workflow
 12. `bfw-ids`, `bfw-frr`, and the remaining catalog plugins as their contracts
     and user need justify them
 

@@ -37,6 +37,20 @@ class GovernanceTests(unittest.TestCase):
             entry for entry in catalog["components"] if entry["id"] == "bfw-installer"
         )
         self.assertIn("deterministic machine tailoring", installer["responsibility"])
+        self.assertEqual("distribution-component", installer["kind"])
+        self.assertEqual([], installer["dependencies"])
+        self.assertEqual([], installer["platforms"])
+        self.assertEqual("planned", installer["status"])
+
+        release = governance.load_toml("governance/releases/v0.1.toml")
+        self.assertIn("bfw-updater", release["included"])
+        self.assertEqual(["bfw-installer"], release["build_components"])
+        self.assertNotIn("bfw-installer", release["included"])
+        self.assertNotIn("bfw-installer", release["deferred"])
+        self.assertEqual(
+            {"bfw-installer"},
+            {entry["id"] for entry in release["build_composition"]},
+        )
 
         alpha = governance.load_toml("governance/alpha.toml")
         self.assertIn("deterministic-machine-tailoring", alpha["required_safety_gates"])
@@ -106,9 +120,9 @@ class GovernanceTests(unittest.TestCase):
         installer = next(
             entry for entry in catalog["components"] if entry["id"] == "bfw-installer"
         )
-        self.assertEqual({"linux", "freebsd"}, set(installer["platforms"]))
-        self.assertIn("bfw-platform-linux", installer["dependencies"])
-        self.assertIn("bfw-platform-freebsd", installer["dependencies"])
+        self.assertEqual("distribution-component", installer["kind"])
+        self.assertEqual([], installer["platforms"])
+        self.assertEqual([], installer["dependencies"])
 
         lab = governance.load_toml("governance/test-lab.toml")
         target = next(
@@ -148,6 +162,88 @@ class GovernanceTests(unittest.TestCase):
         self.assertNotIn("Hardware-specific appliance images are deferred", prd)
         self.assertIn("ISO shall contain no release-signing private key", implementation)
         self.assertIn("Separately distributed prebuilt hardware-specific media", implementation)
+
+    def test_release_schema_admits_alpha_and_binds_platform_evidence(self) -> None:
+        schema = governance.load_json(governance.ROOT / "schemas/v1/release.schema.json")
+        self.assertEqual(
+            {"development", "alpha", "beta", "stable"},
+            set(schema["properties"]["channel"]["enum"]),
+        )
+        self.assertIn("builders", schema["required"])
+        platform_required = set(
+            schema["properties"]["platforms"]["items"]["required"]
+        )
+        self.assertEqual(
+            {"name", "image_digest", "hardware_matrix_digest", "evidence_hashes"},
+            platform_required,
+        )
+        self.assertEqual(
+            "#/$defs/artifactRecord",
+            schema["properties"]["builders"]["items"]["$ref"],
+        )
+
+    def test_component_admission_requires_assessed_platform_and_dependencies(self) -> None:
+        revision = "0" * 40
+        digest = "sha256:" + "a" * 64
+        catalog = {
+            "platforms": {"known": ["linux"], "admitted": ["linux"]},
+            "components": [
+                {
+                    "id": "bfw-dependency",
+                    "kind": "test",
+                    "responsibility": "test dependency",
+                    "repository": "https://example.invalid/dependency.git",
+                    "revision": revision,
+                    "artifact_digests": [digest],
+                    "api_version": "1.0",
+                    "schema_version": "1.0",
+                    "ui_version": "none",
+                    "dependencies": [],
+                    "conflicts": [],
+                    "platforms": ["linux"],
+                    "platform_status": "assessed",
+                    "migration_order": 1,
+                    "rollback_mate": revision,
+                    "evidence_hashes": [digest],
+                    "status": "planned",
+                    "admission": "not_admitted",
+                },
+                {
+                    "id": "bfw-consumer",
+                    "kind": "test",
+                    "responsibility": "test consumer",
+                    "repository": "https://example.invalid/consumer.git",
+                    "revision": revision,
+                    "artifact_digests": [digest],
+                    "api_version": "1.0",
+                    "schema_version": "1.0",
+                    "ui_version": "none",
+                    "dependencies": ["bfw-dependency"],
+                    "conflicts": [],
+                    "platforms": ["linux"],
+                    "platform_status": "unassessed",
+                    "migration_order": 2,
+                    "rollback_mate": revision,
+                    "evidence_hashes": [digest],
+                    "status": "planned",
+                    "admission": "admitted",
+                },
+            ],
+            "external_dependencies": [],
+        }
+        findings = governance.Findings()
+        with mock.patch.object(governance, "load_toml", return_value=catalog):
+            governance.validate_components(findings)
+        joined = "\n".join(findings.errors)
+        self.assertIn("admitted component platform state is not assessed", joined)
+        self.assertIn("admitted component has non-admitted dependencies", joined)
+
+        catalog["components"][1]["admission"] = "not_admitted"
+        catalog["components"][1]["platform_status"] = "unsupported"
+        findings = governance.Findings()
+        with mock.patch.object(governance, "load_toml", return_value=catalog):
+            governance.validate_components(findings)
+        self.assertNotIn("invalid platform status", "\n".join(findings.errors))
 
     def test_switching_domain_is_composed_and_strict(self) -> None:
         with (governance.ROOT / "governance/components.toml").open("rb") as handle:
@@ -915,9 +1011,12 @@ class GovernanceTests(unittest.TestCase):
             "alpha_gate": "BFW-ALPHA-0",
             "phase0_gate": "BFW-PHASE-0",
             "phase0_required_for": ["beta", "stable"],
+            "release_manifest_schema": "bfw.release/v1",
             "included": [],
+            "build_components": [],
             "deferred": [],
             "composition": [],
+            "build_composition": [],
         }
         cases = {
             "alpha": "alpha admission outruns BFW-ALPHA-0 distribution permission",

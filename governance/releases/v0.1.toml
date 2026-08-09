@@ -12,7 +12,7 @@ phase0_required_for = ["beta", "stable"]
 transaction_contract = "bfw.transaction/v1-draft"
 configuration_schema = "bfw.configuration/v1-draft"
 rollback_record_schema = "bfw.rollback-record/v1-draft"
-release_manifest_schema = "bfw.release/v1-draft"
+release_manifest_schema = "bfw.release/v1"
 signing_policy_adr = "ADR-0006"
 compatibility_policy_adr = "ADR-0007"
 
@@ -33,7 +33,10 @@ included = [
   "bfw-monitoring",
   "bfw-logging",
   "bfw-backup",
+  "bfw-updater",
 ]
+
+build_components = ["bfw-installer"]
 
 deferred = [
   "bfw-platform-freebsd", "bfw-platform-windows", "bfw-reverse-proxy",
@@ -41,7 +44,6 @@ deferred = [
   "bfw-ipsec", "bfw-openvpn", "bfw-qos", "bfw-multiwan", "bfw-cellular",
   "bfw-ids", "bfw-fabric", "bfw-kubernetes-controller", "bfw-dns-filter", "bfw-threat-intel", "bfw-captive-portal",
   "bfw-radius", "bfw-upnp", "bfw-support", "bfw-notifications",
-  "bfw-updater", "bfw-installer",
 ]
 
 [[composition]]
@@ -248,6 +250,32 @@ api_version = "0.1-draft"
 schema_version = "1-draft"
 ui_version = "1-draft"
 migration_order = 132
+rollback_mate = ""
+evidence_hashes = []
+admission = "not_admitted"
+
+[[composition]]
+id = "bfw-updater"
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+migration_order = 135
+rollback_mate = ""
+evidence_hashes = []
+admission = "not_admitted"
+
+[[build_composition]]
+id = "bfw-installer"
+repository = ""
+revision = ""
+artifact_digests = []
+api_version = "0.1-draft"
+schema_version = "1-draft"
+ui_version = "1-draft"
+migration_order = 136
 rollback_mate = ""
 evidence_hashes = []
 admission = "not_admitted"

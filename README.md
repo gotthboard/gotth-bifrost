@@ -389,6 +389,11 @@ provider, DNS, certificates, or network path is unavailable. It is not a normal
 remote-login fallback and cannot be disabled solely by an OIDC configuration
 change.
 
+## Contributors
+
+- **Linus** — product architecture, governance, installer/recovery contracts,
+  and technical review.
+
 ## Current status
 
 Governance-only meta repository. It contains executable validation/rendering
@@ -410,19 +415,22 @@ Canonical design work proceeds in this order:
 Implementation begins only after the supported platform matrix, plugin and
 userspace contracts, recovery design, and acceptance tests are explicit.
 
-Runtime implementation is also gated on completing and admitting the required
-cross-platform `rpc-plugin-system` substrate. Bifrost will not create a private
-fork of lifecycle, authentication, transport, generation, or supervision rules
-to begin earlier.
+Runtime implementation outside the exact learning-alpha lane is gated on
+completing and admitting the required cross-platform `rpc-plugin-system`
+substrate. The bounded source/offline alpha exception remains the one path
+defined above; it does not permit a private fork of lifecycle, authentication,
+transport, generation, or supervision rules.
 
-The same gate applies to the required cross-platform `agent-keyring`
-credential-authority contract. Bifrost will not create a second secret store or
-fall back to ambient environment variables, command arguments, ordinary
-configuration files, or plugin-owned credential databases.
+The same out-of-alpha gate applies to the required cross-platform
+`agent-keyring` credential-authority contract. The alpha must still use an
+explicitly selected Linux-compatible keyring release and may not create a
+second secret store or fall back to ambient environment variables, command
+arguments, ordinary configuration files, or plugin-owned credential databases.
 
 Cross-platform admission of `agent-filesystem` and `agent-exec` is also a Phase
-0 dependency. Bifrost will not fork their path-safety, recovery, process,
-sandbox, resource-bound, or audit contracts to begin implementation early.
+0 dependency for out-of-alpha work. The alpha may use only selected
+Linux-compatible releases inside `BFW-ALPHA-0`; it may not fork their path-
+safety, recovery, process, sandbox, resource-bound, or audit contracts.
 
 ## Initial non-goals
 

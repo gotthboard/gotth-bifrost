@@ -178,11 +178,20 @@ def validate_components(findings: Findings) -> dict[str, Any]:
     catalog = load_toml("governance/components.toml")
     components = catalog.get("components", [])
     externals = catalog.get("external_dependencies", [])
+    platform_policy = catalog.get("platforms", {})
+    known_platforms = set(platform_policy.get("known", []))
+    admitted_platforms = set(platform_policy.get("admitted", []))
     component_ids = [entry.get("id") for entry in components]
     external_ids = [entry.get("id") for entry in externals]
     findings.require(len(component_ids) == len(set(component_ids)), "duplicate component ID")
     findings.require(len(external_ids) == len(set(external_ids)), "duplicate external dependency ID")
     known = set(component_ids) | set(external_ids)
+    records_by_id = {
+        entry.get("id"): entry
+        for entry in components + externals
+        if entry.get("id")
+    }
+    findings.require(admitted_platforms <= known_platforms, "catalog admits unknown platform")
     required = {
         "id", "kind", "responsibility", "repository", "revision",
         "artifact_digests", "api_version", "schema_version", "ui_version",
@@ -195,11 +204,14 @@ def validate_components(findings: Findings) -> dict[str, Any]:
         findings.require(required <= set(entry), f"{component_id}: incomplete component record")
         dependencies = entry.get("dependencies", [])
         conflicts = entry.get("conflicts", [])
+        platforms = entry.get("platforms", [])
         findings.require(all(item in known for item in dependencies), f"{component_id}: unknown dependency")
         findings.require(all(item in known for item in conflicts), f"{component_id}: unknown conflict")
         findings.require(component_id not in dependencies, f"{component_id}: self dependency")
         findings.require(component_id not in conflicts, f"{component_id}: self conflict")
-        findings.require(entry.get("platform_status") in {"unassessed", "planned", "assessed"}, f"{component_id}: invalid platform status")
+        findings.require(len(platforms) == len(set(platforms)), f"{component_id}: duplicate platform")
+        findings.require(set(platforms) <= known_platforms, f"{component_id}: unknown platform")
+        findings.require(entry.get("platform_status") in {"unassessed", "planned", "assessed", "unsupported"}, f"{component_id}: invalid platform status")
         graph[component_id] = [item for item in dependencies if item in set(component_ids)]
         for digest in entry.get("artifact_digests", []) + entry.get("evidence_hashes", []):
             findings.require(bool(SHA256_RE.fullmatch(digest)), f"{component_id}: invalid digest {digest!r}")
@@ -208,6 +220,13 @@ def validate_components(findings: Findings) -> dict[str, Any]:
             findings.require(bool(REVISION_RE.fullmatch(entry.get("revision", ""))), f"{component_id}: admitted component lacks immutable revision")
             findings.require(bool(entry.get("artifact_digests")), f"{component_id}: admitted component lacks artifact digest")
             findings.require(bool(entry.get("platforms")), f"{component_id}: admitted component lacks platform declaration")
+            findings.require(entry.get("platform_status") == "assessed", f"{component_id}: admitted component platform state is not assessed")
+            missing_admissions = [
+                dependency
+                for dependency in dependencies
+                if records_by_id.get(dependency, {}).get("admission") != "admitted"
+            ]
+            findings.require(not missing_admissions, f"{component_id}: admitted component has non-admitted dependencies {missing_admissions}")
             findings.require(bool(REVISION_RE.fullmatch(entry.get("rollback_mate", ""))), f"{component_id}: admitted component lacks rollback mate")
             findings.require(bool(entry.get("evidence_hashes")), f"{component_id}: admitted component lacks evidence")
     cycle = find_dependency_cycle(graph)
@@ -352,11 +371,14 @@ def validate_release(findings: Findings, catalog: dict[str, Any], phase0: dict[s
     release = load_toml("governance/releases/v0.1.toml")
     catalog_by_id = {entry["id"]: entry for entry in catalog.get("components", [])}
     included = release.get("included", [])
+    build_components = release.get("build_components", [])
     deferred = release.get("deferred", [])
     composition = release.get("composition", [])
+    build_composition = release.get("build_composition", [])
     findings.require(release.get("alpha_gate") == "BFW-ALPHA-0", "v0.1 alpha gate drifted")
     findings.require(release.get("phase0_gate") == "BFW-PHASE-0", "v0.1 Phase 0 gate drifted")
     findings.require(release.get("phase0_required_for") == ["beta", "stable"], "v0.1 Phase 0 channel policy drifted")
+    findings.require(release.get("release_manifest_schema") == "bfw.release/v1", "v0.1 release manifest schema drifted")
     channel = release.get("channel")
     findings.require(channel in {"design", "development", "alpha", "beta", "stable"}, "v0.1 release channel is invalid")
     findings.require(release.get("status") in {"profile_only", "blocked", "passed"}, "v0.1 release status is invalid")
@@ -365,15 +387,27 @@ def validate_release(findings: Findings, catalog: dict[str, Any], phase0: dict[s
     if channel == "design":
         findings.require(release.get("status") == "profile_only" and release.get("admission") == "not_admitted", "v0.1 design profile cannot become an admitted release")
     findings.require(len(included) == len(set(included)), "v0.1 includes duplicate component")
+    findings.require(len(build_components) == len(set(build_components)), "v0.1 repeats build component")
     findings.require(len(deferred) == len(set(deferred)), "v0.1 defers duplicate component")
-    findings.require(not (set(included) & set(deferred)), "v0.1 included/deferred overlap")
-    findings.require(set(included) | set(deferred) == set(catalog_by_id), "v0.1 profile does not partition the complete component catalog")
+    role_sets = [set(included), set(build_components), set(deferred)]
+    findings.require(not any(left & right for index, left in enumerate(role_sets) for right in role_sets[index + 1 :]), "v0.1 runtime/build/deferred overlap")
+    findings.require(set().union(*role_sets) == set(catalog_by_id), "v0.1 profile does not partition the complete component catalog")
     findings.require({entry.get("id") for entry in composition} == set(included), "v0.1 composition does not match included profile")
+    findings.require({entry.get("id") for entry in build_composition} == set(build_components), "v0.1 build composition does not match build profile")
+    for component_id in included:
+        findings.require(catalog_by_id.get(component_id, {}).get("kind") != "distribution-component", f"v0.1 installs distribution component {component_id}")
+    for component_id in build_components:
+        findings.require(catalog_by_id.get(component_id, {}).get("kind") == "distribution-component", f"v0.1 build component is not a distribution component: {component_id}")
     for component_id in included:
         component = catalog_by_id.get(component_id, {})
         missing = [dependency for dependency in component.get("dependencies", []) if dependency in catalog_by_id and dependency not in included]
         findings.require(not missing, f"v0.1 dependency closure missing {component_id}: {missing}")
-    for entry in composition:
+    build_available = set(included) | set(build_components)
+    for component_id in build_components:
+        component = catalog_by_id.get(component_id, {})
+        missing = [dependency for dependency in component.get("dependencies", []) if dependency in catalog_by_id and dependency not in build_available]
+        findings.require(not missing, f"v0.1 build dependency closure missing {component_id}: {missing}")
+    for entry in composition + build_composition:
         component_id = entry.get("id", "<missing>")
         for digest in entry.get("artifact_digests", []) + entry.get("evidence_hashes", []):
             findings.require(bool(SHA256_RE.fullmatch(digest)), f"v0.1 {component_id}: invalid digest")
@@ -411,18 +445,30 @@ def schema_instance_errors(
     instance: Any,
     schema_dir: pathlib.Path,
     path: str = "$",
+    document_schema: dict[str, Any] | None = None,
 ) -> list[str]:
     """Validate the fail-closed JSON Schema subset used by Bifrost fixtures."""
+    if document_schema is None:
+        document_schema = schema
     errors: list[str] = []
     if "$ref" in schema:
         reference = str(schema["$ref"])
         target_name, _, fragment = reference.partition("#")
-        target = load_json(schema_dir / target_name) if target_name else schema
+        target_document = load_json(schema_dir / target_name) if target_name else document_schema
+        target = target_document
         if fragment:
             for token in fragment.lstrip("/").split("/"):
                 token = token.replace("~1", "/").replace("~0", "~")
                 target = target[token]
-        errors.extend(schema_instance_errors(target, instance, schema_dir, path))
+        errors.extend(
+            schema_instance_errors(
+                target,
+                instance,
+                schema_dir,
+                path,
+                target_document,
+            )
+        )
 
     expected = schema.get("type")
     expected_types = [expected] if isinstance(expected, str) else expected
@@ -449,7 +495,7 @@ def schema_instance_errors(
         properties = schema.get("properties", {})
         for key, value in instance.items():
             if key in properties:
-                errors.extend(schema_instance_errors(properties[key], value, schema_dir, f"{path}.{key}"))
+                errors.extend(schema_instance_errors(properties[key], value, schema_dir, f"{path}.{key}", document_schema))
             elif schema.get("additionalProperties") is False:
                 errors.append(f"{path}: unknown property {key}")
     if isinstance(instance, list):
@@ -462,7 +508,7 @@ def schema_instance_errors(
         item_schema = schema.get("items")
         if isinstance(item_schema, dict):
             for index, value in enumerate(instance):
-                errors.extend(schema_instance_errors(item_schema, value, schema_dir, f"{path}[{index}]"))
+                errors.extend(schema_instance_errors(item_schema, value, schema_dir, f"{path}[{index}]", document_schema))
     if isinstance(instance, str):
         if len(instance) < schema.get("minLength", 0):
             errors.append(f"{path}: string is too short")
@@ -482,16 +528,16 @@ def schema_instance_errors(
             errors.append(f"{path}: value is above maximum")
 
     for child in schema.get("allOf", []):
-        errors.extend(schema_instance_errors(child, instance, schema_dir, path))
+        errors.extend(schema_instance_errors(child, instance, schema_dir, path, document_schema))
     if "anyOf" in schema:
-        branches = [schema_instance_errors(child, instance, schema_dir, path) for child in schema["anyOf"]]
+        branches = [schema_instance_errors(child, instance, schema_dir, path, document_schema) for child in schema["anyOf"]]
         if all(branch for branch in branches):
             errors.append(f"{path}: no anyOf branch matched")
     if "if" in schema:
-        condition_matches = not schema_instance_errors(schema["if"], instance, schema_dir, path)
+        condition_matches = not schema_instance_errors(schema["if"], instance, schema_dir, path, document_schema)
         selected = schema.get("then" if condition_matches else "else")
         if isinstance(selected, dict):
-            errors.extend(schema_instance_errors(selected, instance, schema_dir, path))
+            errors.extend(schema_instance_errors(selected, instance, schema_dir, path, document_schema))
     return errors
 
 
@@ -539,6 +585,7 @@ def validate_schemas(findings: Findings) -> None:
         "ha-deployment-profile.invalid.json", "ha-deployment-profile.valid.json",
         "ids-plan.invalid.json", "ids-plan.valid.json",
         "kubernetes-ha-profile.invalid.json", "kubernetes-ha-profile.valid.json",
+        "release.invalid.json", "release.valid.json",
         "switch-plan.invalid.json", "switch-plan.valid.json",
     }
     findings.require({path.name for path in fixture_paths} == expected_fixtures, "representative schema fixture set is incomplete or unexpected")

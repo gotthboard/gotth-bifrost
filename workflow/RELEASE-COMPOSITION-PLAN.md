@@ -12,6 +12,8 @@ included component handoff pass. It must pin:
 - every repository revision, artifact digest, dependency lock, schema/API
   version, Alpine/APK snapshot, inventory schema, tailoring policy, recovery
   environment, live-media hardware matrix, and ISO digest;
+- every build/distribution component revision and artifact digest separately
+  from the installed runtime composition;
 - each target's normalized hardware inventory, machine plan, selected APK/
   service/kernel/initramfs/module/firmware manifest, installed-file manifest,
   and slot digest;
@@ -27,8 +29,8 @@ after full `BFW-PHASE-0` passes.
 
 ## Admission sequence
 
-1. Validate every included component and dependency is admitted for the target
-   channel and exact revision.
+1. Validate every installed runtime component, build/distribution component,
+   and dependency is admitted for the target channel and exact revision.
 2. Build twice from immutable offline inputs and compare content identities.
 3. Run composition, installation, lifecycle, rollback, recovery, security, and
    channel-isolation harnesses.

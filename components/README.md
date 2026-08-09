@@ -35,7 +35,7 @@ for humans and must not override the machine-readable catalog.
 | `bfw-ids` | native Go Snort-class IDS/IPS engine: capture normalization, flow/stream state, protocol decoding, rules, alerts/evidence, and typed enforcement proposals | deferred; repository not created |
 | other security plugins | `bfw-dns-filter`, `bfw-threat-intel`, `bfw-captive-portal`, `bfw-radius`, and `bfw-upnp` | planned; repositories not created |
 | operations plugins | `bfw-monitoring`, `bfw-logging`, `bfw-backup`, `bfw-support`, `bfw-notifications`, and `bfw-updater` | planned; repositories not created |
-| `bfw-installer` | separately versioned reproducible signed Alpine Linux appliance installation ISO, exact-disk installation, first-boot verification, and recovery media with no packet-policy authority | deferred; repository not created |
+| `bfw-installer` | separately versioned distribution builder for reproducible signed Alpine Linux and FreeBSD live installation ISOs, deterministic machine tailoring, exact-disk installation, first-boot verification, and recovery media with no packet-policy authority | planned; repository not created |
 
 Catalog names are settled planning identifiers. They create no runtime or
 release authority until their repositories, public contracts, exact revisions,
@@ -71,6 +71,10 @@ artifacts, rollback mates, evidence, and admission are recorded here.
   an immutable release composition and cannot configure post-install packet
   policy, retain installer secrets, choose a disk by unstable enumeration, or
   create an updater path outside the signed release/recovery contract.
+  It is a build/distribution component, not an installed runtime component;
+  catalog dependencies therefore do not pretend that consuming release
+  artifacts is runtime authority. Linux and FreeBSD image digests and evidence
+  are admitted independently in their release-platform records.
 - Every plugin declares compatible platforms, dependencies, conflicts,
   permissions, schemas, UI contracts, health, migration/rollback behavior,
   and release evidence before it can be pinned here.

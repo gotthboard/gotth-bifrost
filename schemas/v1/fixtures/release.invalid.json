@@ -1,0 +1,26 @@
+{
+  "schema_file": "release.schema.json",
+  "valid": false,
+  "instance": {
+    "schema": "bfw.release/v1",
+    "release_id": "bfw.release-test",
+    "version": "1.0.0-alpha.1",
+    "channel": "alpha",
+    "platforms": [
+      {
+        "name": "linux",
+        "image_digest": "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+      }
+    ],
+    "components": [],
+    "configuration_schema": "1.0",
+    "transaction_contract": "1.0",
+    "sbom_digest": "sha256:bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "provenance_digest": "sha256:cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "signature_ref": "alpha-signing-role-1",
+    "migration_order": ["bfw.core"],
+    "rollback_release": "sha256:dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+    "evidence_hashes": ["sha256:eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee"],
+    "admission": "admitted"
+  }
+}

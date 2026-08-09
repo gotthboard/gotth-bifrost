@@ -3,14 +3,34 @@
   "$id": "https://schemas.bifrost.invalid/v1/release.schema.json",
   "title": "Bifrost admitted release composition v1",
   "type": "object",
-  "required": ["schema", "release_id", "version", "channel", "platforms", "components", "configuration_schema", "transaction_contract", "sbom_digest", "provenance_digest", "signature_ref", "migration_order", "rollback_release", "evidence_hashes", "admission"],
+  "required": ["schema", "release_id", "version", "channel", "platforms", "components", "builders", "configuration_schema", "transaction_contract", "sbom_digest", "provenance_digest", "signature_ref", "migration_order", "rollback_release", "evidence_hashes", "admission"],
+  "$defs": {
+    "artifactRecord": {
+      "type": "object",
+      "required": ["id", "repository", "revision", "artifact_digests", "api_version", "schema_version", "migration_order", "rollback_mate", "evidence_hashes"],
+      "properties": {
+        "id": {"$ref": "common.schema.json#/$defs/identifier"},
+        "repository": {"type": "string", "format": "uri"},
+        "revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "artifact_digests": {"type": "array", "minItems": 1, "items": {"$ref": "common.schema.json#/$defs/sha256"}},
+        "api_version": {"$ref": "common.schema.json#/$defs/version"},
+        "schema_version": {"$ref": "common.schema.json#/$defs/version"},
+        "ui_version": {"type": "string"},
+        "migration_order": {"type": "integer", "minimum": 0},
+        "rollback_mate": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "evidence_hashes": {"type": "array", "minItems": 1, "items": {"$ref": "common.schema.json#/$defs/sha256"}}
+      },
+      "additionalProperties": false
+    }
+  },
   "properties": {
     "schema": {"const": "bfw.release/v1"},
     "release_id": {"$ref": "common.schema.json#/$defs/identifier"},
     "version": {"$ref": "common.schema.json#/$defs/version"},
-    "channel": {"enum": ["stable", "beta", "development"]},
-    "platforms": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["name", "image_digest"], "properties": {"name": {"$ref": "common.schema.json#/$defs/platform"}, "image_digest": {"$ref": "common.schema.json#/$defs/sha256"}}, "additionalProperties": false}},
-    "components": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["id", "repository", "revision", "artifact_digests", "api_version", "schema_version", "migration_order", "rollback_mate", "evidence_hashes"], "properties": {"id": {"$ref": "common.schema.json#/$defs/identifier"}, "repository": {"type": "string", "format": "uri"}, "revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"}, "artifact_digests": {"type": "array", "minItems": 1, "items": {"$ref": "common.schema.json#/$defs/sha256"}}, "api_version": {"$ref": "common.schema.json#/$defs/version"}, "schema_version": {"$ref": "common.schema.json#/$defs/version"}, "ui_version": {"type": "string"}, "migration_order": {"type": "integer", "minimum": 0}, "rollback_mate": {"type": "string", "pattern": "^[0-9a-f]{40}$"}, "evidence_hashes": {"type": "array", "minItems": 1, "items": {"$ref": "common.schema.json#/$defs/sha256"}}}, "additionalProperties": false}},
+    "channel": {"enum": ["development", "alpha", "beta", "stable"]},
+    "platforms": {"type": "array", "minItems": 1, "items": {"type": "object", "required": ["name", "image_digest", "hardware_matrix_digest", "evidence_hashes"], "properties": {"name": {"$ref": "common.schema.json#/$defs/platform"}, "image_digest": {"$ref": "common.schema.json#/$defs/sha256"}, "hardware_matrix_digest": {"$ref": "common.schema.json#/$defs/sha256"}, "evidence_hashes": {"type": "array", "minItems": 1, "items": {"$ref": "common.schema.json#/$defs/sha256"}}}, "additionalProperties": false}},
+    "components": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/artifactRecord"}},
+    "builders": {"type": "array", "minItems": 1, "items": {"$ref": "#/$defs/artifactRecord"}},
     "configuration_schema": {"$ref": "common.schema.json#/$defs/version"},
     "transaction_contract": {"$ref": "common.schema.json#/$defs/version"},
     "sbom_digest": {"$ref": "common.schema.json#/$defs/sha256"},
