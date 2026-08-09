@@ -361,6 +361,9 @@ def validate_release(findings: Findings, catalog: dict[str, Any], phase0: dict[s
     findings.require(channel in {"design", "development", "alpha", "beta", "stable"}, "v0.1 release channel is invalid")
     findings.require(release.get("status") in {"profile_only", "blocked", "passed"}, "v0.1 release status is invalid")
     findings.require(release.get("admission") in {"not_admitted", "admitted", "rejected", "revoked"}, "v0.1 release admission is invalid")
+    findings.require((release.get("status") == "passed") == (release.get("admission") == "admitted"), "v0.1 release status does not match admission state")
+    if channel == "design":
+        findings.require(release.get("status") == "profile_only" and release.get("admission") == "not_admitted", "v0.1 design profile cannot become an admitted release")
     findings.require(len(included) == len(set(included)), "v0.1 includes duplicate component")
     findings.require(len(deferred) == len(set(deferred)), "v0.1 defers duplicate component")
     findings.require(not (set(included) & set(deferred)), "v0.1 included/deferred overlap")

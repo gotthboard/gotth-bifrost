@@ -720,6 +720,18 @@ class GovernanceTests(unittest.TestCase):
                     governance.validate_release(findings, catalog, admitted_phase0, admitted_alpha)
                 self.assertEqual([], findings.errors)
 
+        inconsistent = {**base_release, "channel": "alpha", "status": "blocked"}
+        findings = governance.Findings()
+        with mock.patch.object(governance, "load_toml", return_value=inconsistent):
+            governance.validate_release(findings, catalog, admitted_phase0, admitted_alpha)
+        self.assertIn("release status does not match admission state", "\n".join(findings.errors))
+
+        design_release = {**base_release, "channel": "design"}
+        findings = governance.Findings()
+        with mock.patch.object(governance, "load_toml", return_value=design_release):
+            governance.validate_release(findings, catalog, admitted_phase0, admitted_alpha)
+        self.assertIn("design profile cannot become an admitted release", "\n".join(findings.errors))
+
 
 if __name__ == "__main__":
     unittest.main()
