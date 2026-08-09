@@ -116,15 +116,19 @@ failover, upgrade, clear/replace, quarantine, last-known-good rollback, and
 packet-oracle proof that a violation never widens access or silently relearns.
 
 The primary Linux image target is Alpine Linux 3.24.1 on x86-64, but remains
-unpinned and unadmitted until an exact repository snapshot, kernel, package,
-firmware, installer, ISO, and installed-image digest exist. Installer admission
-performs independent reproducible rebuilds and covers UEFI and legacy BIOS,
-offline install, stable target-disk identity and destructive confirmation,
-wrong/removed/renumbered disk, interruption and power loss at every write
-stage, corrupt media and APK database, unsupported hardware, first-boot
-fail-closed state, package drift, upgrade, boot confirmation, rollback, and
-local-console recovery. A booted live ISO or successful installer exit is not
-installed-appliance evidence.
+unpinned and unadmitted until an exact repository snapshot, kernel sources and
+packages, build toolchain, inventory schema, tailoring policy, generic recovery
+environment, firmware, installer, live-media hardware matrix, and ISO digest
+exist. Installer admission performs independent reproducible media builds and
+proves deterministic normalized CPU/boot/console/NIC/storage/virtualization/
+firmware inventory; machine-plan derivation; exact APK/service/kernel/initramfs/
+module/firmware closure; custom kernel/module-layer provenance and bounds;
+generic recovery boot; UEFI and legacy BIOS; offline install; stable target-disk
+identity and confirmation; wrong/removed/renumbered disk; interruption and power
+loss at every write stage; corrupt media/APK database; unsupported or changed
+hardware; first-boot fail-closed state; package drift; upgrade, boot
+confirmation, rollback, and local-console recovery. A booted live ISO or
+successful installer exit is not installed-appliance evidence.
 
 The FreeBSD live-installer matrix additionally proves deterministic normalized
 CPU, boot, console, NIC, storage, virtualization, and firmware inventory;

@@ -804,43 +804,67 @@ count.
   change, and last-known-good recovery shall preserve or conservatively reject
   bindings without widening access.
 - **BFW-PRD-209:** Alpine Linux shall be the canonical base distribution for
-  Bifrost's first-party Linux appliance and bootable installation ISO. The
-  initial design baseline is the supported Alpine 3.24 stable branch; every
-  Bifrost release shall pin an exact Alpine patch release, repository snapshot,
-  package set, kernel, firmware, architecture, and image digest. Alpine edge or
-  an unpinned moving repository shall never be a release input.
+  Bifrost's first-party Linux appliance and bootable live installation ISO. The
+  initial design baseline is the supported Alpine 3.24 stable branch. Generic
+  describes live media for an explicitly bounded x86-64 hardware matrix; each
+  installed system shall be tailored to the detected machine. Every release
+  shall pin an exact Alpine patch release, repository snapshot and keys, APK
+  set, kernel sources/packages, build toolchain, inventory schema, tailoring
+  policy, generic recovery kernel/initramfs/environment, firmware, boot
+  artifacts, architecture, and ISO digest. Alpine edge or an unpinned moving
+  repository shall never be a release input. Separately distributed prebuilt
+  hardware-specific media and appliance SKUs remain deferred until an approved
+  product profile names exact hardware and lifecycle/support obligations;
+  install-time machine tailoring is part of this initial profile.
 - **BFW-PRD-210:** The separately versioned `bfw-installer` component shall
-  build the Bifrost Alpine installation ISO and installed appliance image from
-  a declarative, content-addressed release composition. ISO, boot artifacts,
+  build the Bifrost Alpine live installation ISO and its complete offline APK,
+  kernel/module, firmware, boot, recovery, and Bifrost inputs from a
+  declarative, content-addressed release composition. ISO, boot artifacts,
   packages, configuration defaults, SBOM, provenance, and signatures shall be
   reproducible and independently verifiable; the installer shall have no
-  packet-policy or post-install configuration authority.
+  packet-policy or post-install configuration authority and no release-signing
+  private key shall be present on the ISO.
 - **BFW-PRD-211:** The initial Linux ISO shall support x86-64 UEFI and legacy
   BIOS installation, local-console recovery, and a complete offline install.
-  It shall identify hardware and target disks before mutation, require an
-  explicit destructive confirmation naming the exact target, never select a
-  disk by unstable enumeration alone, and preserve no installation secrets in
-  media, logs, command lines, or reusable answer files.
-- **BFW-PRD-212:** The installed Alpine appliance shall use a minimal declared
-  package and service set, a pinned boot chain and init contract, read-only or
-  integrity-verified system content where supported, separate durable Bifrost
-  configuration/evidence state, least-privilege service identities, and
-  fail-closed startup. Ad-hoc package installation or repository drift is not
-  part of the supported appliance contract and shall be detected as release
-  drift rather than normalized as healthy state.
+  Before disk mutation it shall normalize the exact CPU, boot, console, NIC,
+  storage, virtualization, and firmware inventory, reject unsupported,
+  incomplete, ambiguous, or changed inventory, and derive and display a
+  deterministic machine install manifest from the signed tailoring policy. It
+  shall require explicit destructive confirmation naming the exact stable disk
+  identity, never select a disk by unstable enumeration alone, and preserve no
+  installation secrets in media, logs, command lines, or reusable answer
+  files.
+- **BFW-PRD-212:** The installed Alpine appliance shall be machine-tailored by
+  selecting only the required signed APKs, services, firmware packages, kernel
+  flavor/modules, boot files, and Bifrost components, and by generating the
+  exact required initramfs/module-load closure. A custom kernel/module build
+  from pinned sources is an explicit resource-estimated slow path when the
+  signed prebuilt set cannot satisfy the admitted profile; rebuilding all of
+  Alpine on the target is unsupported. Tailoring shall never delete or modify
+  files owned by an installed APK. The system shall retain a signed generic
+  recovery kernel/initramfs/environment, use read-only or integrity-verified
+  replaceable content where supported, separate durable Bifrost configuration/
+  evidence state, least-privilege service identities, and fail-closed startup.
+  Ad-hoc package installation or repository drift is unsupported release
+  drift.
 - **BFW-PRD-213:** Alpine appliance updates shall follow the signed staged or
   A/B release, bounded boot-confirmation, configuration migration,
-  last-known-good, and local recovery contracts. A Bifrost release shall not be
-  built from an unsupported Alpine branch, and loss of upstream security
-  support shall trigger a blocked release or an admitted base-version
-  migration rather than silent continued distribution.
-- **BFW-PRD-214:** Alpine ISO and installed-image admission shall cover
-  reproducible rebuilds, signature/SBOM/provenance verification, UEFI and BIOS
-  boot, offline installation, exact-disk confirmation, interruption at every
-  destructive stage, power loss, corrupt media/package databases, unsupported
-  hardware, clean install, upgrade, migration, rollback, recovery-console use,
-  resource bounds, and independent post-boot packet/state completeness on each
-  admitted architecture and hardware profile.
+  last-known-good, and local recovery contracts. Each update shall rebuild the
+  inactive slot against the current verified inventory and signed tailoring
+  policy while preserving the prior slot and generic recovery environment. A
+  Bifrost release shall not use an unsupported Alpine branch; loss of upstream
+  security support shall block release or require an admitted base-version
+  migration.
+- **BFW-PRD-214:** Alpine ISO and machine-tailored installation admission shall
+  cover reproducible media builds, signature/SBOM/provenance verification,
+  deterministic and tamper-evident hardware inventory and machine install
+  plans, exact APK/service/kernel/initramfs/module/firmware closure, generic
+  recovery boot, UEFI and BIOS boot, offline installation, exact-disk
+  confirmation, interruption at every destructive stage, power loss, corrupt
+  media/package databases, unsupported or changed hardware, clean install,
+  upgrade, migration, rollback, recovery-console use, build-time/resource
+  bounds, and independent post-boot packet/state completeness on each admitted
+  architecture and hardware profile.
 - **BFW-PRD-215:** Bifrost release channels shall be `development`, `alpha`,
   `beta`, and `stable`, with separate delegated signing scope, explicit
   audience and support claims, and no automatic promotion. Alpha exists to

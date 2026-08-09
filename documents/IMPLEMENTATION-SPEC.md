@@ -358,36 +358,56 @@ offload or automatic-enrollment row is admitted.
 
 `bfw-installer` shall consume a release manifest containing the exact Alpine
 release, repository snapshot and keys, APK package names/versions/digests,
-kernel/modules/firmware, bootloader/initramfs, architecture, Bifrost component
-artifacts, defaults, filesystem layout, service identities, migrations,
-rollback mates, SBOM, provenance, and builder identity. Its outputs are the ISO,
-boot artifacts, installed-system image or file manifest, checksums, signatures,
-SBOM, provenance, and a reproducibility comparison record.
+kernel sources/packages, build toolchain, normalized inventory schema, signed
+tailoring policy, generic recovery kernel/initramfs/environment, modules,
+firmware, bootloader, architecture, Bifrost component artifacts, defaults,
+filesystem layout, service identities, migrations, rollback mates, SBOM,
+provenance, and builder identity. Media outputs are the ISO, boot/recovery
+artifacts, checksums, signatures, SBOM, provenance, and reproducibility record.
+Each installation additionally emits a content-addressed normalized machine
+inventory, plan, selected APK/service/kernel/module/firmware manifest,
+installed-file manifest, slot digest, and verification record.
 
 The initial design/test target is Alpine Linux 3.24.1 on x86-64 with both UEFI
 and legacy BIOS boot. That version is a starting pin, not admission: repository
-snapshot and image digests remain required. A later patch or stable-branch
+snapshot, input, and ISO digests remain required. A later patch or stable-branch
 migration changes the release composition and reruns the full image,
 installation, boot, network, upgrade, and rollback matrix. Alpine edge is
 rejected by schema and build policy.
 
 The build runs in an isolated environment against content-addressed inputs;
 network resolution during the reproducible phase is denied. The installer
-state machine is `inspect -> plan -> confirm-destruction -> stage -> verify ->
-activate-boot -> verify-first-boot`. Target identity uses stable hardware facts
-and revalidates immediately before the first write. Every destructive stage is
-journaled sufficiently to distinguish untouched, resumable, rollbackable, and
-manual-recovery outcomes after interruption.
+state machine is `inspect-machine -> derive-tailored-plan -> inspect-disk ->
+confirm-destruction -> stage -> verify -> activate-boot -> verify-first-boot`.
+It normalizes CPU, boot, console, NIC, storage, virtualization, and firmware
+facts, rejects incomplete, ambiguous, changed, or unsupported inventory, and
+derives the plan only from signed policy. Target identity uses stable hardware
+facts and revalidates immediately before the first write. Every destructive
+stage is journaled sufficiently to distinguish untouched, resumable,
+rollbackable, and manual-recovery outcomes after interruption.
 
-The installed image boots with no forwarding or management exposure beyond
-the explicit bootstrap/recovery contract. It separates replaceable system
-content from durable Bifrost configuration, audit/evidence, and recovery state;
+The normal path selects only required signed APKs, services, firmware packages,
+kernel flavor/modules, boot files, and Bifrost components and generates the
+exact initramfs/module-load closure. It shall not delete or modify APK-owned
+files to fake minimality. When prebuilt inputs cannot satisfy an admitted
+profile, an explicit resource-estimated slow path may build only a custom
+kernel/module layer from pinned sources/toolchain. Rebuilding all of Alpine on
+the target is unsupported. The custom layer and generated manifest are
+content-addressed and sealed, not falsely vendor-signed; the ISO contains no
+release-signing private key.
+
+The machine-tailored installed slot boots with no forwarding or management
+exposure beyond the explicit bootstrap/recovery contract. It separates
+replaceable system content from durable Bifrost configuration, audit/evidence,
+and recovery state;
 enforces the declared package/service set; and reports local package or
 repository mutation as drift. Installer media and unattended inputs contain no
-reusable secrets. Signed staged/A-B update, bounded boot confirmation, Alpine
-support-lifecycle checks, and verified last-known-good rollback reuse the
-canonical release/recovery transaction rather than adding an installer-owned
-update path.
+reusable secrets. A signed broad generic recovery kernel/initramfs/environment
+remains separately bootable. Signed staged/A-B update rebuilds the inactive
+slot against current verified inventory, performs bounded boot confirmation,
+and preserves the last-known-good and recovery paths. Alpine support-lifecycle
+checks and rollback reuse the canonical release/recovery transaction rather
+than adding an installer-owned update path.
 
 ### FreeBSD appliance and installer implementation contract
 
@@ -668,12 +688,12 @@ slices and cannot cross the specific `BFW-ALPHA-0` effect gate that applies.
 | BFW-PRD-206 | routed interface-generation/VRF/encapsulation/AF/MAC/IP ARP/NDP/DHCP evidence and cross-domain enforcement tests |
 | BFW-PRD-207 | unknown/excess/move/duplicate/stale/spoof/provider-disagreement drop, alarm, restrict/quarantine/disable, and no-relearn tests |
 | BFW-PRD-208 | typed lifecycle, CAS/idempotency, observation/UI/audit, reboot/upgrade/failover/recreation/migration/rollback tests |
-| BFW-PRD-209 | Alpine 3.24 stable baseline, exact patch/repository/package/kernel/firmware/architecture/image pin, edge and moving-input denial tests |
-| BFW-PRD-210 | separately versioned installer, content-addressed composition, reproducible ISO/image, signature/SBOM/provenance, and no-policy-authority tests |
-| BFW-PRD-211 | x86-64 UEFI/BIOS, offline install, stable disk identity, exact destructive confirmation, and installer secret-leakage tests |
-| BFW-PRD-212 | minimal package/service, boot/init, system/state separation, least privilege, fail-closed startup, and package/repository drift tests |
-| BFW-PRD-213 | signed stage/A-B activation, boot confirmation, migration, Alpine support-lifecycle, last-known-good, and console-recovery tests |
-| BFW-PRD-214 | reproducible rebuild, media/DB corruption, destructive-stage interruption/power loss, hardware rejection, install/upgrade/rollback/recovery/resource and packet-state oracle matrix |
+| BFW-PRD-209 | Alpine stable live-media baseline, exact APK/kernel/toolchain/inventory/tailoring/recovery/hardware-matrix/ISO pins, edge and moving-input denial tests |
+| BFW-PRD-210 | separately versioned installer, content-addressed offline inputs, reproducible live ISO/recovery, signature/SBOM/provenance, no release private key, and no-policy-authority tests |
+| BFW-PRD-211 | normalized machine inventory/plan, x86-64 UEFI/BIOS, offline install, stable disk identity, exact confirmation, and installer secret-leakage tests |
+| BFW-PRD-212 | exact APK/service/kernel/initramfs/module/firmware closure, APK ownership, custom-layer bounds, recovery boot, system/state separation, least privilege, fail-closed startup, and drift tests |
+| BFW-PRD-213 | inventory-aware inactive-slot rebuild, signed activation, boot confirmation, migration, Alpine lifecycle, last-known-good, and console-recovery tests |
+| BFW-PRD-214 | reproducible media/plan, inventory change, closure, recovery boot, media/DB corruption, destructive-stage interruption/power loss, hardware rejection, install/upgrade/rollback/recovery/resource and packet-state oracle matrix |
 | BFW-PRD-215 | separately signed development/alpha/beta/stable metadata, no-auto-promotion, and cross-channel replay/relabel denial tests |
 | BFW-PRD-216 | exact first-alpha scope manifest, unsupported-capability denial, single-node/software-data-plane, and published-limit tests |
 | BFW-PRD-217 | source/offline permission plus host-network, installer-disk, and distribution effect-gate negative tests |

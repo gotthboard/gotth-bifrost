@@ -63,6 +63,8 @@ required_scenarios = [
   "sticky-switch-enroll-move-violation", "sticky-router-enroll-move-violation",
   "sticky-binding-reboot-upgrade-rollback",
   "alpine-iso-reproducible-build-signature", "alpine-iso-uefi-bios-offline-install",
+  "alpine-machine-inventory-build-plan", "alpine-machine-apk-kernel-initramfs-closure",
+  "alpine-generic-recovery-boot-apk-ownership",
   "alpine-installer-disk-identity-confirmation", "alpine-install-interruption-power-loss",
   "alpine-appliance-upgrade-rollback-recovery",
   "freebsd-iso-reproducible-build-signature", "freebsd-iso-uefi-bios-offline-install",
@@ -85,8 +87,8 @@ required_evidence = [
 [[targets]]
 id = "linux-primary"
 platform = "linux"
-role = "primary Alpine Linux appliance ISO build, installation, policy, upgrade, and recovery target"
-os_release = "Alpine Linux 3.24.1 design target; image digest unpinned"
+role = "primary generic Alpine Linux live ISO and machine-tailored installation, policy, upgrade, and recovery target"
+os_release = "Alpine Linux 3.24.1 design target; live-media and input digests unpinned"
 kernel_or_runtime = ""
 architectures = ["amd64"]
 image_digest = ""

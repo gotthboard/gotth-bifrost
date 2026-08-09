@@ -11,7 +11,7 @@ Installer-disk mutation allowed: **false**
 Alpha distribution allowed: **false**
 Production allowed: **false**
 
-Safety gates: **0/8**
+Safety gates: **0/10**
 
 | Dependency | Required version | Selected version | Revision | Gates | Review | Admission | Gaps |
 | --- | --- | --- | --- | --- | --- | --- | --- |

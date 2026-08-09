@@ -187,7 +187,7 @@ acceptance = ["Every protocol/profile row names provider, platform, maturity, li
 
 [[features]]
 id = "alpine-linux-appliance-iso-v1"
-title = "Alpine Linux appliance installation ISO"
+title = "Generic Alpine live installer with machine-tailored installation"
 state = "planned"
 phase = "decomposition"
 risk = "critical"
@@ -197,9 +197,9 @@ requirements = ["BFW-PRD-209", "BFW-PRD-210", "BFW-PRD-211", "BFW-PRD-212", "BFW
 dependencies = ["routing-switching-protocol-suites-v1"]
 review = "pending"
 evidence = []
-blockers = ["active routing/switching workflow", "exact Alpine patch and APK snapshot unselected", "bfw-installer repository absent", "installer safety evidence absent"]
+blockers = ["active routing/switching workflow", "exact Alpine patch/APK snapshot, inventory schema, tailoring policy, and live-media hardware matrix unselected", "bfw-installer repository absent", "installer machine-tailoring and safety evidence absent"]
 allowed_effects = ["read_only", "local_write"]
-acceptance = ["Exact Alpine, repository, kernel, package, firmware, boot, installer, ISO, and installed-image identities are immutable.", "Offline install, exact-disk confirmation, interruption, rollback, recovery, and first-boot verification are decomposed into owned component work."]
+acceptance = ["Exact Alpine/APK inputs, kernel sources/packages, build toolchain, inventory schema, tailoring policy, recovery environment, firmware, boot artifacts, installer, ISO, and live-media hardware-matrix identities are immutable.", "Offline inventory, deterministic machine install planning, exact APK/service/kernel/initramfs/module/firmware closure, generic recovery boot, exact-disk confirmation, interruption, inactive-slot rebuild/rollback, and first-boot verification are decomposed into owned work.", "The generic live installer produces a machine-tailored installed system; only separately distributed prebuilt hardware-specific media and appliance SKUs remain outside this feature."]
 
 [[features]]
 id = "linux-learning-alpha-v1"
@@ -259,11 +259,11 @@ id = "alpine-installer-alpha"
 owner = "bfw-installer,meta"
 risk = "critical"
 scope = ["governance/alpha.toml", "governance/releases/v0.1.toml", "workflow/features/alpine-linux-appliance-iso-v1", "workflow/features/linux-learning-alpha-v1"]
-required_harness = ["wrong-disk", "offline-install", "power-loss", "rollback", "recovery", "first-boot-packet-state", "channel-isolation"]
+required_harness = ["reproducible-build", "normalized-machine-inventory", "deterministic-build-plan", "machine-tailored-closure", "generic-recovery-boot", "apk-ownership", "wrong-disk", "offline-install", "power-loss", "rollback", "recovery", "first-boot-packet-state", "channel-isolation"]
 evidence = []
-known_gaps = ["Exact Alpine and APK snapshot unselected.", "Installer and appliance artifacts do not exist.", "BFW-ALPHA-0 is blocked."]
+known_gaps = ["Exact Alpine/APK inputs, kernel toolchain, inventory schema, tailoring policy, and live-media hardware matrix are unselected.", "Installer, machine-tailoring, recovery, and appliance artifacts do not exist.", "BFW-ALPHA-0 is blocked."]
 plan = "workflow/features/alpine-linux-appliance-iso-v1/DECOMPOSITION.md"
-next_increment = "Finish ISO decomposition, select immutable inputs, and create component-owned implementation work."
+next_increment = "Finish the generic Alpine live-installer and machine-tailoring decomposition, select immutable inputs, and create component-owned implementation work."
 
 [[coverage_subsystems]]
 id = "phase0-substrates"

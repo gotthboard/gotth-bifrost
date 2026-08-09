@@ -10,7 +10,11 @@ Alpine appliance artifacts, applicable `BFW-ALPHA-0` safety gates, and every
 included component handoff pass. It must pin:
 
 - every repository revision, artifact digest, dependency lock, schema/API
-  version, Alpine/APK snapshot, ISO digest, and installed-image digest;
+  version, Alpine/APK snapshot, inventory schema, tailoring policy, recovery
+  environment, live-media hardware matrix, and ISO digest;
+- each target's normalized hardware inventory, machine plan, selected APK/
+  service/kernel/initramfs/module/firmware manifest, installed-file manifest,
+  and slot digest;
 - signed SBOM and provenance, builder identity, reproducibility result,
   channel/signing identity, rollback mates, and expiration/support limits;
 - clean install, first boot, configuration, reset, clean reinstall, upgrade,

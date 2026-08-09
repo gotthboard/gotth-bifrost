@@ -833,7 +833,7 @@ admission = "not_admitted"
 [[components]]
 id = "bfw-installer"
 kind = "distribution-component"
-responsibility = "Reproducible signed Alpine Linux and FreeBSD appliance installation ISOs, deterministic FreeBSD machine tailoring, exact-disk installation, first-boot verification, and local recovery media without runtime packet-policy authority."
+responsibility = "Reproducible signed Alpine Linux and FreeBSD appliance installation ISOs, deterministic machine tailoring, exact-disk installation, first-boot verification, and local recovery media without runtime packet-policy authority."
 repository = ""
 revision = ""
 artifact_digests = []

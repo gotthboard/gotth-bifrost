@@ -80,8 +80,9 @@ operator / API
 - **CLI:** `bfw` uses the same API contracts and provides local recovery without
   directly mutating firewall state
 - **distribution builder:** separately versioned `bfw-installer` produces the
-  signed reproducible Alpine Linux ISO and installed appliance image from an
-  immutable release composition; it has no runtime packet-policy authority
+  signed reproducible Alpine Linux and FreeBSD live installation media and
+  deterministic machine-tailored installed compositions from immutable release
+  inputs; it has no runtime packet-policy authority
 - **evidence plane:** audit events, metrics, logs, diagnostics, and support
   bundles with secret redaction
 
@@ -1114,28 +1115,48 @@ provider-local compatibility shortcuts are forbidden.
 Alpine Linux is the canonical base distribution for Bifrost's first-party
 Linux appliance. The initial design baseline is Alpine 3.24 stable. Each
 released composition pins an exact patch release and immutable repository
-snapshot, package set, signing keys, kernel, modules, firmware, bootloader,
-initramfs, CPU architecture, installer source revision, ISO digest, and
-installed-image digest. Alpine edge and live repository resolution are build
-inputs only for development experiments and are forbidden in admitted release
-composition.
+snapshot, package set, signing keys, kernel sources/packages, build toolchain,
+normalized inventory schema, signed tailoring policy, generic recovery kernel/
+initramfs/environment, modules, firmware, bootloader, CPU architecture,
+installer source revision, and ISO digest. Alpine edge and live repository
+resolution are build inputs only for development experiments and are forbidden
+in admitted release composition.
 
 `bfw-installer` is a separately versioned distribution component. It consumes
-the signed Bifrost release composition and produces a bootable installation ISO
-and installed appliance image; it does not own policy, credentials, interfaces,
-routes, switching, or post-install configuration. The meta repository pins the
-installer revision and every input/output digest. Independent rebuilds compare
-the ISO, boot artifacts, packages, SBOM, and provenance rather than trusting a
-successful installer exit status.
+the signed Bifrost release composition and produces a generic bootable live ISO
+that deterministically creates a machine-tailored installed appliance; it does
+not own policy, credentials, interfaces, routes, switching, or post-install
+configuration. The meta repository pins the installer revision and every media
+input/output digest. Independent rebuilds compare the ISO, boot artifacts,
+packages, SBOM, and provenance rather than trusting installer exit status.
+
+After boot, the live installer records normalized CPU, boot, console, NIC,
+storage, virtualization, and firmware facts and matches them to the signed
+hardware matrix. It derives the machine install manifest before destructive
+confirmation. The normal offline path selects only required signed APKs,
+services, kernel flavor/modules, firmware, boot files, and Bifrost components,
+then generates the exact initramfs and module-load closure. It never trims an
+installed package by deleting APK-owned files.
+
+If no admitted prebuilt kernel/module set satisfies the machine, an explicit
+resource-estimated slow path may build only the required kernel/module layer
+from pinned sources and toolchain. Rebuilding Alpine as a whole on the target is
+unsupported. The content-addressed machine inventory, plan, APK/file manifest,
+custom layer if any, and slot digest are sealed into installed and durable
+evidence. Release signatures cover selectable inputs and policy; the ISO does
+not carry a release-signing private key. A signed broad generic recovery kernel,
+initramfs, and environment remain separately bootable.
 
 ```text
 immutable Alpine and Bifrost release composition
-  -> isolated reproducible image build
-  -> signed ISO, SBOM, provenance, and checksums
+  -> isolated reproducible generic live-ISO and APK/input build
+  -> signed live ISO, recovery environment, SBOM, provenance, and checksums
   -> UEFI or legacy-BIOS boot on an admitted x86-64 profile
-  -> hardware inventory and stable target-disk identity
+  -> normalized hardware inventory and deterministic machine install manifest
+  -> stable target-disk identity
   -> explicit destructive confirmation naming that disk
-  -> offline staged install and verification
+  -> offline machine-tailored build/install into inactive system content
+  -> retain signed generic recovery kernel/initramfs/environment
   -> first boot into an unconfigured fail-closed appliance
   -> local recovery/bootstrap or authenticated configuration enrollment
 ```
@@ -1156,6 +1177,11 @@ kernel/runtime features are release artifacts. Bifrost configuration,
 evidence, and recovery state are separated from replaceable system content.
 Ad-hoc `apk` changes and repository drift are unsupported release drift and
 must be surfaced; they do not silently become the new normal.
+
+Separately distributed prebuilt Alpine hardware-specific media and appliance
+SKUs require a later approved product profile naming exact hardware, firmware,
+lifecycle, replacement, and support obligations. That deferral does not apply
+to the generic live installer's deterministic machine tailoring.
 
 FreeBSD and Windows remain separately admitted compatibility targets. They are
 not alternate bases for the Bifrost Linux ISO, and Alpine-specific packaging

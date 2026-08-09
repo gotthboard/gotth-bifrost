@@ -16,9 +16,14 @@ both required.
 
 For the first-party Linux appliance, release input also includes the exact
 supported Alpine stable patch release, immutable APK repository snapshot and
-keys, package versions/digests, kernel/modules/firmware, bootloader/initramfs,
-`bfw-installer` revision, ISO digest, and installed-system manifest or image
-digest. Alpine edge and moving repository indexes are not release inputs.
+keys, package versions/digests, kernel sources/packages, build toolchain,
+normalized inventory schema, signed tailoring policy, generic recovery kernel/
+initramfs/environment, modules/firmware, bootloader, `bfw-installer` revision,
+generic x86-64 live-media hardware-matrix revision, and ISO digest. Each
+installation adds its content-addressed normalized hardware inventory, machine
+plan, selected APK/service/kernel/module/firmware manifest, installed-file
+manifest, and slot digest. Alpine edge and moving repository indexes are not
+release inputs.
 
 For the first-party BSD appliance, release input also includes the exact
 supported FreeBSD release and source revision, source/object sets, `src.conf`,
@@ -80,10 +85,24 @@ in-place replacement is not assumed safe.
 
 The signed Bifrost Alpine ISO performs a complete offline install from the same
 content-addressed composition used for release admission. Before any write it
-records stable target-disk identity, shows the exact planned layout and loss
-boundary, and requires explicit destructive confirmation naming that target.
-It revalidates disk identity immediately before the first write and journals
-destructive stages so interruption cannot be mistaken for success.
+records normalized CPU, boot, console, NIC, storage, virtualization, and
+firmware facts; rejects unsupported, incomplete, ambiguous, or changed
+inventory; and derives and displays a deterministic machine install manifest
+from signed policy. It then records stable target-disk identity, shows the exact
+planned layout and loss boundary, and requires explicit destructive
+confirmation naming that target. It revalidates machine and disk identity
+immediately before the first write and journals destructive stages so
+interruption cannot be mistaken for success.
+
+The default path selects pinned signed APKs and generates the machine-specific
+initramfs and module-load closure. When required, an explicit resource-estimated
+slow path builds only a custom kernel/module layer from pinned sources and
+toolchain; it does not rebuild Alpine as a whole or delete APK-owned files. The
+inventory, plan, selected content, installed-file manifest, custom layer if any,
+and slot digest are content-addressed and sealed. A signed broad generic
+recovery kernel/initramfs/environment remains separately bootable. Release
+signatures cover inputs and tailoring policy; no release-signing private key is
+present on the ISO.
 
 Installation ends only after boot artifacts, system content, durable-state
 layout, signatures, and first-boot selection are verified. The first boot is

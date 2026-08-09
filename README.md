@@ -221,13 +221,15 @@ not own Layer-2 semantics, routes, or firewall policy. Those remain compiled by
 node under one signed configuration generation.
 
 The first-party Bifrost Linux appliance is based on Alpine Linux and is
-distributed as a bootable installation ISO. The initial design target is
-Alpine 3.24 stable on x86-64; every released ISO must pin the exact patch,
-repository snapshot, package/kernel/firmware set, installer revision, and image
-digest. `bfw-installer` builds signed reproducible offline media with explicit
-target-disk confirmation and verified recovery. Alpine edge, moving package
-repositories, and a successful installer exit without independent first-boot
-verification are not admissible release inputs or evidence.
+distributed as a generic x86-64 live installation ISO. The initial design
+target is Alpine 3.24 stable; every released ISO pins the exact patch,
+repository snapshot, APK/kernel/firmware inputs, inventory schema, tailoring
+policy, recovery environment, installer revision, hardware matrix, and ISO
+digest. The installer inventories the machine and deterministically selects the
+required signed APK/service/kernel/module/firmware/boot closure, generates its
+initramfs, and retains a signed broad generic recovery environment. Alpine edge,
+moving repositories, APK-owned-file deletion, and a successful installer exit
+without independent first-boot verification are not admissible.
 
 The planned first-party BSD appliance uses a reduced NanoBSD-style FreeBSD
 composition and is distributed initially as one generic x86-64 live installer

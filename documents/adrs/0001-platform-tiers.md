@@ -5,7 +5,7 @@ Status: Accepted
 Date: 2026-08-08
 
 Requirements: BFW-PRD-008, BFW-PRD-065, BFW-PRD-087, BFW-PRD-090,
-BFW-PRD-223 through BFW-PRD-228
+BFW-PRD-209 through BFW-PRD-214, BFW-PRD-223 through BFW-PRD-228
 
 Supersedes: none
 
@@ -26,6 +26,13 @@ Exact OS releases, kernels, architectures, images, and digests are release
 inputs, not permanent ADR text. `governance/test-lab.toml` leaves them empty and
 blocks system admission until measured images are selected.
 
+The first Linux product image is a generic x86-64 Alpine live installation ISO
+with an explicit hardware matrix. It derives normalized hardware inventory and
+a deterministic machine install manifest, selects the minimal signed APK/
+kernel/module/firmware/service closure, generates the exact initramfs, and
+retains a signed broad generic recovery environment. The installed composition
+is machine-tailored; the distributed live media remains generic.
+
 The first BSD product image, when its later release profile is activated, is a
 generic x86-64 FreeBSD live installation ISO with an explicit hardware
 compatibility matrix. It derives a deterministic hardware inventory and
@@ -40,6 +47,8 @@ identifies exact hardware and support obligations.
 - v0.1 has one product data-plane target and a smaller test matrix.
 - Cross-platform contracts still cannot be Linux-specific shortcuts.
 - No FreeBSD, Windows, or Darwin product-support claim exists yet.
+- The Alpine live ISO does not promise universal x86-64 support, and its
+  machine-tailored result cannot be admitted from media boot alone.
 - The planned generic FreeBSD live ISO does not claim universal x86-64 support
   and cannot inherit Alpine build, hardware, performance, or admission
   evidence.

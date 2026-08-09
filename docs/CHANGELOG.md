@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+### 2026-08-09 16:09 CDT — Tailor the Alpine system during installation
+
+- Apply the same generic-live-media/machine-tailored-install contract to the
+  first-party Alpine Linux distribution.
+- Select only required signed APK/service/kernel/module/firmware/boot content,
+  generate the exact initramfs, forbid deletion of APK-owned files, and permit
+  only a bounded custom kernel/module slow path when prebuilt inputs cannot
+  satisfy the admitted machine.
+- Seal normalized inventory, deterministic plan, installed manifests, custom
+  layer provenance, and slot hashes while retaining a signed broad generic
+  recovery kernel/initramfs/environment.
+- Defer only separately distributed prebuilt hardware-specific media and
+  appliance SKUs; no installer implementation, ISO build, package fetch, disk
+  mutation, release, deployment, or distribution occurred.
+
 ### 2026-08-09 15:51 CDT — Tailor the FreeBSD system during installation
 
 - Clarify that the initial BSD artifact is generic live installation media,

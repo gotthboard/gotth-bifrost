@@ -14,6 +14,73 @@ class GovernanceTests(unittest.TestCase):
         findings = governance.run_validation(check_generated=True)
         self.assertEqual([], findings.errors)
 
+    def test_alpine_live_media_produces_machine_tailored_install(self) -> None:
+        workflow = governance.load_toml("workflow.toml")
+        feature = next(
+            entry
+            for entry in workflow["features"]
+            if entry["id"] == "alpine-linux-appliance-iso-v1"
+        )
+        self.assertEqual("planned", feature["state"])
+        self.assertEqual(
+            [f"BFW-PRD-{number}" for number in range(209, 215)],
+            feature["requirements"],
+        )
+        self.assertEqual(["routing-switching-protocol-suites-v1"], feature["dependencies"])
+        self.assertTrue(any("hardware matrix" in item for item in feature["blockers"]))
+        self.assertTrue(any("tailoring" in item for item in feature["acceptance"]))
+        self.assertTrue(any("machine-tailored" in item for item in feature["acceptance"]))
+        self.assertTrue(any("recovery" in item for item in feature["acceptance"]))
+
+        catalog = governance.load_toml("governance/components.toml")
+        installer = next(
+            entry for entry in catalog["components"] if entry["id"] == "bfw-installer"
+        )
+        self.assertIn("deterministic machine tailoring", installer["responsibility"])
+
+        alpha = governance.load_toml("governance/alpha.toml")
+        self.assertIn("deterministic-machine-tailoring", alpha["required_safety_gates"])
+        self.assertIn("apk-ownership-integrity", alpha["required_safety_gates"])
+
+        lab = governance.load_toml("governance/test-lab.toml")
+        target = next(entry for entry in lab["targets"] if entry["id"] == "linux-primary")
+        self.assertEqual(["amd64"], target["architectures"])
+        self.assertEqual("unpinned", target["status"])
+        self.assertIn("generic Alpine Linux live ISO", target["role"])
+        self.assertIn("machine-tailored", target["role"])
+
+        required_tests = set(lab["required_scenarios"])
+        self.assertIn("alpine-machine-inventory-build-plan", required_tests)
+        self.assertIn("alpine-machine-apk-kernel-initramfs-closure", required_tests)
+        self.assertIn("alpine-generic-recovery-boot-apk-ownership", required_tests)
+
+        plan = (
+            governance.ROOT
+            / "workflow/features/alpine-linux-appliance-iso-v1/DECOMPOSITION.md"
+        ).read_text()
+        self.assertIn("machine-tailored", plan)
+        self.assertIn("APK ownership", plan)
+        self.assertIn("signed generic recovery", plan)
+
+        prd = " ".join((governance.ROOT / "documents/PRD.md").read_text().split())
+        implementation = " ".join(
+            (governance.ROOT / "documents/IMPLEMENTATION-SPEC.md")
+            .read_text()
+            .split()
+        )
+        release_plan = " ".join(
+            (governance.ROOT / "workflow/RELEASE-COMPOSITION-PLAN.md")
+            .read_text()
+            .split()
+        )
+        self.assertIn("installed system shall be tailored to the detected machine", prd)
+        self.assertIn("rebuilding all of Alpine on the target is unsupported", prd)
+        self.assertIn("signed generic recovery kernel/initramfs/environment", prd)
+        self.assertIn("shall not delete or modify APK-owned files", implementation)
+        self.assertIn("ISO contains no release-signing private key", implementation)
+        self.assertIn("normalized hardware inventory, machine plan", release_plan)
+        self.assertNotIn("installed-image digest", release_plan)
+
     def test_freebsd_live_media_produces_machine_tailored_install(self) -> None:
         workflow = governance.load_toml("workflow.toml")
         feature = next(
