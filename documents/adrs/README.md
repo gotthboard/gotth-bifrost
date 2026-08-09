@@ -21,6 +21,7 @@ supersedes it.
 | [ADR-0013](0013-kubernetes-managed-ha.md) | Accepted | First-party Kubernetes-managed HA without forwarding dependency |
 | [ADR-0014](0014-goka-clean-room-ha.md) | Accepted | GoKA clean-room native Go HA engine |
 | [ADR-0015](0015-two-first-party-ha-profiles.md) | Accepted | Exactly two first-party out-of-the-box HA profiles |
+| [ADR-0016](0016-linux-learning-alpha.md) | Accepted | Linux-only learning alpha with a separate minimum safety gate |
 
 New records start from [ADR-0000](0000-template.md). Accepted records must link
 requirements, identify consequences, and name any deliberately unresolved

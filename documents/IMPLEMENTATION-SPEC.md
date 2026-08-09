@@ -1,12 +1,52 @@
 # Bifrost (BFW) Implementation Specification
 
-Status: executable meta-governance active; component implementation deferred
+Status: executable meta-governance active; bounded Linux learning-alpha source implementation permitted
 
-## Phase 0 dependency gate
+## Linux learning-alpha gate
+
+The first implementation target is a deliberately narrow, non-production
+Linux learning alpha. Source implementation, unit tests, deterministic offline
+simulation, network-namespace tests, and disposable-VM tests may begin before
+full cross-platform Phase 0 admission after the alpha workflow is activated.
+Phase 0 exemption alone does not activate work. These activities do not authorize mutation of a
+developer workstation, production network, or unconfirmed disk.
+
+The alpha target is one pinned Alpine Linux x86-64 appliance profile using
+`rpc-plugin-system` v2 and selected Linux-compatible `agent-keyring`,
+`agent-filesystem`, and `agent-exec` releases. It is single-node, software-data-
+plane only, and limited to installation/boot/recovery, configuration
+persistence, interfaces, static routes, firewall/NAT, DHCP/DNS, bridge,
+access/trunk VLANs, FDB inspection, basic loop protection, minimal CLI/web
+management, and diagnostic evidence. HA, fabric, broad dynamic routing,
+comprehensive switching protocols, hardware offload, secondary operating
+systems, polish, performance tuning, and production hardening remain outside
+this alpha.
+
+`governance/alpha.toml` is the authoritative `BFW-ALPHA-0` gate. Before any
+designated non-production host-network mutation, installer-disk mutation, or
+alpha artifact distribution, stable disk selection, fail-closed packet policy,
+opaque secret custody, transactional configuration, connection-bound identity,
+non-repeating generation identity, enforced liveness, bounded work, safe
+teardown, stale-authority denial, local recovery/reset, channel isolation, and
+independent review must be admitted with immutable evidence.
+
+The alpha may be incomplete, rough, slow, and reset-oriented. It may not erase
+an unconfirmed disk, expose unintended traffic, leak reusable credentials,
+silently corrupt configuration, trust stale authority, or report success while
+authoritative state is unknown. Alpha observations and operator decisions are
+design evidence, not promotion evidence.
+
+## Beta and stable Phase 0 dependency gate
 
 Finish and admit the cross-platform `rpc-plugin-system` lifecycle substrate and
 the `agent-keyring`, `agent-filesystem`, and `agent-exec` provider substrates
-before any Bifrost runtime implementation begins.
+before any Bifrost beta, stable, or production runtime admission begins.
+Each dependency must independently earn an A or A+ grade from fresh evidence
+and independent review. Averages, transitive trust, self-grading, and a working
+alpha are not substitutes. Until all four meet that bar, runtime source work is
+limited to the exact BFW-PRD-216 alpha slice; broader plugins, protocols,
+platforms, product features, and beta/stable implementation must not start.
+Requirements, architecture, decomposition, and review may continue.
 
 Required exit evidence:
 
@@ -37,9 +77,9 @@ Required exit evidence:
 - composition tests proving keyring, filesystem, and execution authority cannot
   be exchanged, widened, inferred, or reused across provider boundaries
 
-Bifrost design work may refine requirements and contracts during Phase 0. It
-must not add runtime code, provider-local substrate forks, or host-network
-mutation before this gate passes.
+Bifrost design and bounded alpha work may continue during Phase 0 under
+`BFW-ALPHA-0`. It must not add provider-local substrate forks or claim beta,
+stable, production, or cross-platform admission before Phase 0 passes.
 
 ## Bootstrap slice
 
@@ -53,7 +93,11 @@ All future public CLI commands, package/configuration keys, protocol labels,
 and compatibility identifiers use the lowercase `bfw` namespace. ADR-0002
 settles `bfw`, `bfwd`, and `bfw-web` as the public executable role names.
 
-## Required design work before runtime code
+## Required design work before beta or stable admission
+
+The Linux learning alpha may implement only the narrower surface named above.
+Everything below remains required before beta or stable admission even when an
+alpha experiment appears successful.
 
 - pin supported OS releases, kernels/runtime APIs, Go, CPU architectures, and
   image/installer targets
@@ -148,7 +192,7 @@ settles `bfw`, `bfwd`, and `bfw-web` as the public executable role names.
 - define independent correctness oracles for compiled and applied policy
 - decompose the first narrow vertical slice
 - maintain the authoritative component/release catalog, requirement registry,
-  Phase 0 dashboard, versioned schemas, ADR index, threat model,
+  alpha and Phase 0 dashboards, versioned schemas, ADR index, threat model,
   cross-component transaction contract, v0.1 profile, component templates,
   release/recovery plan, test-lab specification, and governance CI
 
@@ -174,7 +218,8 @@ This is a dependency order, not permission to create every repository at once:
 Each component begins with its own PRD, architecture, implementation spec,
 contract tests, platform matrix, and narrow vertical slice. The meta repository
 admits and pins it only after independent verification. This sequence does not
-override the Phase 0 substrate gate.
+override the Phase 0 substrate gate for beta or stable admission. Alpha work
+must instead remain inside `BFW-ALPHA-0`.
 
 ### BGP suite implementation contract
 
@@ -344,15 +389,17 @@ support-lifecycle checks, and verified last-known-good rollback reuse the
 canonical release/recovery transaction rather than adding an installer-owned
 update path.
 
-## First candidate vertical slice
+## First learning-alpha vertical slice
 
 The preferred first runtime slice is an offline, pure configuration validator
 and platform-neutral policy compiler for a deliberately tiny firewall schema.
 It includes a pure `bfw` grammar/parser slice that maps a small set of EXEC and
 configuration commands into typed candidate edits and read actions. It must
-produce one canonical IR plus deterministic golden outputs for at least two
-platform adapters without modifying the host network. Plugin execution, host
-mutation, daemonization, and web administration remain later slices.
+produce one canonical IR plus deterministic golden output for the Linux
+platform adapter without modifying the host network. A second adapter remains
+a beta/stable requirement. Plugin execution, daemonization, designated host
+mutation, installer execution, and web administration remain later alpha
+slices and cannot cross the specific `BFW-ALPHA-0` effect gate that applies.
 
 ## Requirement-to-verification map
 
@@ -371,7 +418,7 @@ mutation, daemonization, and web administration remain later slices.
 | BFW-PRD-010 | signature, provenance, permission, migration, activation, and rollback tests |
 | BFW-PRD-011 | protocol negotiation and backward/forward compatibility matrix |
 | BFW-PRD-012 | crash/restart/upgrade tests proving last-known-good policy remains active |
-| BFW-PRD-013 | cross-platform substrate admission record and independent review |
+| BFW-PRD-013 | alpha/Phase-0 channel separation plus cross-platform beta/stable substrate admission record and independent review |
 | BFW-PRD-014 | secret-location scan plus configuration, database, log, export, UI, plugin, and support-bundle redaction tests |
 | BFW-PRD-015 | negative tests proving no credential or caller identity bypasses core action admission |
 | BFW-PRD-016 | lease/ref scope, generation, target, audience, expiry, and raw-export-denied tests |
@@ -573,3 +620,11 @@ mutation, daemonization, and web administration remain later slices.
 | BFW-PRD-212 | minimal package/service, boot/init, system/state separation, least privilege, fail-closed startup, and package/repository drift tests |
 | BFW-PRD-213 | signed stage/A-B activation, boot confirmation, migration, Alpine support-lifecycle, last-known-good, and console-recovery tests |
 | BFW-PRD-214 | reproducible rebuild, media/DB corruption, destructive-stage interruption/power loss, hardware rejection, install/upgrade/rollback/recovery/resource and packet-state oracle matrix |
+| BFW-PRD-215 | separately signed development/alpha/beta/stable metadata, no-auto-promotion, and cross-channel replay/relabel denial tests |
+| BFW-PRD-216 | exact first-alpha scope manifest, unsupported-capability denial, single-node/software-data-plane, and published-limit tests |
+| BFW-PRD-217 | source/offline permission plus host-network, installer-disk, and distribution effect-gate negative tests |
+| BFW-PRD-218 | rpc-plugin-system v2 and Linux dependency pin, identity/liveness/generation/bounds/teardown, and no-local-fork tests |
+| BFW-PRD-219 | wrong-disk, unintended-traffic, credential-leak, config-corruption, stale-authority, and unknown-success alpha disqualifier tests |
+| BFW-PRD-220 | bounded decision telemetry, provenance, redaction, known-limit, reset/recovery, and decision-log completeness tests |
+| BFW-PRD-221 | alpha-evidence non-promotion plus full Phase 0, B+ threshold, P0/P1, install/upgrade/rollback/recovery, and cold-review beta tests |
+| BFW-PRD-222 | per-dependency A/A+ evidence and independent-admission enforcement, no averaging/inheritance/demo substitution, and out-of-alpha implementation denial tests |

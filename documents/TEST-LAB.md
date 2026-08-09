@@ -126,6 +126,16 @@ fail-closed state, package drift, upgrade, boot confirmation, rollback, and
 local-console recovery. A booted live ISO or successful installer exit is not
 installed-appliance evidence.
 
+The learning-alpha lane is a smaller matrix, not a weaker safety oracle. It
+uses one pinned disposable VM/hardware profile and proves install/boot/reset,
+the basic router path, the basic switch path, configuration persistence,
+authority-loss/unknown-state recovery, and explicit unsupported-capability
+denial. Before `BFW-ALPHA-0`, tests remain offline, namespace-contained, or in
+disposable VMs; attempts to mutate a designated host network, write an
+installer target, or distribute media must be denied. Alpha signing and trust
+fixtures also prove that alpha metadata and evidence cannot be replayed,
+relabelled, or promoted into beta or stable.
+
 Every run records immutable image/artifact/release digests, host and topology
 facts, commands, time bounds, configuration and participant generations,
 packet/state completeness oracles, redacted logs, rollback result, and review.

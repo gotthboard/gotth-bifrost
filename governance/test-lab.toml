@@ -65,6 +65,9 @@ required_scenarios = [
   "alpine-iso-reproducible-build-signature", "alpine-iso-uefi-bios-offline-install",
   "alpine-installer-disk-identity-confirmation", "alpine-install-interruption-power-loss",
   "alpine-appliance-upgrade-rollback-recovery",
+  "alpha-install-boot-reset", "alpha-basic-router-path",
+  "alpha-basic-switch-path", "alpha-unknown-state-recovery",
+  "alpha-channel-promotion-denial", "alpha-effect-gate-denial",
 ]
 required_evidence = [
   "image-and-artifact-digests", "host-and-network-facts", "test-command",

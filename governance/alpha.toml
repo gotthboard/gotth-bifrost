@@ -1,0 +1,79 @@
+schema_version = 1
+gate_id = "BFW-ALPHA-0"
+title = "Linux learning-alpha minimum safety gate"
+status = "blocked"
+source_implementation_phase0_exempt = true
+offline_simulation_phase0_exempt = true
+workflow_activation_required = true
+host_network_mutation_allowed = false
+installer_disk_mutation_allowed = false
+alpha_distribution_allowed = false
+production_allowed = false
+platform = "linux"
+distribution = "alpine"
+architecture = "x86_64"
+runtime_contract = "rpc-plugin-system-v2"
+full_admission_gate = "BFW-PHASE-0"
+captured_at = "2026-08-09T01:58:20-05:00"
+decision = "Phase 0 does not block source implementation or offline simulation inside the exact alpha scope, but normal workflow activation is still required. Designated non-production host-network or installer-disk mutation and alpha distribution require every BFW-ALPHA-0 safety and dependency gate. Alpha evidence cannot admit beta, stable, or production channels."
+required_safety_gates = ["stable-disk-selection", "fail-closed-packet-policy", "secret-custody", "transactional-configuration", "stale-authority-denial", "local-recovery-and-reset", "channel-isolation", "independent-review"]
+passed_safety_gates = []
+evidence = []
+review = "not_started"
+admission = "not_admitted"
+
+[[dependencies]]
+id = "rpc-plugin-system"
+repository = "https://git.dannyhunn.com/agents/rpc-plugin-system.git"
+required_version = "2.x"
+selected_version = ""
+revision = ""
+status = "blocked"
+required_gates = ["linux-local-transport", "connection-bound-authentication", "heartbeat-liveness-enforcement", "nonrepeating-generation-identity", "bounded-transport-work", "safe-teardown", "live-plugin-admission"]
+passed_gates = []
+evidence = []
+gaps = ["An immutable rpc-plugin-system v2 release has not been selected.", "Bifrost Linux-alpha admission evidence is absent."]
+review = "not_started"
+admission = "not_admitted"
+
+[[dependencies]]
+id = "agent-keyring"
+repository = "https://git.dannyhunn.com/agents/agent-keyring.git"
+required_version = "linux-alpha-compatible"
+selected_version = ""
+revision = ""
+status = "blocked"
+required_gates = ["linux-local-transport", "peer-identity", "opaque-reference", "lease-lifecycle", "rotation-revocation", "recovery", "redaction"]
+passed_gates = []
+evidence = []
+gaps = ["A Linux-alpha-compatible immutable release has not been selected.", "Bifrost Linux-alpha admission evidence is absent."]
+review = "not_started"
+admission = "not_admitted"
+
+[[dependencies]]
+id = "agent-filesystem"
+repository = "https://git.dannyhunn.com/agents/agent-filesystem.git"
+required_version = "linux-alpha-compatible"
+selected_version = ""
+revision = ""
+status = "blocked"
+required_gates = ["linux-path-containment", "symlink-safety", "atomicity-durability", "recovery", "redaction"]
+passed_gates = []
+evidence = []
+gaps = ["A Linux-alpha-compatible immutable release has not been selected.", "Bifrost Linux-alpha admission evidence is absent."]
+review = "not_started"
+admission = "not_admitted"
+
+[[dependencies]]
+id = "agent-exec"
+repository = "https://git.dannyhunn.com/agents/agent-exec.git"
+required_version = "linux-alpha-compatible"
+selected_version = ""
+revision = ""
+status = "blocked"
+required_gates = ["linux-executable-identity", "sandbox-and-account", "resource-and-network-policy", "cancellation-process-tree", "redaction"]
+passed_gates = []
+evidence = []
+gaps = ["A Linux-alpha-compatible immutable release has not been selected.", "Bifrost Linux-alpha admission evidence is absent."]
+review = "not_started"
+admission = "not_admitted"

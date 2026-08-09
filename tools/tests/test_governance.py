@@ -208,10 +208,15 @@ class GovernanceTests(unittest.TestCase):
     def test_phase0_render_does_not_hide_blockers(self) -> None:
         phase0 = {
             "status": "blocked",
-            "runtime_implementation_allowed": False,
+            "beta_stable_runtime_allowed": False,
+            "out_of_alpha_implementation_allowed": False,
+            "minimum_dependency_grade": "A",
             "dependencies": [{
                 "id": "agent-keyring",
                 "revision": "0" * 40,
+                "grade": "ungraded",
+                "grade_evidence": [],
+                "grade_review": "not_started",
                 "passed_gates": [],
                 "required_gates": ["windows", "review"],
                 "review": "not_started",
@@ -220,9 +225,42 @@ class GovernanceTests(unittest.TestCase):
             }],
         }
         rendered = governance.render_phase0(phase0)
-        self.assertIn("Runtime implementation allowed: **false**", rendered)
+        self.assertIn("Beta/stable runtime allowed: **false**", rendered)
+        self.assertIn("Out-of-alpha implementation allowed: **false**", rendered)
+        self.assertIn("Minimum dependency grade: **A**", rendered)
         self.assertIn("0/2", rendered)
         self.assertIn("native evidence absent", rendered)
+
+    def test_alpha_render_does_not_hide_effect_boundaries(self) -> None:
+        alpha = {
+            "status": "blocked",
+            "source_implementation_phase0_exempt": True,
+            "offline_simulation_phase0_exempt": True,
+            "workflow_activation_required": True,
+            "host_network_mutation_allowed": False,
+            "installer_disk_mutation_allowed": False,
+            "alpha_distribution_allowed": False,
+            "production_allowed": False,
+            "required_safety_gates": ["disk", "packet-policy"],
+            "passed_safety_gates": [],
+            "dependencies": [{
+                "id": "rpc-plugin-system",
+                "required_version": "2.x",
+                "selected_version": "",
+                "revision": "",
+                "passed_gates": [],
+                "required_gates": ["identity", "liveness"],
+                "review": "not_started",
+                "admission": "not_admitted",
+                "gaps": ["v2 release absent"],
+            }],
+        }
+        rendered = governance.render_alpha(alpha)
+        self.assertIn("Source implementation Phase-0 exempt: **true**", rendered)
+        self.assertIn("Workflow activation required: **true**", rendered)
+        self.assertIn("Host-network mutation allowed: **false**", rendered)
+        self.assertIn("Production allowed: **false**", rendered)
+        self.assertIn("v2 release absent", rendered)
 
     def test_stale_generated_view_fails_closed(self) -> None:
         registry = {
@@ -237,7 +275,22 @@ class GovernanceTests(unittest.TestCase):
         }
         phase0 = {
             "status": "blocked",
-            "runtime_implementation_allowed": False,
+            "beta_stable_runtime_allowed": False,
+            "out_of_alpha_implementation_allowed": False,
+            "minimum_dependency_grade": "A",
+            "dependencies": [],
+        }
+        alpha = {
+            "status": "blocked",
+            "source_implementation_phase0_exempt": True,
+            "offline_simulation_phase0_exempt": True,
+            "workflow_activation_required": True,
+            "host_network_mutation_allowed": False,
+            "installer_disk_mutation_allowed": False,
+            "alpha_distribution_allowed": False,
+            "production_allowed": False,
+            "required_safety_gates": [],
+            "passed_safety_gates": [],
             "dependencies": [],
         }
         with TemporaryDirectory() as directory:
@@ -245,10 +298,11 @@ class GovernanceTests(unittest.TestCase):
             (root / "docs").mkdir()
             (root / "docs/REQUIREMENTS.md").write_text("stale\n")
             (root / "docs/PHASE0.md").write_text("stale\n")
+            (root / "docs/ALPHA.md").write_text("stale\n")
             findings = governance.Findings()
             with mock.patch.object(governance, "ROOT", root):
-                governance.render_views(registry, phase0, True, findings)
-            self.assertEqual(2, len(findings.errors))
+                governance.render_views(registry, phase0, alpha, True, findings)
+            self.assertEqual(3, len(findings.errors))
             self.assertTrue(all("generated view is stale" in error for error in findings.errors))
 
     def test_incomplete_admitted_component_fails_closed(self) -> None:
@@ -282,7 +336,7 @@ class GovernanceTests(unittest.TestCase):
         for field in ("repository", "immutable revision", "artifact digest", "platform declaration", "rollback mate", "evidence"):
             self.assertIn(field, joined)
 
-    def test_phase0_runtime_permission_cannot_outrun_admission(self) -> None:
+    def test_phase0_beta_stable_permission_cannot_outrun_admission(self) -> None:
         catalog = {
             "external_dependencies": [{
                 "id": "agent-keyring",
@@ -292,7 +346,11 @@ class GovernanceTests(unittest.TestCase):
         }
         phase0 = {
             "status": "passed",
-            "runtime_implementation_allowed": True,
+            "beta_stable_runtime_allowed": True,
+            "out_of_alpha_implementation_allowed": True,
+            "applies_to_channels": ["beta", "stable"],
+            "alpha_gate": "BFW-ALPHA-0",
+            "minimum_dependency_grade": "A",
             "dependencies": [{
                 "id": "agent-keyring",
                 "revision": "0" * 40,
@@ -302,14 +360,195 @@ class GovernanceTests(unittest.TestCase):
                 "gaps": ["missing"],
                 "review": "not_started",
                 "admission": "not_admitted",
+                "grade": "ungraded",
             }],
         }
         findings = governance.Findings()
         with mock.patch.object(governance, "load_toml", return_value=phase0):
             governance.validate_phase0(findings, catalog)
         joined = "\n".join(findings.errors)
-        self.assertIn("runtime flag", joined)
+        self.assertIn("beta/stable runtime flag", joined)
+        self.assertIn("out-of-alpha implementation flag", joined)
         self.assertIn("status", joined)
+
+    def test_phase0_admission_rejects_below_a_dependency(self) -> None:
+        revision = "0" * 40
+        catalog = {
+            "external_dependencies": [{
+                "id": "agent-keyring",
+                "revision": revision,
+                "admission": "not_admitted",
+            }]
+        }
+        phase0 = {
+            "status": "blocked",
+            "beta_stable_runtime_allowed": False,
+            "out_of_alpha_implementation_allowed": False,
+            "applies_to_channels": ["beta", "stable"],
+            "alpha_gate": "BFW-ALPHA-0",
+            "minimum_dependency_grade": "A",
+            "dependencies": [{
+                "id": "agent-keyring",
+                "revision": revision,
+                "required_gates": ["review"],
+                "passed_gates": ["review"],
+                "evidence": ["sha256:" + "a" * 64],
+                "gaps": [],
+                "review": "passed",
+                "admission": "admitted",
+                "grade": "B+",
+                "grade_evidence": ["sha256:" + "b" * 64],
+                "grade_evidence_revision": revision,
+                "grade_reviewer": "independent-bifrost-review",
+                "grade_review": "passed",
+            }],
+        }
+        findings = governance.Findings()
+        with mock.patch.object(governance, "load_toml", return_value=phase0):
+            governance.validate_phase0(findings, catalog)
+        joined = "\n".join(findings.errors)
+        self.assertIn("invalid Phase 0 grade", joined)
+        self.assertIn("below A grade", joined)
+
+    def test_phase0_a_grade_requires_revision_bound_independent_evidence(self) -> None:
+        revision = "0" * 40
+        catalog = {
+            "external_dependencies": [{
+                "id": "agent-keyring",
+                "revision": revision,
+                "admission": "not_admitted",
+            }]
+        }
+        phase0 = {
+            "status": "passed",
+            "beta_stable_runtime_allowed": True,
+            "out_of_alpha_implementation_allowed": True,
+            "applies_to_channels": ["beta", "stable"],
+            "alpha_gate": "BFW-ALPHA-0",
+            "minimum_dependency_grade": "A",
+            "dependencies": [{
+                "id": "agent-keyring",
+                "revision": revision,
+                "required_gates": ["review"],
+                "passed_gates": ["review"],
+                "evidence": ["sha256:" + "a" * 64],
+                "gaps": [],
+                "review": "passed",
+                "admission": "admitted",
+                "grade": "A",
+                "grade_evidence": [],
+                "grade_evidence_revision": "",
+                "grade_reviewer": "",
+                "grade_review": "not_started",
+            }],
+        }
+        findings = governance.Findings()
+        with mock.patch.object(governance, "load_toml", return_value=phase0):
+            governance.validate_phase0(findings, catalog)
+        joined = "\n".join(findings.errors)
+        self.assertIn("grade lacks evidence", joined)
+        self.assertIn("not bound to the admitted revision", joined)
+        self.assertIn("lacks an independent reviewer", joined)
+        self.assertIn("grade review has not passed", joined)
+        self.assertIn("out-of-alpha implementation flag", joined)
+
+    def test_alpha_mutation_permission_cannot_outrun_minimum_gate(self) -> None:
+        catalog = {
+            "external_dependencies": [{
+                "id": "rpc-plugin-system",
+                "revision": "0" * 40,
+                "admission": "not_admitted",
+            }]
+        }
+        alpha = {
+            "gate_id": "BFW-ALPHA-0",
+            "full_admission_gate": "BFW-PHASE-0",
+            "status": "passed",
+            "source_implementation_phase0_exempt": True,
+            "offline_simulation_phase0_exempt": True,
+            "workflow_activation_required": True,
+            "host_network_mutation_allowed": True,
+            "installer_disk_mutation_allowed": True,
+            "alpha_distribution_allowed": True,
+            "production_allowed": False,
+            "platform": "linux",
+            "distribution": "alpine",
+            "architecture": "x86_64",
+            "runtime_contract": "rpc-plugin-system-v2",
+            "required_safety_gates": ["disk"],
+            "passed_safety_gates": [],
+            "evidence": [],
+            "review": "not_started",
+            "admission": "not_admitted",
+            "dependencies": [{
+                "id": "rpc-plugin-system",
+                "required_version": "2.x",
+                "selected_version": "",
+                "revision": "",
+                "required_gates": ["identity"],
+                "passed_gates": [],
+                "evidence": [],
+                "gaps": ["missing"],
+                "review": "not_started",
+                "admission": "not_admitted",
+            }],
+        }
+        findings = governance.Findings()
+        with mock.patch.object(governance, "load_toml", return_value=alpha):
+            governance.validate_alpha(findings, catalog)
+        joined = "\n".join(findings.errors)
+        self.assertIn("host_network_mutation_allowed", joined)
+        self.assertIn("installer_disk_mutation_allowed", joined)
+        self.assertIn("alpha_distribution_allowed", joined)
+        self.assertIn("status", joined)
+
+    def test_alpha_rejects_rpc_plugin_v1_selection(self) -> None:
+        revision = "0" * 40
+        catalog = {
+            "external_dependencies": [{
+                "id": "rpc-plugin-system",
+                "revision": revision,
+                "admission": "not_admitted",
+            }]
+        }
+        alpha = {
+            "gate_id": "BFW-ALPHA-0",
+            "full_admission_gate": "BFW-PHASE-0",
+            "status": "blocked",
+            "source_implementation_phase0_exempt": True,
+            "offline_simulation_phase0_exempt": True,
+            "workflow_activation_required": True,
+            "host_network_mutation_allowed": False,
+            "installer_disk_mutation_allowed": False,
+            "alpha_distribution_allowed": False,
+            "production_allowed": False,
+            "platform": "linux",
+            "distribution": "alpine",
+            "architecture": "x86_64",
+            "runtime_contract": "rpc-plugin-system-v2",
+            "required_safety_gates": ["disk"],
+            "passed_safety_gates": [],
+            "evidence": [],
+            "review": "not_started",
+            "admission": "not_admitted",
+            "dependencies": [{
+                "id": "rpc-plugin-system",
+                "required_version": "2.x",
+                "selected_version": "1.9.9",
+                "revision": revision,
+                "status": "blocked",
+                "required_gates": ["identity"],
+                "passed_gates": [],
+                "evidence": [],
+                "gaps": ["wrong major"],
+                "review": "not_started",
+                "admission": "not_admitted",
+            }],
+        }
+        findings = governance.Findings()
+        with mock.patch.object(governance, "load_toml", return_value=alpha):
+            governance.validate_alpha(findings, catalog)
+        self.assertIn("selected version is not v2", "\n".join(findings.errors))
 
 
 if __name__ == "__main__":

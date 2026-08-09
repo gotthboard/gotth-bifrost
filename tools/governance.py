@@ -108,7 +108,7 @@ def validate_requirements(findings: Findings) -> dict[str, Any]:
     allowed_admission = {"not_admitted", "admitted", "rejected", "revoked"}
     catalog = load_toml("governance/components.toml")
     known_owners = {"meta"} | {entry["id"] for entry in catalog.get("components", [])} | {entry["id"] for entry in catalog.get("external_dependencies", [])}
-    known_blockers = set(trace_ids) | known_owners | {"BFW-PHASE-0"}
+    known_blockers = set(trace_ids) | known_owners | {"BFW-ALPHA-0", "BFW-PHASE-0"}
     governance_evidence: dict[str, set[str]] = {}
     for path in (ROOT / "workflow/features").glob("*/evidence/verification.toml"):
         if not path.is_file():
@@ -226,6 +226,7 @@ def validate_phase0(findings: Findings, catalog: dict[str, Any]) -> dict[str, An
     dependencies = phase0.get("dependencies", [])
     external_by_id = {entry["id"]: entry for entry in catalog.get("external_dependencies", [])}
     findings.require({entry.get("id") for entry in dependencies} == set(external_by_id), "Phase 0 dependency set differs from component catalog")
+    findings.require(phase0.get("minimum_dependency_grade") == "A", "Phase 0 minimum dependency grade must remain A")
     all_admitted = True
     for entry in dependencies:
         dependency_id = entry.get("id", "<missing>")
@@ -236,12 +237,102 @@ def validate_phase0(findings: Findings, catalog: dict[str, Any]) -> dict[str, An
         for digest in entry.get("evidence", []):
             findings.require(bool(SHA256_RE.fullmatch(digest)), f"{dependency_id}: invalid Phase 0 evidence digest")
         admitted = entry.get("admission") == "admitted"
-        all_admitted &= admitted and passed == required and bool(entry.get("evidence")) and entry.get("review") == "passed"
+        grade = entry.get("grade")
+        findings.require(grade in {"ungraded", "A", "A+"}, f"{dependency_id}: invalid Phase 0 grade")
+        grade_evidence = entry.get("grade_evidence", [])
+        grade_evidence_revision = entry.get("grade_evidence_revision", "")
+        grade_reviewer = entry.get("grade_reviewer", "")
+        grade_review = entry.get("grade_review")
+        findings.require(isinstance(grade_evidence, list), f"{dependency_id}: Phase 0 grade evidence must be an array")
+        for digest in grade_evidence:
+            findings.require(bool(SHA256_RE.fullmatch(digest)), f"{dependency_id}: invalid Phase 0 grade evidence digest")
+        findings.require(grade_review in {"not_started", "failed", "passed"}, f"{dependency_id}: invalid Phase 0 grade review state")
+        grade_admitted = (
+            grade in {"A", "A+"}
+            and bool(grade_evidence)
+            and grade_evidence_revision == entry.get("revision")
+            and bool(grade_reviewer)
+            and grade_reviewer != dependency_id
+            and grade_review == "passed"
+        )
+        all_admitted &= admitted and grade_admitted and passed == required and bool(entry.get("evidence")) and entry.get("review") == "passed"
         if admitted:
+            findings.require(grade in {"A", "A+"}, f"{dependency_id}: admitted Phase 0 dependency is below A grade")
+            findings.require(bool(grade_evidence), f"{dependency_id}: admitted Phase 0 grade lacks evidence")
+            findings.require(grade_evidence_revision == entry.get("revision"), f"{dependency_id}: Phase 0 grade evidence is not bound to the admitted revision")
+            findings.require(bool(grade_reviewer) and grade_reviewer != dependency_id, f"{dependency_id}: Phase 0 grade lacks an independent reviewer")
+            findings.require(grade_review == "passed", f"{dependency_id}: Phase 0 grade review has not passed")
             findings.require(not entry.get("gaps"), f"{dependency_id}: admitted dependency retains gaps")
-    findings.require(bool(phase0.get("runtime_implementation_allowed")) == all_admitted, "Phase 0 runtime flag does not match complete admission state")
+    findings.require(phase0.get("applies_to_channels") == ["beta", "stable"], "Phase 0 channel scope drifted")
+    findings.require(phase0.get("alpha_gate") == "BFW-ALPHA-0", "Phase 0 alpha-gate reference drifted")
+    findings.require(bool(phase0.get("beta_stable_runtime_allowed")) == all_admitted, "Phase 0 beta/stable runtime flag does not match complete admission state")
+    findings.require(bool(phase0.get("out_of_alpha_implementation_allowed")) == all_admitted, "Phase 0 out-of-alpha implementation flag does not match complete A-grade admission state")
     findings.require((phase0.get("status") == "passed") == all_admitted, "Phase 0 status does not match complete admission state")
     return phase0
+
+
+# Complexity: time O(d + g), Omega(d), tight Theta(d + g) for dependencies d
+# and safety/dependency gates g; auxiliary space O(d + g) for indexes.
+def validate_alpha(findings: Findings, catalog: dict[str, Any]) -> dict[str, Any]:
+    alpha = load_toml("governance/alpha.toml")
+    dependencies = alpha.get("dependencies", [])
+    external_by_id = {entry["id"]: entry for entry in catalog.get("external_dependencies", [])}
+    findings.require({entry.get("id") for entry in dependencies} == set(external_by_id), "Alpha dependency set differs from component catalog")
+    findings.require(alpha.get("gate_id") == "BFW-ALPHA-0", "Alpha gate identity drifted")
+    findings.require(alpha.get("full_admission_gate") == "BFW-PHASE-0", "Alpha full-admission reference drifted")
+    findings.require(alpha.get("platform") == "linux", "Alpha platform must remain Linux")
+    findings.require(alpha.get("distribution") == "alpine", "Alpha distribution must remain Alpine")
+    findings.require(alpha.get("architecture") == "x86_64", "Alpha architecture must remain x86_64")
+    findings.require(alpha.get("runtime_contract") == "rpc-plugin-system-v2", "Alpha runtime contract must remain rpc-plugin-system v2")
+    findings.require(alpha.get("source_implementation_phase0_exempt") is True, "Alpha source implementation must remain exempt from Phase 0")
+    findings.require(alpha.get("offline_simulation_phase0_exempt") is True, "Alpha offline simulation must remain exempt from Phase 0")
+    findings.require(alpha.get("workflow_activation_required") is True, "Alpha source work must require normal workflow activation")
+    findings.require(alpha.get("production_allowed") is False, "Alpha must never authorize production")
+    findings.require(alpha.get("status") in {"blocked", "passed"}, "Alpha has an invalid status")
+    findings.require(alpha.get("review") in {"not_started", "failed", "passed"}, "Alpha has an invalid review state")
+    findings.require(alpha.get("admission") in {"not_admitted", "alpha_admitted", "rejected", "revoked"}, "Alpha has an invalid admission")
+
+    required_safety = set(alpha.get("required_safety_gates", []))
+    passed_safety = set(alpha.get("passed_safety_gates", []))
+    findings.require(bool(required_safety), "Alpha safety gate set is empty")
+    findings.require(passed_safety <= required_safety, "Alpha passed an unknown safety gate")
+    for digest in alpha.get("evidence", []):
+        findings.require(bool(SHA256_RE.fullmatch(digest)), "Alpha has an invalid safety evidence digest")
+
+    dependencies_ready = True
+    for entry in dependencies:
+        dependency_id = entry.get("id", "<missing>")
+        required = set(entry.get("required_gates", []))
+        passed = set(entry.get("passed_gates", []))
+        findings.require(bool(required), f"{dependency_id}: Alpha required gate set is empty")
+        findings.require(passed <= required, f"{dependency_id}: passed unknown Alpha gate")
+        findings.require(entry.get("status") in {"blocked", "passed"}, f"{dependency_id}: invalid Alpha status")
+        findings.require(entry.get("review") in {"not_started", "failed", "passed"}, f"{dependency_id}: invalid Alpha review state")
+        findings.require(entry.get("admission") in {"not_admitted", "alpha_admitted", "rejected", "revoked"}, f"{dependency_id}: invalid Alpha admission")
+        selected_version = entry.get("selected_version", "")
+        revision = entry.get("revision", "")
+        if dependency_id == "rpc-plugin-system":
+            findings.require(entry.get("required_version") == "2.x", "rpc-plugin-system: Alpha required version must remain 2.x")
+            if selected_version:
+                findings.require(bool(re.fullmatch(r"2\.[0-9]+\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?", selected_version)), "rpc-plugin-system: Alpha selected version is not v2")
+        if selected_version or revision:
+            findings.require(bool(selected_version), f"{dependency_id}: Alpha version and revision must be selected together")
+            findings.require(bool(REVISION_RE.fullmatch(revision)), f"{dependency_id}: Alpha revision is not immutable")
+            findings.require(revision == external_by_id.get(dependency_id, {}).get("revision"), f"{dependency_id}: Alpha revision differs from catalog")
+        for digest in entry.get("evidence", []):
+            findings.require(bool(SHA256_RE.fullmatch(digest)), f"{dependency_id}: invalid Alpha evidence digest")
+        admitted = entry.get("admission") == "alpha_admitted"
+        ready = admitted and bool(selected_version) and bool(REVISION_RE.fullmatch(revision)) and passed == required and bool(entry.get("evidence")) and entry.get("review") == "passed"
+        dependencies_ready &= ready
+        if admitted:
+            findings.require(not entry.get("gaps"), f"{dependency_id}: alpha-admitted dependency retains gaps")
+
+    all_ready = dependencies_ready and passed_safety == required_safety and bool(alpha.get("evidence")) and alpha.get("review") == "passed"
+    for field in ("host_network_mutation_allowed", "installer_disk_mutation_allowed", "alpha_distribution_allowed"):
+        findings.require(bool(alpha.get(field)) == all_ready, f"Alpha {field} flag does not match complete minimum admission state")
+    findings.require((alpha.get("status") == "passed") == all_ready, "Alpha status does not match complete minimum admission state")
+    findings.require((alpha.get("admission") == "alpha_admitted") == all_ready, "Alpha admission does not match complete minimum admission state")
+    return alpha
 
 
 # Complexity: time O(c + e), Omega(c), tight Theta(c + e) for catalog entries c
@@ -252,6 +343,9 @@ def validate_release(findings: Findings, catalog: dict[str, Any]) -> dict[str, A
     included = release.get("included", [])
     deferred = release.get("deferred", [])
     composition = release.get("composition", [])
+    findings.require(release.get("alpha_gate") == "BFW-ALPHA-0", "v0.1 alpha gate drifted")
+    findings.require(release.get("phase0_gate") == "BFW-PHASE-0", "v0.1 Phase 0 gate drifted")
+    findings.require(release.get("phase0_required_for") == ["beta", "stable"], "v0.1 Phase 0 channel policy drifted")
     findings.require(len(included) == len(set(included)), "v0.1 includes duplicate component")
     findings.require(len(deferred) == len(set(deferred)), "v0.1 defers duplicate component")
     findings.require(not (set(included) & set(deferred)), "v0.1 included/deferred overlap")
@@ -553,7 +647,7 @@ def validate_ha_profiles(findings: Findings) -> None:
 def validate_adrs_and_templates(findings: Findings) -> None:
     adr_dir = ROOT / "documents/adrs"
     adr_paths = sorted(path for path in adr_dir.glob("[0-9][0-9][0-9][0-9]-*.md") if path.name != "0000-template.md")
-    findings.require(len(adr_paths) == 15, "expected fifteen settled ADRs")
+    findings.require(len(adr_paths) == 16, "expected sixteen settled ADRs")
     index = (adr_dir / "README.md").read_text(encoding="utf-8")
     for path in adr_paths:
         text = path.read_text(encoding="utf-8")
@@ -605,6 +699,7 @@ def validate_test_lab(findings: Findings) -> None:
     required_scenarios |= {"kubernetes-single-controller-loss", "kubernetes-controller-quorum-loss", "kubernetes-total-control-plane-loss", "kubernetes-api-etcd-cni-storage-loss", "kubernetes-management-partition", "kubernetes-stale-plan-replay", "kubernetes-autonomous-forwarding", "kubernetes-controller-rebuild", "kubernetes-rolling-upgrade-rollback", "kubernetes-rbac-secret-isolation"}
     required_scenarios |= {"goka-clean-room-provenance", "goka-vrrp-v2-v3-interop", "goka-malformed-packet-fuzz", "goka-timer-election-preemption", "goka-split-brain-duplicate-owner", "goka-health-shell-denial", "goka-keepalived-import-rejection", "goka-platform-parity", "goka-restart-upgrade-rollback", "goka-performance-boundaries"}
     required_scenarios |= {"ha-profile-exact-two-packaged", "ha-profile-shared-contract-parity", "ha-profile-competing-coordinator-denial", "ha-profile-cross-migration", "ha-profile-migration-interruption-rollback", "ha-profile-release-composition"}
+    required_scenarios |= {"alpha-install-boot-reset", "alpha-basic-router-path", "alpha-basic-switch-path", "alpha-unknown-state-recovery", "alpha-channel-promotion-denial", "alpha-effect-gate-denial"}
     findings.require(required_scenarios <= set(lab.get("required_scenarios", [])), "test lab lacks required scenario classes")
     role_counts = {entry.get("id"): entry.get("count", 0) for entry in lab.get("roles", [])}
     findings.require(role_counts.get("ha-node", 0) >= 2, "test lab needs two HA nodes")
@@ -757,14 +852,44 @@ def render_phase0(phase0: dict[str, Any]) -> str:
         "# Bifrost Phase 0 dashboard\n",
         "Generated from `governance/phase0.toml`; do not edit by hand.\n",
         f"Gate status: **{phase0['status']}**",
-        f"Runtime implementation allowed: **{str(phase0['runtime_implementation_allowed']).lower()}**\n",
-        "| Dependency | Revision | Gates | Review | Admission | Gaps |",
-        "| --- | --- | --- | --- | --- | --- |",
+        f"Beta/stable runtime allowed: **{str(phase0['beta_stable_runtime_allowed']).lower()}**\n",
+        f"Out-of-alpha implementation allowed: **{str(phase0['out_of_alpha_implementation_allowed']).lower()}**\n",
+        f"Minimum dependency grade: **{phase0['minimum_dependency_grade']}**\n",
+        "| Dependency | Revision | Grade | Grade evidence | Grade review | Gates | Review | Admission | Gaps |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
     ]
     for entry in phase0["dependencies"]:
         gates = f"{len(entry['passed_gates'])}/{len(entry['required_gates'])}"
         gaps = "<br>".join(entry["gaps"]) or "none"
-        lines.append(f"| `{entry['id']}` | `{entry['revision']}` | {gates} | {entry['review']} | {entry['admission']} | {gaps} |")
+        lines.append(f"| `{entry['id']}` | `{entry['revision']}` | {entry['grade']} | {len(entry['grade_evidence'])} | {entry['grade_review']} | {gates} | {entry['review']} | {entry['admission']} | {gaps} |")
+    lines.append("")
+    return "\n".join(lines)
+
+
+# Complexity: time O(d + g), Omega(d), tight Theta(d + g) for dependencies d
+# and gate strings g; auxiliary space O(d + g) for the rendered document.
+def render_alpha(alpha: dict[str, Any]) -> str:
+    lines = [
+        "# Bifrost learning-alpha dashboard\n",
+        "Generated from `governance/alpha.toml`; do not edit by hand.\n",
+        f"Gate status: **{alpha['status']}**",
+        f"Source implementation Phase-0 exempt: **{str(alpha['source_implementation_phase0_exempt']).lower()}**",
+        f"Offline simulation Phase-0 exempt: **{str(alpha['offline_simulation_phase0_exempt']).lower()}**",
+        f"Workflow activation required: **{str(alpha['workflow_activation_required']).lower()}**",
+        f"Host-network mutation allowed: **{str(alpha['host_network_mutation_allowed']).lower()}**",
+        f"Installer-disk mutation allowed: **{str(alpha['installer_disk_mutation_allowed']).lower()}**",
+        f"Alpha distribution allowed: **{str(alpha['alpha_distribution_allowed']).lower()}**",
+        f"Production allowed: **{str(alpha['production_allowed']).lower()}**\n",
+        f"Safety gates: **{len(alpha['passed_safety_gates'])}/{len(alpha['required_safety_gates'])}**\n",
+        "| Dependency | Required version | Selected version | Revision | Gates | Review | Admission | Gaps |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- |",
+    ]
+    for entry in alpha["dependencies"]:
+        gates = f"{len(entry['passed_gates'])}/{len(entry['required_gates'])}"
+        gaps = "<br>".join(entry["gaps"]) or "none"
+        selected = entry["selected_version"] or "unselected"
+        revision = entry["revision"] or "unpinned"
+        lines.append(f"| `{entry['id']}` | `{entry['required_version']}` | `{selected}` | `{revision}` | {gates} | {entry['review']} | {entry['admission']} | {gaps} |")
     lines.append("")
     return "\n".join(lines)
 
@@ -772,10 +897,11 @@ def render_phase0(phase0: dict[str, Any]) -> str:
 # Complexity: time O(n), Omega(n), tight Theta(n) in rendered bytes n;
 # auxiliary space O(n); writes are atomic per file via pathlib replacement is
 # not guaranteed, so generation is documentation-only and Git retains rollback.
-def render_views(registry: dict[str, Any], phase0: dict[str, Any], check: bool, findings: Findings) -> None:
+def render_views(registry: dict[str, Any], phase0: dict[str, Any], alpha: dict[str, Any], check: bool, findings: Findings) -> None:
     views = {
         ROOT / "docs/REQUIREMENTS.md": render_requirements(registry),
         ROOT / "docs/PHASE0.md": render_phase0(phase0),
+        ROOT / "docs/ALPHA.md": render_alpha(alpha),
     }
     for path, expected in views.items():
         if check:
@@ -795,6 +921,7 @@ def run_validation(check_generated: bool = True) -> Findings:
         registry = validate_requirements(findings)
         catalog = validate_components(findings)
         phase0 = validate_phase0(findings, catalog)
+        alpha = validate_alpha(findings, catalog)
         validate_release(findings, catalog)
         validate_schemas(findings)
         validate_deployment_profiles(findings)
@@ -808,7 +935,7 @@ def run_validation(check_generated: bool = True) -> Findings:
         validate_workflow(findings)
         validate_changelog(findings)
         if check_generated:
-            render_views(registry, phase0, True, findings)
+            render_views(registry, phase0, alpha, True, findings)
     except (OSError, KeyError, TypeError, ValueError, tomllib.TOMLDecodeError) as error:
         findings.add(f"validator could not complete: {error}")
     return findings
@@ -828,12 +955,13 @@ def main(argv: list[str] | None = None) -> int:
         findings = Findings()
         registry = validate_requirements(findings)
         phase0 = load_toml("governance/phase0.toml")
+        alpha = load_toml("governance/alpha.toml")
         if findings.errors:
             for error in findings.errors:
                 print(f"ERROR: {error}", file=sys.stderr)
             return 1
-        render_views(registry, phase0, False, findings)
-        print("rendered docs/REQUIREMENTS.md and docs/PHASE0.md")
+        render_views(registry, phase0, alpha, False, findings)
+        print("rendered docs/REQUIREMENTS.md, docs/PHASE0.md, and docs/ALPHA.md")
         return 0
 
     findings = run_validation(check_generated=True)

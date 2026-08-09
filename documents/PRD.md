@@ -161,11 +161,12 @@ count.
   and platform-specific semantic gaps. Unsupported or weaker native semantics
   shall fail closed or require an explicitly admitted degraded mode; feature
   names shall not imply parity across Linux, FreeBSD, Windows, or macOS.
-- **BFW-PRD-066:** Initial implementation priority after Phase 0 shall be
-  firewall, network/interfaces, routing, DNS, DHCP, WireGuard, ACME/DDNS,
-  reverse proxy, monitoring/logging/backup, HA/multi-WAN, then IDS/IPS and
-  dynamic routing. The sequence may change only through an explicit
-  meta-repository planning and dependency decision.
+- **BFW-PRD-066:** Initial implementation priority shall be the bounded
+  Linux-only learning alpha in BFW-PRD-215 through BFW-PRD-222. After full
+  Phase 0, beta/stable priority shall be firewall, network/interfaces, routing,
+  DNS, DHCP, WireGuard, ACME/DDNS, reverse proxy, monitoring/logging/backup,
+  HA/multi-WAN, then IDS/IPS and dynamic routing. The sequence may change only
+  through an explicit meta-repository planning and dependency decision.
 - **BFW-PRD-067:** Every catalog plugin that exposes management functionality
   shall use the signed UI-contribution and typed-action contracts in
   BFW-PRD-025 through BFW-PRD-034; it shall not create a second management or
@@ -840,6 +841,60 @@ count.
   hardware, clean install, upgrade, migration, rollback, recovery-console use,
   resource bounds, and independent post-boot packet/state completeness on each
   admitted architecture and hardware profile.
+- **BFW-PRD-215:** Bifrost release channels shall be `development`, `alpha`,
+  `beta`, and `stable`, with separate delegated signing scope, explicit
+  audience and support claims, and no automatic promotion. Alpha exists to
+  produce a usable decision build before final interfaces, architecture,
+  feature breadth, or optimization choices are frozen.
+- **BFW-PRD-216:** The first alpha shall be a narrow Linux-only, single-node,
+  non-production vertical slice: Alpine Linux x86-64 installation ISO; one
+  pinned VM/hardware profile; `rpc-plugin-system` v2; Linux software
+  nftables/netlink/bridge data plane; install, boot, persistence, diagnostics,
+  reset and local recovery; basic router interfaces/static routes/firewall/NAT/
+  DHCP/DNS; basic switched bridge/access/trunk VLAN/FDB/loop protection; and a
+  minimal CLI/web path. HA, fabric, hardware offload, dynamic routing breadth,
+  broad switching protocols, secondary platforms, and production support are
+  explicitly outside the first alpha.
+- **BFW-PRD-217:** Alpha source repositories, component implementation, unit
+  tests, offline simulation, and isolated namespace/VM integration may begin,
+  after normal workflow activation, before BFW-PHASE-0. Host-network mutation,
+  installer disk writes, or alpha
+  artifact distribution shall remain denied until BFW-ALPHA-0 has passed its
+  pinned dependency, destructive-safety, authority-boundary, recovery,
+  observation, and review gates.
+- **BFW-PRD-218:** The alpha shall pin a v2 `rpc-plugin-system` build and exact
+  Linux-compatible `agent-keyring`, `agent-filesystem`, and `agent-exec`
+  revisions for only the capabilities it uses. Alpha dependencies may be
+  incomplete outside that declared Linux slice, but unknown generation,
+  unauthenticated peers, unbounded transport/work, unsafe teardown, reusable
+  secret export, uncontained paths/processes, or ambiguous side effects shall
+  block use rather than become accepted alpha debt.
+- **BFW-PRD-219:** Alpha may be incomplete, visually rough, slow, disposable,
+  and contract-unstable, but it shall not erase an unintended disk, expose an
+  unintended packet path, leak reusable credentials, corrupt canonical
+  configuration silently, accept stale authority, or report unknown runtime
+  state as success. These minimum safety properties require focused negative
+  tests and recovery evidence before anyone uses the alpha for decisions.
+- **BFW-PRD-220:** Alpha shall maximize decision evidence: typed event and
+  diagnostic capture, bounded packet/native-state observations, install and
+  recovery timings, resource measurements, operator task friction, explicit
+  known limitations, provisional contract markers, and a decision log linking
+  observed use to retained, changed, or rejected product choices. Telemetry
+  shall not contain secrets or silently become production surveillance.
+- **BFW-PRD-221:** Alpha evidence shall not be laundered into beta admission.
+  Beta requires the full BFW-PHASE-0 cross-platform dependency gate, admitted
+  beta-scope components and immutable release composition, B+ or better overall
+  grade with A-level critical boundaries, clean install/upgrade/rollback/
+  recovery and independent packet/state evidence, no open P0/P1 correctness or
+  security defects, published limitations, and fresh independent review.
+- **BFW-PRD-222:** Every BFW-PHASE-0 dependency—`rpc-plugin-system`,
+  `agent-keyring`, `agent-filesystem`, and `agent-exec`—shall independently
+  earn an A or A+ grade with fresh evidence and independent admission before
+  Bifrost starts runtime implementation outside the exact BFW-PRD-216 learning-
+  alpha scope. Grades shall not be averaged, inherited, self-asserted, or
+  substituted by an end-to-end alpha demo. Requirements, architecture,
+  decomposition, and review may continue; additional product implementation,
+  protocol breadth, secondary platforms, and beta/stable work remain blocked.
 
 ## Initial requirements
 
@@ -871,9 +926,13 @@ count.
   default, and fail closed on unsupported required behavior.
 - **BFW-PRD-012:** Plugin failure, restart, removal, or upgrade shall not erase
   the last known-good network policy or create an unintended open path.
-- **BFW-PRD-013:** Bifrost runtime implementation shall not begin until the
-  required cross-platform `rpc-plugin-system` lifecycle substrate has passed
-  its compatibility, security, failure, and platform admission gates.
+- **BFW-PRD-013:** Beta, stable, and production-capable Bifrost runtime releases
+  shall not begin admission until the required cross-platform
+  `rpc-plugin-system` lifecycle substrate has passed its compatibility,
+  security, failure, and platform gates. A separately bounded Linux-only
+  learning alpha may begin source implementation and, after BFW-ALPHA-0 passes,
+  designated non-production execution without satisfying the broader
+  cross-platform BFW-PHASE-0 gate.
 - **BFW-PRD-014:** `agent-keyring` shall be Bifrost's credential authority.
   Bifrost configuration, databases, logs, exports, support bundles, web UI,
   and plugins shall not retain reusable secret payloads.
@@ -888,10 +947,12 @@ count.
 - **BFW-PRD-017:** Credential revocation, rotation, keyring restore, authority
   restart, policy change, or relevant runtime-generation change shall make
   stale leases and references unusable and auditable.
-- **BFW-PRD-018:** Bifrost runtime credential integration shall not begin until
-  `agent-keyring` has passed cross-platform transport, peer-identity,
-  encrypted-storage/unlock, lease, revocation, recovery, SDK, and redaction
-  admission gates for the supported Bifrost platforms.
+- **BFW-PRD-018:** Bifrost beta and stable credential integration shall not
+  begin until `agent-keyring` has passed cross-platform transport,
+  peer-identity, encrypted-storage/unlock, lease, revocation, recovery, SDK,
+  and redaction admission gates for the supported Bifrost platforms. The Linux
+  learning alpha may use only the immutable keyring revision and capabilities
+  separately admitted by BFW-ALPHA-0.
 - **BFW-PRD-019:** Host-file operations outside Bifrost's private canonical
   state shall use `agent-filesystem` with a core-admitted scope containing
   explicit roots, operations, bounds, link/special-file policy, mutation
@@ -913,10 +974,13 @@ count.
   require one sealed core-admitted plan and separate, matching, short-lived
   authority for every keyring, filesystem, and execution use. Outputs or
   handles from one provider shall not expand another provider's authority.
-- **BFW-PRD-024:** Bifrost runtime integration shall not begin until
-  `agent-filesystem` and `agent-exec` have passed their supported-platform
-  transport, identity, path/process safety, sandbox/containment, recovery,
-  lifecycle, SDK, audit/redaction, and independent admission gates.
+- **BFW-PRD-024:** Bifrost beta and stable runtime integration shall not begin
+  until `agent-filesystem` and `agent-exec` have passed their
+  supported-platform transport, identity, path/process safety,
+  sandbox/containment, recovery, lifecycle, SDK, audit/redaction, and
+  independent admission gates. The Linux learning alpha may use only the
+  immutable provider revisions and capabilities separately admitted by
+  BFW-ALPHA-0.
 - **BFW-PRD-025:** The web UI shall run as an independent unprivileged service
   and shall use the same versioned, authenticated core API as the `bfw` CLI. It
   shall not edit configuration files, invoke platform plugins directly, run

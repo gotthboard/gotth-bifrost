@@ -219,3 +219,11 @@ Generated from `governance/requirements.toml`; do not edit by hand.
 | BFW-PRD-212 | `bfw-installer` | defined | `bfw-core`, `bfw-platform-linux`, `bfw-updater`, `bfw-logging` | not_admitted |
 | BFW-PRD-213 | `bfw-updater` | defined | `bfw-installer`, `bfw-backup`, `BFW-PRD-089` | not_admitted |
 | BFW-PRD-214 | `meta` | defined | `bfw-installer`, `bfw-updater`, `bfw-backup`, `BFW-PRD-090` | not_admitted |
+| BFW-PRD-215 | `meta` | defined | `BFW-ALPHA-0`, `BFW-PHASE-0`, `BFW-PRD-039` | not_admitted |
+| BFW-PRD-216 | `meta` | defined | `bfw-platform-linux`, `bfw-installer`, `rpc-plugin-system` | not_admitted |
+| BFW-PRD-217 | `meta` | defined | `BFW-ALPHA-0` | not_admitted |
+| BFW-PRD-218 | `meta` | defined | `BFW-ALPHA-0`, `rpc-plugin-system`, `agent-keyring`, `agent-filesystem`, `agent-exec` | not_admitted |
+| BFW-PRD-219 | `bfw-core` | defined | `BFW-ALPHA-0`, `bfw-installer`, `bfw-platform-linux`, `bfw-firewall`, `bfw-switching` | not_admitted |
+| BFW-PRD-220 | `bfw-monitoring` | defined | `bfw-logging`, `BFW-ALPHA-0` | not_admitted |
+| BFW-PRD-221 | `meta` | defined | `BFW-PHASE-0`, `BFW-PRD-089`, `BFW-PRD-090` | not_admitted |
+| BFW-PRD-222 | `meta` | defined | `BFW-PHASE-0`, `rpc-plugin-system`, `agent-keyring`, `agent-filesystem`, `agent-exec` | not_admitted |

@@ -2,6 +2,45 @@
 
 ## Unreleased
 
+### 2026-08-09 01:54–02:30 CDT — Add a bounded Linux learning-alpha path
+
+Affected files:
+
+- `README.md`
+- `documents/`
+- `governance/`
+- `tools/`
+- `workflow/features/linux-learning-alpha-v1/`
+
+Explanation:
+
+Split early source implementation and offline simulation from destructive or
+externally consumable effects. Add `BFW-ALPHA-0` for a single-node Alpine Linux
+x86-64 learning appliance using `rpc-plugin-system` v2 and Linux-compatible
+authority providers. The alpha is allowed to be incomplete, rough, slow, and
+reset-oriented, but wrong-disk selection, unintended packet exposure, reusable
+secret leakage, silent configuration corruption, stale authority, and
+unknown-as-success remain disqualifying. Keep full cross-platform Phase 0
+mandatory for beta and stable, with no automatic or evidentiary promotion from
+alpha. Require every Phase 0 dependency to earn its own A or A+ admission
+before any implementation outside the exact alpha scope begins; aggregate
+grades and successful demos cannot hide a weak substrate.
+
+Verification completed locally:
+
+- `python3 tools/governance.py render --check`
+- `python3 tools/governance.py validate`
+- `python3 -m unittest discover -s tools/tests -v` (27 tests)
+- `git diff --check`
+
+Risks / non-goals:
+
+- The alpha gate is currently blocked: no v2 runtime or provider release is
+  selected, and no host, disk, distribution, release, or deployment authority
+  is granted.
+- No runtime implementation, ISO build, package fetch, process launch, release,
+  or deployment is performed.
+
 ### 2026-08-09 01:08–01:40 CDT — Define network suites, sticky ports, and Alpine Linux appliance distribution
 
 Affected files:

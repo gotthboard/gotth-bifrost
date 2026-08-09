@@ -28,7 +28,7 @@ exact revisions are pinned here by release metadata or Git submodules; source
 is not copied into the meta repository.
 
 Machine-readable governance under `governance/` is authoritative for component
-identity and pins, requirement state, Phase 0 status, release profiles, and lab
+identity and pins, alpha and Phase 0 status, release profiles, and lab
 state. Versioned shared envelope schemas live under `schemas/v1/`. Prose
 remains authoritative for normative product intent, but the validator requires
 matching IDs and rejects contradictory governance state.
@@ -1029,7 +1029,48 @@ a command result does not become a path, and a provider-owned reference does
 not cross a boundary unless the sealed plan explicitly types, bounds, and
 admits that transfer.
 
-## Cross-platform substrate prerequisite
+## Linux learning-alpha boundary
+
+The learning alpha is a disposable, single-node Alpine Linux x86-64 appliance,
+not a smaller claim of the final product. It uses only the Linux software data
+plane (`nftables`, netlink, and software bridge), one pinned machine/VM profile,
+and a pinned `rpc-plugin-system` v2 plus Linux-compatible keyring, filesystem,
+and execution providers. The canonical core remains the sole configuration and
+action authority; narrowing the platform does not create a second control
+plane inside adapters or the UI.
+
+Source implementation and offline simulation are low-effect work exempt from
+Phase 0 only after normal workflow activation. Designated host-network
+mutation, installer-disk mutation, and distributable alpha media
+are separate effects and stay disabled until `BFW-ALPHA-0` passes. The gate
+binds each effect to an immutable dependency set, safety evidence, and
+independent review. No gate is inferred from a demo working once.
+
+```text
+source + unit + deterministic offline tests
+  -> disposable namespace/VM tests
+  -> BFW-ALPHA-0 safety and dependency admission
+  -> designated non-production host/network/disk execution
+  -> signed alpha artifact with explicit limitations
+  -X-> beta, stable, production, or cross-platform admission
+```
+
+The alpha retains hard authority invariants: stable disk identity before
+destruction, fail-closed packet state, opaque secret custody, transactional
+configuration, stale-generation denial, bounded recovery/reset, and unknown
+state reported as unknown. It may omit features, optimization, polish, broad
+hardware coverage, seamless upgrades, and long-term compatibility. Alpha state
+and media are visibly channel-bound and cannot be accepted by beta or stable
+trust roots.
+
+The alpha is the only runtime implementation lane before full Phase 0. Product
+requirements, architecture, decomposition, and hostile review may continue,
+but no implementation outside its exact scope begins until every Phase 0
+dependency independently holds an A or A+ admission. One excellent dependency
+cannot compensate for a weaker one, and a successful integrated demo proves
+nothing about a substrate's independent grade.
+
+## Beta and stable cross-platform substrate prerequisite
 
 The current `rpc-plugin-system` v1 contract uses Unix-domain sockets, Go
 `net/rpc`/gob, and Linux `SO_PEERCRED` hardening. Bifrost must not fork that
@@ -1043,9 +1084,10 @@ the substrate must define and test:
 - matching generation, auth, timeout, cancellation, logging, and teardown
   behavior on every supported platform
 
-This substrate is a predecessor project, not a parallel convenience task.
-Bifrost design and interface planning may continue, but runtime implementation
-is blocked until the cross-platform substrate is complete and independently
+This substrate is a predecessor to beta and stable admission, not a parallel
+convenience task. Bifrost design and bounded Linux-alpha implementation may
+continue under `BFW-ALPHA-0`, but beta, stable, production, and cross-platform
+claims remain blocked until the full substrate is complete and independently
 admitted. Bifrost must not carry provider-local transport, authentication,
 generation, lifecycle, or supervision forks as a shortcut.
 

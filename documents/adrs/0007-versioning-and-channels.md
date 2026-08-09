@@ -4,7 +4,7 @@ Status: Accepted
 
 Date: 2026-08-08
 
-Requirements: BFW-PRD-011, BFW-PRD-031, BFW-PRD-039, BFW-PRD-089
+Requirements: BFW-PRD-011, BFW-PRD-031, BFW-PRD-039, BFW-PRD-089, BFW-PRD-215, BFW-PRD-221
 
 Supersedes: none
 
@@ -23,9 +23,11 @@ window for a documented security reason. Required unknown behavior fails
 closed; optional unknown fields are accepted only where the schema explicitly
 allows extensions.
 
-Update channels are `development`, `beta`, and `stable`, with separate delegated
-signing scope and no automatic promotion. Downgrade is denied except to the
-exact signed rollback mate recorded in the active release.
+Update channels are `development`, `alpha`, `beta`, and `stable`, with separate
+delegated signing scope and no automatic promotion. Alpha is a provisional
+learning channel governed by ADR-0016; its artifacts and evidence cannot be
+relabelled or promoted into beta or stable admission. Downgrade is denied
+except to the exact signed rollback mate recorded in the active release.
 
 ## Consequences
 

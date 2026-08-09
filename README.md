@@ -60,6 +60,32 @@ The catalog is the full-featured product direction, not a claim that every
 platform or the first release implements every item. Profiles expose only
 admitted capabilities supported by the selected OS, drivers, and hardware.
 
+## Learning-alpha path
+
+The first usable build is a non-production learning alpha, not a miniature
+promise of the final cross-platform product. It is single-node Alpine Linux
+x86-64 on one pinned VM/hardware profile, uses the Linux software data plane
+and `rpc-plugin-system` v2, and implements only basic install/boot/recovery,
+configuration persistence, router, switch, management, and diagnostic paths.
+Its purpose is to test product decisions before APIs, workflows, compatibility,
+polish, optimization, and hardening are frozen.
+
+Phase 0 does not block source work and offline simulation after the alpha
+workflow is activated. Host-network mutation, installer-disk mutation, and
+alpha distribution stay blocked behind the separate `BFW-ALPHA-0` safety gate.
+Alpha may be incomplete, rough, slow,
+and reset-oriented; it may not choose the wrong disk, expose traffic by
+default, leak reusable credentials, corrupt configuration silently, trust
+stale authority, or call unknown state success. Full cross-platform Phase 0
+remains mandatory for beta and stable, and alpha evidence cannot be promoted
+into that decision.
+
+The alpha is also the only implementation lane before Phase 0 completes.
+`rpc-plugin-system`, `agent-keyring`, `agent-filesystem`, and `agent-exec` must
+each independently earn an A or A+ admission before implementation expands
+beyond the exact alpha scope. The grades are not averaged, and a working demo
+does not excuse a weak substrate. Planning and review may continue meanwhile.
+
 ## Design posture
 
 - Go owns orchestration, validation, APIs, state reconciliation, and service
@@ -304,7 +330,7 @@ one plugin release.
 The meta repository has a machine-readable development control plane under
 `governance/`. It owns component and external-dependency identity, release
 profiles and exact admitted composition, requirement lifecycle and evidence
-traces, the Phase 0 gate, and test-lab requirements. Versioned JSON Schemas
+traces, the learning-alpha gate, the beta/stable Phase 0 gate, and test-lab requirements. Versioned JSON Schemas
 under `schemas/v1/` define shared contract envelopes. ADRs, the threat model,
 transaction contract, release/recovery design, v0.1 profile, and component
 templates turn open architecture work into reviewable state.

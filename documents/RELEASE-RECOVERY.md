@@ -3,7 +3,7 @@
 Status: architecture baseline; implementation and platform evidence absent
 
 Requirements: BFW-PRD-006, BFW-PRD-031, BFW-PRD-039, BFW-PRD-049,
-BFW-PRD-074, BFW-PRD-079, BFW-PRD-089, BFW-PRD-209 through BFW-PRD-214
+BFW-PRD-074, BFW-PRD-079, BFW-PRD-089, BFW-PRD-209 through BFW-PRD-222
 
 ## Release inputs
 
@@ -31,10 +31,22 @@ mutable build inputs are forbidden unless content-addressed and declared.
 ## Signing and channels
 
 ADR-0006 defines the offline root and delegated roles. ADR-0007 defines
-development, beta, and stable channels. Promotion creates new signed metadata
+development, alpha, beta, and stable channels. Promotion creates new signed metadata
 that references already verified artifacts; it does not rebuild them. Expired,
 unknown, revoked, wrong-channel, rollback, or inconsistent metadata fails
 closed.
+
+Alpha metadata uses a separate delegated role and is accepted only by systems
+explicitly enrolled for the learning alpha. Alpha artifacts are visibly
+non-production, may require reset/reinstall between incompatible builds, and
+publish their exact scope and known limitations. Alpha metadata, evidence, and
+successful operation cannot be relabelled or replayed as beta or stable. The
+alpha safety gate still requires stable disk selection, fail-closed packet
+state, secret custody, transactional configuration, stale-authority denial,
+and local reset/recovery before installation or network mutation is allowed.
+No broader implementation or release composition begins until every Phase 0
+dependency independently earns an A or A+ admission; alpha behavior and
+aggregate grades cannot satisfy that prerequisite.
 
 ## Activation
 
