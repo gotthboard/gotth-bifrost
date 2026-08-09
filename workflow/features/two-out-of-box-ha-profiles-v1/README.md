@@ -1,6 +1,6 @@
 # Two first-party out-of-the-box HA profiles
 
-Status: completed
+Canonical state, dependencies, blockers, review, and evidence are defined only in root `workflow.toml`.
 
 Bifrost supports exactly `goka-native` and `kubernetes-managed` as first-party
 HA deployment profiles. Both ship as Bifrost composition choices once HA is

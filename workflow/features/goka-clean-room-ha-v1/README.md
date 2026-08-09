@@ -1,6 +1,6 @@
 # GoKA clean-room native Go HA
 
-Status: completed
+Canonical state, dependencies, blockers, review, and evidence are defined only in root `workflow.toml`.
 
 This feature formalizes GoKA as the clean-room native Go HA engine behind
 `bfw-ha`. Public VRRP specifications and independently authored tests are its

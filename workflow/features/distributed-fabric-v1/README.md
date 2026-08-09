@@ -1,6 +1,6 @@
 # Distributed fabric v1 workflow
 
-Status: completed
+Canonical state, dependencies, blockers, review, and evidence are defined only in root `workflow.toml`.
 
 This feature defines distributed Layer-2 switching, Layer-3 routing, and
 firewall enforcement as an orthogonal Bifrost fabric scope.

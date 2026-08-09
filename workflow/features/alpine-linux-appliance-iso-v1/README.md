@@ -1,6 +1,6 @@
 # Alpine Linux appliance installation ISO
 
-Status: planned; blocked behind the active routing/switching design workflow
+Canonical state, dependencies, blockers, review, and evidence are defined only in root `workflow.toml`.
 
 This feature makes Alpine Linux the canonical base for Bifrost's first-party
 Linux appliance and bootable installation ISO without collapsing installer,

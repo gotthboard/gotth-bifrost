@@ -34,6 +34,20 @@ full name, a separate component, or an edition. Future public interfaces must
 use `bfw` consistently and must not
 introduce competing `bfr`, `bif`, or ambiguous `bifrost` shorthand namespaces.
 
+## Current governance status
+
+- [Workflow status](docs/WORKFLOW.md) — generated from canonical
+  `workflow.toml`
+- [Global coverage](workflow/COVERAGE.md) — evidence, gaps, checked plans, and
+  next increments
+- [Phase 0](docs/PHASE0.md) — independent A/A+ substrate admission
+- [Learning alpha](docs/ALPHA.md) — bounded Linux-alpha effect gates
+- [Requirement trace](docs/REQUIREMENTS.md) — requirement ownership and
+  admission state
+
+These are governance views, not runtime-support claims. Generated files must be
+regenerated from their canonical TOML sources and must not be edited by hand.
+
 ## Intended capabilities
 
 - stateful firewall policy through native platform engines

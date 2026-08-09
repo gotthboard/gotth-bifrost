@@ -1,3 +1,4 @@
+import copy
 import json
 import tomllib
 import unittest
@@ -297,17 +298,103 @@ class GovernanceTests(unittest.TestCase):
             "passed_safety_gates": [],
             "dependencies": [],
         }
+        workflow = {
+            "profile": "strict",
+            "active": "example-v1",
+            "policy": {
+                "runtime_code_allowed": False,
+                "external_actions_allowed": False,
+            },
+            "features": [{
+                "id": "example-v1",
+                "state": "in_progress",
+                "phase": "design",
+                "risk": "high",
+                "dependencies": [],
+                "review": "pending",
+                "evidence": [],
+                "blockers": ["independent review"],
+            }],
+            "coverage_subsystems": [{
+                "id": "example",
+                "owner": "meta",
+                "risk": "high",
+                "required_harness": ["unit"],
+                "evidence": [],
+                "known_gaps": ["evidence absent"],
+                "next_increment": "Run the harness.",
+            }],
+        }
         with TemporaryDirectory() as directory:
             root = Path(directory)
             (root / "docs").mkdir()
+            (root / "workflow").mkdir()
             (root / "docs/REQUIREMENTS.md").write_text("stale\n")
             (root / "docs/PHASE0.md").write_text("stale\n")
             (root / "docs/ALPHA.md").write_text("stale\n")
+            (root / "docs/WORKFLOW.md").write_text("stale\n")
+            (root / "workflow/COVERAGE.md").write_text("stale\n")
             findings = governance.Findings()
             with mock.patch.object(governance, "ROOT", root):
-                governance.render_views(registry, phase0, alpha, True, findings)
-            self.assertEqual(3, len(findings.errors))
+                governance.render_views(registry, phase0, alpha, workflow, True, findings)
+            self.assertEqual(5, len(findings.errors))
             self.assertTrue(all("generated view is stale" in error for error in findings.errors))
+
+    def workflow_findings(self, mutate) -> list[str]:
+        workflow = copy.deepcopy(governance.load_toml("workflow.toml"))
+        mutate(workflow)
+        original_load = governance.load_toml
+
+        def load(path: str):
+            return workflow if path == "workflow.toml" else original_load(path)
+
+        findings = governance.Findings()
+        with mock.patch.object(governance, "load_toml", side_effect=load):
+            governance.validate_workflow(findings)
+        return findings.errors
+
+    def test_workflow_rejects_duplicate_feature_ids(self) -> None:
+        errors = self.workflow_findings(
+            lambda workflow: workflow["features"].append(copy.deepcopy(workflow["features"][0]))
+        )
+        self.assertTrue(any("duplicate feature IDs" in error for error in errors))
+
+    def test_workflow_rejects_multiple_active_features(self) -> None:
+        def mutate(workflow) -> None:
+            workflow["features"][-1]["state"] = "in_progress"
+
+        errors = self.workflow_findings(mutate)
+        self.assertTrue(any("exactly one registered active feature" in error for error in errors))
+
+    def test_workflow_rejects_dependency_cycles(self) -> None:
+        def mutate(workflow) -> None:
+            workflow["features"][0]["dependencies"] = [workflow["active"]]
+
+        errors = self.workflow_findings(mutate)
+        self.assertTrue(any("workflow dependency cycle" in error for error in errors))
+
+    def test_workflow_done_requires_bound_evidence(self) -> None:
+        def mutate(workflow) -> None:
+            workflow["features"][0]["evidence"] = []
+
+        errors = self.workflow_findings(mutate)
+        self.assertTrue(any("done workflow lacks evidence" in error for error in errors))
+
+    def test_unfinished_workflow_requires_checked_plan(self) -> None:
+        def mutate(workflow) -> None:
+            active = next(entry for entry in workflow["features"] if entry["id"] == workflow["active"])
+            active.pop("plan")
+
+        errors = self.workflow_findings(mutate)
+        self.assertTrue(any("unfinished workflow lacks a checked plan" in error for error in errors))
+
+    def test_unresolved_high_risk_coverage_requires_checked_plan(self) -> None:
+        def mutate(workflow) -> None:
+            unresolved = next(entry for entry in workflow["coverage_subsystems"] if not entry["evidence"])
+            unresolved.pop("plan")
+
+        errors = self.workflow_findings(mutate)
+        self.assertTrue(any("unresolved high-risk coverage lacks a checked plan" in error for error in errors))
 
     def test_incomplete_admitted_component_fails_closed(self) -> None:
         catalog = {

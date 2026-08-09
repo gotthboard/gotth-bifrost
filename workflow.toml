@@ -1,28 +1,272 @@
-schema_version = 1
+schema_version = 2
 project = "Bifrost"
+profile = "strict"
 authority = "workflow.toml"
+active = "routing-switching-protocol-suites-v1"
 
-[root]
+[policy]
+version = 1
+one_active_feature = true
+require_done_evidence = true
+require_independent_review = true
+runtime_code_allowed = false
+external_actions_allowed = false
+allowed_effects = ["read_only", "local_write"]
+event_log = "workflow.events.jsonl"
+workflow_root = "workflow/features"
+
+[coverage]
+map = "workflow/COVERAGE.md"
+block_unresolved_high_risk = true
+
+[[features]]
+id = "meta-governance-v1"
+title = "Executable product governance"
+state = "done"
+phase = "governance"
+risk = "high"
+path = "workflow/features/meta-governance-v1"
+requirements = ["BFW-PRD-079", "BFW-PRD-080", "BFW-PRD-081", "BFW-PRD-082", "BFW-PRD-083", "BFW-PRD-084", "BFW-PRD-085", "BFW-PRD-086", "BFW-PRD-087", "BFW-PRD-088", "BFW-PRD-089", "BFW-PRD-090"]
+dependencies = []
+review = "approved"
+evidence = ["sha256:d15bb44c194a7f5c1b2413dc519c773565bb7b9c6d9ec2fa30c9261d2c39d17a"]
+blockers = []
+allowed_effects = ["read_only", "local_write"]
+acceptance = ["Requirement trace, component catalog, release gates, schemas, CI, generated views, and workflow state validate fail closed."]
+
+[[features]]
+id = "switching-domain-v1"
+title = "Switching domain"
+state = "done"
+phase = "design"
+risk = "high"
+path = "workflow/features/switching-domain-v1"
+requirements = ["BFW-PRD-091", "BFW-PRD-092", "BFW-PRD-093", "BFW-PRD-094", "BFW-PRD-095", "BFW-PRD-096", "BFW-PRD-097", "BFW-PRD-098", "BFW-PRD-099"]
+dependencies = ["meta-governance-v1"]
+review = "approved"
+evidence = ["sha256:8f88d423a14ae7a62e0127c430e1e6b7e8d375e33e4a025080176dddf71a71ee"]
+blockers = []
+allowed_effects = ["read_only", "local_write"]
+acceptance = ["Layer-2 ownership, plans, platform translation, failure boundaries, and admission tests are explicit."]
+
+[[features]]
+id = "deployment-roles-v1"
+title = "Router, switch, and converged deployment roles"
+state = "done"
+phase = "design"
+risk = "high"
+path = "workflow/features/deployment-roles-v1"
+requirements = ["BFW-PRD-100", "BFW-PRD-101", "BFW-PRD-102", "BFW-PRD-103", "BFW-PRD-104", "BFW-PRD-105"]
+dependencies = ["switching-domain-v1"]
+review = "approved"
+evidence = ["sha256:0a47101597ed081019527308cd76d029cfb8974a4b6dd327a9e75b9ce9f718ef"]
+blockers = []
+allowed_effects = ["read_only", "local_write"]
+acceptance = ["All three roles preserve one product authority model and deny role-confused forwarding effects."]
+
+[[features]]
+id = "data-plane-layers-v1"
+title = "Data-plane layer boundaries"
+state = "done"
+phase = "design"
+risk = "critical"
+path = "workflow/features/data-plane-layers-v1"
+requirements = ["BFW-PRD-102", "BFW-PRD-106", "BFW-PRD-107", "BFW-PRD-108", "BFW-PRD-109", "BFW-PRD-110"]
+dependencies = ["deployment-roles-v1"]
+review = "approved"
+evidence = ["sha256:b6085186be5b1eea299fcc25c4e701d0cfe26ad11600478e2f6597d697a07098"]
+blockers = []
+allowed_effects = ["read_only", "local_write"]
+acceptance = ["Layer-2, Layer-3, and Layer-4-aware effects remain explicitly owned and non-interchangeable."]
+
+[[features]]
+id = "native-go-ids-v1"
+title = "Native Go IDS/IPS contract"
+state = "done"
+phase = "design"
+risk = "critical"
+path = "workflow/features/native-go-ids-v1"
+requirements = ["BFW-PRD-111", "BFW-PRD-112", "BFW-PRD-113", "BFW-PRD-114", "BFW-PRD-115", "BFW-PRD-116", "BFW-PRD-117", "BFW-PRD-118", "BFW-PRD-119", "BFW-PRD-120", "BFW-PRD-121", "BFW-PRD-122"]
+dependencies = ["data-plane-layers-v1"]
+review = "approved"
+evidence = ["sha256:ed46493142ec1f3e90cc40c9d72775218091a67410390f6cd14c5a8d7365131f"]
+blockers = []
+allowed_effects = ["read_only", "local_write"]
+acceptance = ["Detection remains separate from firewall enforcement and unsupported compatibility semantics fail explicitly."]
+
+[[features]]
+id = "distributed-fabric-v1"
+title = "Distributed fabric contract"
+state = "done"
+phase = "design"
+risk = "critical"
+path = "workflow/features/distributed-fabric-v1"
+requirements = ["BFW-PRD-123", "BFW-PRD-124", "BFW-PRD-125", "BFW-PRD-126", "BFW-PRD-127", "BFW-PRD-128", "BFW-PRD-129", "BFW-PRD-130", "BFW-PRD-131", "BFW-PRD-132", "BFW-PRD-133", "BFW-PRD-134", "BFW-PRD-135"]
+dependencies = ["data-plane-layers-v1"]
+review = "approved"
+evidence = ["sha256:6dabe3d5de8a1a1c4e9da8028c786cf716988de82ecbd8d17e9fddc1aea47c65"]
+blockers = []
+allowed_effects = ["read_only", "local_write"]
+acceptance = ["Fabric coordination cannot steal route, switching, firewall, or credential authority and partitions fail closed."]
+
+[[features]]
+id = "meta-repo-judge-loop-v1"
+title = "Cumulative meta-repository judge loop"
+state = "done"
+phase = "verification"
+risk = "high"
+path = "workflow/features/meta-repo-judge-loop-v1"
+requirements = ["BFW-PRD-079", "BFW-PRD-080", "BFW-PRD-081", "BFW-PRD-082", "BFW-PRD-083", "BFW-PRD-084", "BFW-PRD-085", "BFW-PRD-086", "BFW-PRD-087", "BFW-PRD-088", "BFW-PRD-089", "BFW-PRD-090", "BFW-PRD-091", "BFW-PRD-092", "BFW-PRD-093", "BFW-PRD-094", "BFW-PRD-095", "BFW-PRD-096", "BFW-PRD-097", "BFW-PRD-098", "BFW-PRD-099", "BFW-PRD-100", "BFW-PRD-101", "BFW-PRD-102", "BFW-PRD-103", "BFW-PRD-104", "BFW-PRD-105", "BFW-PRD-106", "BFW-PRD-107", "BFW-PRD-108", "BFW-PRD-109", "BFW-PRD-110", "BFW-PRD-111", "BFW-PRD-112", "BFW-PRD-113", "BFW-PRD-114", "BFW-PRD-115", "BFW-PRD-116", "BFW-PRD-117", "BFW-PRD-118", "BFW-PRD-119", "BFW-PRD-120", "BFW-PRD-121", "BFW-PRD-122", "BFW-PRD-123", "BFW-PRD-124", "BFW-PRD-125", "BFW-PRD-126", "BFW-PRD-127", "BFW-PRD-128", "BFW-PRD-129", "BFW-PRD-130", "BFW-PRD-131", "BFW-PRD-132", "BFW-PRD-133", "BFW-PRD-134", "BFW-PRD-135"]
+dependencies = ["native-go-ids-v1", "distributed-fabric-v1"]
+review = "approved"
+evidence = ["sha256:02ebd0ddfc86419ea3a99a996e25eb7378b079ab2a60d1c1018e1e71b78ebcef"]
+blockers = []
+allowed_effects = ["read_only", "local_write"]
+acceptance = ["Two fresh cold passes agree after every real finding is repaired and verified."]
+
+[[features]]
+id = "kubernetes-managed-ha-v1"
+title = "Optional Kubernetes-managed HA"
+state = "done"
+phase = "design"
+risk = "critical"
+path = "workflow/features/kubernetes-managed-ha-v1"
+requirements = ["BFW-PRD-136", "BFW-PRD-137", "BFW-PRD-138", "BFW-PRD-139", "BFW-PRD-140", "BFW-PRD-141", "BFW-PRD-142", "BFW-PRD-143", "BFW-PRD-144"]
+dependencies = ["distributed-fabric-v1"]
+review = "approved"
+evidence = ["sha256:1f2d6d6cca8d5746270b7fd56c08f6cfcaa7de6099e29ff4b48bde7b69e73587"]
+blockers = []
+allowed_effects = ["read_only", "local_write"]
+acceptance = ["Forwarding survives management loss and Kubernetes never becomes packet-policy authority."]
+
+[[features]]
+id = "goka-clean-room-ha-v1"
+title = "GoKA clean-room native HA"
+state = "done"
+phase = "design"
+risk = "critical"
+path = "workflow/features/goka-clean-room-ha-v1"
+requirements = ["BFW-PRD-145", "BFW-PRD-146", "BFW-PRD-147", "BFW-PRD-148", "BFW-PRD-149", "BFW-PRD-150", "BFW-PRD-151", "BFW-PRD-152", "BFW-PRD-153"]
+dependencies = ["data-plane-layers-v1"]
+review = "approved"
+evidence = ["sha256:ac5678a2b87c350bb2d83cea32daa64c7ec42f6395c36948f267885ca5597a49"]
+blockers = []
+allowed_effects = ["read_only", "local_write"]
+acceptance = ["Clean-room HA ownership, fencing, failover, protocol, recovery, and compatibility boundaries are explicit."]
+
+[[features]]
+id = "two-out-of-box-ha-profiles-v1"
+title = "Two first-party HA profiles"
+state = "done"
+phase = "design"
+risk = "critical"
+path = "workflow/features/two-out-of-box-ha-profiles-v1"
+requirements = ["BFW-PRD-154", "BFW-PRD-155", "BFW-PRD-156", "BFW-PRD-157", "BFW-PRD-158", "BFW-PRD-159", "BFW-PRD-160", "BFW-PRD-161"]
+dependencies = ["kubernetes-managed-ha-v1", "goka-clean-room-ha-v1"]
+review = "approved"
+evidence = ["sha256:19b32c5c9b51fee5bb5c70c1f69729077fe4be4349d40c904f4343c9ba01641f"]
+blockers = []
+allowed_effects = ["read_only", "local_write"]
+acceptance = ["Exactly GoKA-native and Kubernetes-managed profiles are first-party, mutually exclusive, and migration-safe."]
+
+[[features]]
 id = "routing-switching-protocol-suites-v1"
 title = "Comprehensive routing and switching protocol suites"
-status = "active"
+state = "in_progress"
 phase = "design"
-owner = "linus"
-started_at = "2026-08-09T01:19:01-05:00"
-external_actions_allowed = false
-runtime_code_allowed = false
-
-[active_feature]
-id = "routing-switching-protocol-suites-v1"
-status = "active"
+risk = "critical"
+path = "workflow/features/routing-switching-protocol-suites-v1"
+plan = "workflow/features/routing-switching-protocol-suites-v1/REVIEW-PLAN.md"
 requirements = ["BFW-PRD-162", "BFW-PRD-163", "BFW-PRD-164", "BFW-PRD-165", "BFW-PRD-166", "BFW-PRD-167", "BFW-PRD-168", "BFW-PRD-169", "BFW-PRD-170", "BFW-PRD-171", "BFW-PRD-172", "BFW-PRD-173", "BFW-PRD-174", "BFW-PRD-175", "BFW-PRD-176", "BFW-PRD-177", "BFW-PRD-178", "BFW-PRD-179", "BFW-PRD-180", "BFW-PRD-181", "BFW-PRD-182", "BFW-PRD-183", "BFW-PRD-184", "BFW-PRD-185", "BFW-PRD-186", "BFW-PRD-187", "BFW-PRD-188", "BFW-PRD-189", "BFW-PRD-190", "BFW-PRD-191", "BFW-PRD-192", "BFW-PRD-193", "BFW-PRD-194", "BFW-PRD-195", "BFW-PRD-196", "BFW-PRD-197", "BFW-PRD-198", "BFW-PRD-199", "BFW-PRD-200", "BFW-PRD-201", "BFW-PRD-202", "BFW-PRD-203", "BFW-PRD-204", "BFW-PRD-205", "BFW-PRD-206", "BFW-PRD-207", "BFW-PRD-208"]
-evidence = []
+dependencies = ["data-plane-layers-v1", "two-out-of-box-ha-profiles-v1"]
 review = "pending"
+evidence = []
+blockers = ["independent architecture review", "independent security review", "verification evidence", "workflow handoff"]
+allowed_effects = ["read_only", "local_write"]
+acceptance = ["Every protocol/profile row names provider, platform, maturity, limitations, evidence, and admission state.", "Routing and switching authorities cannot be bypassed by FRR, platform, or hardware adapters.", "Independent architecture and security reviews pass over the same immutable revision."]
 
-[gates]
-phase0 = "blocked"
-design = "active"
-implementation = "pending"
-verification = "pending"
-judge = "pending"
-handoff = "pending"
+[[features]]
+id = "alpine-linux-appliance-iso-v1"
+title = "Alpine Linux appliance installation ISO"
+state = "planned"
+phase = "decomposition"
+risk = "critical"
+path = "workflow/features/alpine-linux-appliance-iso-v1"
+plan = "workflow/features/alpine-linux-appliance-iso-v1/DECOMPOSITION.md"
+requirements = ["BFW-PRD-209", "BFW-PRD-210", "BFW-PRD-211", "BFW-PRD-212", "BFW-PRD-213", "BFW-PRD-214"]
+dependencies = ["routing-switching-protocol-suites-v1"]
+review = "pending"
+evidence = []
+blockers = ["active routing/switching workflow", "exact Alpine patch and APK snapshot unselected", "bfw-installer repository absent", "installer safety evidence absent"]
+allowed_effects = ["read_only", "local_write"]
+acceptance = ["Exact Alpine, repository, kernel, package, firmware, boot, installer, ISO, and installed-image identities are immutable.", "Offline install, exact-disk confirmation, interruption, rollback, recovery, and first-boot verification are decomposed into owned component work."]
+
+[[features]]
+id = "linux-learning-alpha-v1"
+title = "Linux learning-alpha admission path"
+state = "planned"
+phase = "decomposition"
+risk = "critical"
+path = "workflow/features/linux-learning-alpha-v1"
+plan = "workflow/features/linux-learning-alpha-v1/DECOMPOSITION.md"
+requirements = ["BFW-PRD-215", "BFW-PRD-216", "BFW-PRD-217", "BFW-PRD-218", "BFW-PRD-219", "BFW-PRD-220", "BFW-PRD-221", "BFW-PRD-222"]
+dependencies = ["routing-switching-protocol-suites-v1", "alpine-linux-appliance-iso-v1"]
+review = "pending"
+evidence = []
+blockers = ["active routing/switching workflow", "Alpine ISO workflow incomplete", "Linux-alpha dependency revisions unselected", "BFW-ALPHA-0 safety evidence absent"]
+allowed_effects = ["read_only", "local_write"]
+acceptance = ["The alpha scope is decomposed into exact component repositories, paths, owners, dependency order, supported and denied capabilities, evidence, and handoff criteria.", "Host network, installer disk, and distribution effects remain denied until BFW-ALPHA-0 passes.", "Out-of-alpha implementation remains denied until all four Phase 0 dependencies independently earn A or A+ admission."]
+
+[[coverage_subsystems]]
+id = "meta-governance"
+owner = "meta"
+risk = "high"
+scope = ["governance/**", "schemas/**", "tools/**", "workflow.toml", "workflow/**"]
+required_harness = ["syntax", "unit", "negative", "generated-view", "workflow-state", "diff"]
+evidence = ["sha256:d15bb44c194a7f5c1b2413dc519c773565bb7b9c6d9ec2fa30c9261d2c39d17a", "sha256:02ebd0ddfc86419ea3a99a996e25eb7378b079ab2a60d1c1018e1e71b78ebcef"]
+known_gaps = []
+next_increment = "Preserve fail-closed regression coverage for every governance-state change."
+
+[[coverage_subsystems]]
+id = "routing-switching-contracts"
+owner = "bfw-routing,bfw-switching"
+risk = "critical"
+scope = ["documents/PRD.md", "documents/ARCHITECTURE.md", "documents/IMPLEMENTATION-SPEC.md", "documents/TEST-LAB.md", "documents/THREAT-MODEL.md"]
+required_harness = ["trace", "architecture-review", "security-review", "negative-policy", "interoperability-plan"]
+evidence = []
+known_gaps = ["Independent architecture review absent.", "Independent security review absent.", "Immutable verification record absent."]
+plan = "workflow/features/routing-switching-protocol-suites-v1/REVIEW-PLAN.md"
+next_increment = "Complete two independent reviews over one immutable revision and record verification evidence."
+
+[[coverage_subsystems]]
+id = "alpine-installer-alpha"
+owner = "bfw-installer,meta"
+risk = "critical"
+scope = ["governance/alpha.toml", "governance/releases/v0.1.toml", "workflow/features/alpine-linux-appliance-iso-v1", "workflow/features/linux-learning-alpha-v1"]
+required_harness = ["wrong-disk", "offline-install", "power-loss", "rollback", "recovery", "first-boot-packet-state", "channel-isolation"]
+evidence = []
+known_gaps = ["Exact Alpine and APK snapshot unselected.", "Installer and appliance artifacts do not exist.", "BFW-ALPHA-0 is blocked."]
+plan = "workflow/features/alpine-linux-appliance-iso-v1/DECOMPOSITION.md"
+next_increment = "Finish ISO decomposition, select immutable inputs, and create component-owned implementation work."
+
+[[coverage_subsystems]]
+id = "phase0-substrates"
+owner = "meta"
+risk = "critical"
+scope = ["governance/phase0.toml", "docs/PHASE0.md"]
+required_harness = ["revision-binding", "grade-evidence", "independent-review", "catalog-admission", "cross-platform", "release-gate"]
+evidence = []
+known_gaps = ["rpc-plugin-system is ungraded.", "agent-keyring is ungraded.", "agent-filesystem is ungraded.", "agent-exec is ungraded."]
+plan = "workflow/PHASE0-ADMISSION-PLAN.md"
+next_increment = "Admit each exact dependency revision independently at A or A+; do not aggregate grades."
+
+[[coverage_subsystems]]
+id = "release-composition"
+owner = "meta"
+risk = "critical"
+scope = ["governance/releases/**", "documents/RELEASE-RECOVERY.md"]
+required_harness = ["composition", "signature", "sbom", "provenance", "upgrade", "rollback", "recovery", "channel-gate"]
+evidence = []
+known_gaps = ["v0.1 remains a design-only profile.", "No component artifacts or admitted composition exist."]
+plan = "workflow/RELEASE-COMPOSITION-PLAN.md"
+next_increment = "Create an immutable alpha composition only after component artifacts and BFW-ALPHA-0 evidence exist."

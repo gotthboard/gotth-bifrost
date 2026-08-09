@@ -1,6 +1,6 @@
 # Linux learning-alpha admission path
 
-Status: planned; blocked behind the active routing/switching design workflow
+Canonical state, dependencies, blockers, review, and evidence are defined only in root `workflow.toml`.
 
 This feature creates a usable, explicitly non-production Linux appliance for
 decision-making before beta contracts are frozen. It does not lower destructive

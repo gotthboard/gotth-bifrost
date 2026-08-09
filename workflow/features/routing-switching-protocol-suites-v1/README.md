@@ -1,6 +1,6 @@
 # Comprehensive routing and switching protocol suites workflow
 
-Status: active
+Canonical state, dependencies, blockers, review, and evidence are defined only in root `workflow.toml`.
 
 This feature replaces vague broad-protocol claims with exact, machine-readable
 capability matrices. BGP is one routing family within the larger contract.

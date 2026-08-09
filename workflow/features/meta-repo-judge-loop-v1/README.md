@@ -1,6 +1,6 @@
 # Cumulative meta-repository Judge loop
 
-Status: completed
+Canonical state, dependencies, blockers, review, and evidence are defined only in root `workflow.toml`.
 
 This feature performs a cold, fail-closed review of the complete local diff from
 `a3afae76b4b2eb31a965b7a067258a298ec6e7f8`. It reviews governance integrity,

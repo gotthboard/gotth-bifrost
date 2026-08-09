@@ -1,6 +1,6 @@
 # Native Go IDS/IPS v1 workflow
 
-Status: completed
+Canonical state, dependencies, blockers, review, and evidence are defined only in root `workflow.toml`.
 
 This feature defines a clean-room native Go Snort-class IDS/IPS component while
 keeping detection, enforcement, evidence, platform, and licensing/provenance

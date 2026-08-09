@@ -775,30 +775,140 @@ def validate_ci(findings: Findings) -> None:
 
 
 # Complexity: time O(n + e), Omega(n + e), tight Theta(n + e) in workflow
-# TOML and event bytes; auxiliary space O(n + e) for parsed state and events.
-def validate_workflow(findings: Findings) -> None:
+# TOML, feature, coverage, and event bytes; auxiliary space O(n + e) for
+# indexes, graph state, and parsed events.
+def validate_workflow(findings: Findings) -> dict[str, Any]:
     workflow = load_toml("workflow.toml")
-    root = workflow.get("root", {})
-    active = workflow.get("active_feature", {})
-    feature_id = active.get("id")
-    requirements = active.get("requirements", [])
+    allowed_top_level = {
+        "schema_version", "project", "profile", "authority", "active",
+        "policy", "coverage", "features", "coverage_subsystems",
+    }
+    findings.require(set(workflow) <= allowed_top_level, "workflow has unknown top-level fields")
+    findings.require(workflow.get("schema_version") == 2, "workflow schema version is unsupported")
+    findings.require(workflow.get("project") == "Bifrost", "workflow project identity drifted")
+    findings.require(workflow.get("profile") == "strict", "workflow profile must remain strict")
+    findings.require(workflow.get("authority") == "workflow.toml", "workflow authority drifted")
+
+    policy = workflow.get("policy", {})
+    findings.require(policy.get("version") == 1, "workflow policy version is unsupported")
+    findings.require(policy.get("one_active_feature") is True, "workflow must enforce one active feature")
+    findings.require(policy.get("require_done_evidence") is True, "workflow must require done evidence")
+    findings.require(policy.get("require_independent_review") is True, "workflow must require independent review")
+    findings.require(policy.get("runtime_code_allowed") is False, "meta workflow unexpectedly allows runtime code")
+    findings.require(policy.get("external_actions_allowed") is False, "meta workflow unexpectedly allows external actions")
+    allowed_effects = set(policy.get("allowed_effects", []))
+    findings.require(allowed_effects == {"read_only", "local_write"}, "meta workflow effect policy drifted")
+    findings.require(policy.get("event_log") == "workflow.events.jsonl", "workflow event-log path drifted")
+    findings.require(policy.get("workflow_root") == "workflow/features", "workflow root path drifted")
+
+    features = workflow.get("features", [])
+    feature_ids = [entry.get("id") for entry in features]
+    feature_by_id = {entry.get("id"): entry for entry in features}
+    findings.require(bool(features), "workflow feature registry is empty")
+    findings.require(len(feature_ids) == len(set(feature_ids)), "workflow contains duplicate feature IDs")
+    active_id = workflow.get("active")
+    findings.require(active_id in feature_by_id, "workflow active feature is not registered")
     registry_ids = set(load_toml("governance/requirements.toml").get("requirements", {}))
-    findings.require(root.get("id") == feature_id, "workflow root and active feature IDs differ")
-    findings.require(root.get("status") in {"active", "completed"}, "workflow root status is invalid")
-    findings.require(root.get("external_actions_allowed") is False, "workflow unexpectedly allows external actions")
-    findings.require(root.get("runtime_code_allowed") is False, "workflow unexpectedly allows runtime code")
-    findings.require(bool(requirements), "workflow requirement scope is empty")
-    findings.require(len(requirements) == len(set(requirements)), "workflow requirement scope contains duplicates")
-    findings.require(set(requirements) <= registry_ids, "workflow references unknown requirements")
-    if root.get("status") == "completed":
-        findings.require(active.get("status") == "completed", "completed workflow has active feature")
-        findings.require(active.get("review") == "passed", "completed workflow lacks review pass")
-        findings.require(bool(active.get("evidence")), "completed workflow lacks evidence")
-        evidence_path = ROOT / "workflow/features" / str(feature_id) / "evidence/verification.toml"
-        findings.require(evidence_path.is_file(), "completed workflow evidence file is missing")
-        if evidence_path.is_file():
-            findings.require(sha256_file(evidence_path) in active.get("evidence", []), "workflow evidence digest does not match verification record")
-    event_path = ROOT / "workflow.events.jsonl"
+    required_fields = {
+        "id", "title", "state", "phase", "risk", "path", "requirements",
+        "dependencies", "review", "evidence", "blockers", "allowed_effects",
+        "acceptance",
+    }
+    allowed_states = {"planned", "ready", "in_progress", "blocked", "deferred", "failed", "done", "canceled", "split_required"}
+    allowed_reviews = {"pending", "changes_requested", "approved", "rejected", "not_required"}
+    allowed_risks = {"low", "medium", "high", "critical"}
+    dependency_graph: dict[str, list[str]] = {}
+    in_progress: list[str] = []
+    all_feature_evidence: set[str] = set()
+    for entry in features:
+        feature_id = entry.get("id", "<missing>")
+        findings.require(required_fields <= set(entry), f"{feature_id}: incomplete workflow feature record")
+        findings.require(entry.get("state") in allowed_states, f"{feature_id}: invalid workflow feature state")
+        findings.require(entry.get("review") in allowed_reviews, f"{feature_id}: invalid workflow review state")
+        findings.require(entry.get("risk") in allowed_risks, f"{feature_id}: invalid workflow risk")
+        path = entry.get("path", "")
+        findings.require(path == f"workflow/features/{feature_id}", f"{feature_id}: workflow path is not canonical")
+        feature_path = ROOT / path
+        findings.require(feature_path.is_dir(), f"{feature_id}: workflow directory is missing")
+        readme_path = feature_path / "README.md"
+        findings.require(readme_path.is_file(), f"{feature_id}: workflow README is missing")
+        if readme_path.is_file():
+            readme = readme_path.read_text(encoding="utf-8")
+            findings.require(not re.search(r"^Status:\s", readme, re.MULTILINE), f"{feature_id}: README duplicates canonical workflow state")
+        requirements = entry.get("requirements", [])
+        dependencies = entry.get("dependencies", [])
+        evidence = entry.get("evidence", [])
+        blockers = entry.get("blockers", [])
+        state = entry.get("state")
+        plan = entry.get("plan", "")
+        findings.require(bool(requirements), f"{feature_id}: workflow requirement scope is empty")
+        findings.require(len(requirements) == len(set(requirements)), f"{feature_id}: workflow requirement scope contains duplicates")
+        findings.require(set(requirements) <= registry_ids, f"{feature_id}: workflow references unknown requirements")
+        findings.require(len(dependencies) == len(set(dependencies)), f"{feature_id}: duplicate workflow dependency")
+        findings.require(set(dependencies) <= set(feature_ids), f"{feature_id}: unknown workflow dependency")
+        findings.require(feature_id not in dependencies, f"{feature_id}: workflow self dependency")
+        findings.require(set(entry.get("allowed_effects", [])) <= allowed_effects, f"{feature_id}: workflow effect exceeds policy")
+        findings.require(bool(entry.get("acceptance")), f"{feature_id}: workflow acceptance criteria are empty")
+        if state in {"planned", "ready", "in_progress", "blocked"}:
+            findings.require(bool(plan), f"{feature_id}: unfinished workflow lacks a checked plan")
+            plan_path = ROOT / str(plan)
+            findings.require(plan_path.parent == feature_path, f"{feature_id}: workflow plan must remain inside its feature directory")
+            findings.require(plan_path.is_file(), f"{feature_id}: workflow plan is missing")
+        for digest in evidence:
+            findings.require(bool(SHA256_RE.fullmatch(digest)), f"{feature_id}: invalid workflow evidence digest")
+        all_feature_evidence.update(evidence)
+        dependency_graph[str(feature_id)] = [str(item) for item in dependencies]
+        if state == "in_progress":
+            in_progress.append(str(feature_id))
+            findings.require(entry.get("review") in {"pending", "changes_requested"}, f"{feature_id}: active workflow review state is dishonest")
+            findings.require(bool(blockers), f"{feature_id}: active workflow lacks explicit blockers or next gates")
+            findings.require(all(feature_by_id[item].get("state") == "done" for item in dependencies), f"{feature_id}: active workflow has incomplete dependencies")
+        if state == "done":
+            findings.require(entry.get("review") == "approved", f"{feature_id}: done workflow lacks approved review")
+            findings.require(bool(evidence), f"{feature_id}: done workflow lacks evidence")
+            findings.require(not blockers, f"{feature_id}: done workflow retains blockers")
+            evidence_path = feature_path / "evidence/verification.toml"
+            findings.require(evidence_path.is_file(), f"{feature_id}: done workflow evidence file is missing")
+            if evidence_path.is_file():
+                findings.require(sha256_file(evidence_path) in evidence, f"{feature_id}: workflow evidence digest does not match verification record")
+            reviews = list((feature_path / "review").glob("*.md"))
+            findings.require(len(reviews) >= 2, f"{feature_id}: done workflow lacks two independent review records")
+        if state in {"planned", "ready"}:
+            findings.require(not evidence, f"{feature_id}: unstarted workflow carries completion evidence")
+            findings.require(entry.get("review") == "pending", f"{feature_id}: unstarted workflow review must remain pending")
+    findings.require(in_progress == [active_id], "workflow must have exactly one registered active feature")
+    cycle = find_dependency_cycle(dependency_graph)
+    findings.require(not cycle, f"workflow dependency cycle: {' -> '.join(cycle)}")
+
+    folder_ids = {path.parent.name for path in (ROOT / "workflow/features").glob("*/README.md")}
+    findings.require(folder_ids == set(feature_ids), "workflow folders and manifest feature IDs differ")
+
+    coverage = workflow.get("coverage", {})
+    findings.require(coverage.get("map") == "workflow/COVERAGE.md", "workflow coverage-map path drifted")
+    findings.require(coverage.get("block_unresolved_high_risk") is True, "workflow must block unresolved high-risk coverage")
+    coverage_entries = workflow.get("coverage_subsystems", [])
+    coverage_ids = [entry.get("id") for entry in coverage_entries]
+    findings.require(bool(coverage_entries), "workflow global coverage registry is empty")
+    findings.require(len(coverage_ids) == len(set(coverage_ids)), "workflow contains duplicate coverage subsystem IDs")
+    for entry in coverage_entries:
+        subsystem_id = entry.get("id", "<missing>")
+        findings.require(entry.get("risk") in allowed_risks, f"{subsystem_id}: invalid coverage risk")
+        findings.require(bool(entry.get("owner")), f"{subsystem_id}: coverage owner is missing")
+        findings.require(bool(entry.get("scope")), f"{subsystem_id}: coverage scope is empty")
+        findings.require(bool(entry.get("required_harness")), f"{subsystem_id}: required coverage harness is empty")
+        findings.require(isinstance(entry.get("known_gaps"), list), f"{subsystem_id}: coverage gaps must be an array")
+        findings.require(bool(entry.get("next_increment")), f"{subsystem_id}: next coverage increment is missing")
+        for digest in entry.get("evidence", []):
+            findings.require(bool(SHA256_RE.fullmatch(digest)), f"{subsystem_id}: invalid coverage evidence digest")
+            findings.require(digest in all_feature_evidence, f"{subsystem_id}: coverage evidence is not owned by a workflow feature")
+        if entry.get("risk") in {"high", "critical"} and not entry.get("evidence"):
+            findings.require(bool(entry.get("known_gaps")), f"{subsystem_id}: unresolved high-risk coverage lacks explicit gaps")
+            plan = pathlib.Path(str(entry.get("plan", "")))
+            findings.require(bool(entry.get("plan")), f"{subsystem_id}: unresolved high-risk coverage lacks a checked plan")
+            findings.require(plan.parts[:1] == ("workflow",) and ".." not in plan.parts, f"{subsystem_id}: coverage plan path escapes workflow")
+            findings.require((ROOT / plan).is_file(), f"{subsystem_id}: coverage plan is missing")
+
+    event_path = ROOT / str(policy.get("event_log"))
     events = []
     for line_number, line in enumerate(event_path.read_text(encoding="utf-8").splitlines(), start=1):
         try:
@@ -806,11 +916,7 @@ def validate_workflow(findings: Findings) -> None:
         except json.JSONDecodeError as error:
             findings.add(f"workflow.events.jsonl:{line_number}: invalid JSON: {error}")
     findings.require(bool(events), "workflow event log is empty")
-    known_features = {
-        path.parent.name
-        for path in (ROOT / "workflow/features").glob("*/README.md")
-    }
-    findings.require(all(event.get("feature") in known_features for event in events), "workflow event references unknown feature")
+    findings.require(all(event.get("feature") in set(feature_ids) for event in events), "workflow event references unknown feature")
     parsed_times: list[datetime] = []
     states: dict[str, str] = {}
     globally_active: str | None = None
@@ -838,7 +944,14 @@ def validate_workflow(findings: Findings) -> None:
             globally_active = None
         states[feature] = new_state
     findings.require(parsed_times == sorted(parsed_times), "workflow event log is not chronological")
-    findings.require(states.get(str(feature_id)) == root.get("status"), "workflow root status differs from final event state")
+    for feature_id, entry in feature_by_id.items():
+        event_state = states.get(str(feature_id))
+        expected_state = {"done": "completed", "in_progress": "active"}.get(entry.get("state"))
+        if expected_state is not None:
+            findings.require(event_state == expected_state, f"{feature_id}: manifest state differs from final workflow event")
+        else:
+            findings.require(event_state is None, f"{feature_id}: unstarted manifest feature has workflow events")
+    return workflow
 
 
 # Complexity: time O(n), Omega(n), tight Theta(n) in changelog bytes n;
@@ -918,14 +1031,57 @@ def render_alpha(alpha: dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+# Complexity: time O(f + e), Omega(f), tight Theta(f + e) for features f and
+# dependency/blocker/evidence strings e; auxiliary space O(f + e).
+def render_workflow(workflow: dict[str, Any]) -> str:
+    lines = [
+        "# Bifrost workflow status\n",
+        "Generated from `workflow.toml`; do not edit by hand.\n",
+        f"Profile: **{workflow['profile']}**",
+        f"Active feature: **`{workflow['active']}`**",
+        f"Runtime code allowed in meta repo: **{str(workflow['policy']['runtime_code_allowed']).lower()}**",
+        f"External actions allowed: **{str(workflow['policy']['external_actions_allowed']).lower()}**\n",
+        "| Feature | State | Phase | Risk | Dependencies | Plan | Review | Evidence | Blockers |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- | --- |",
+    ]
+    for entry in workflow["features"]:
+        dependencies = "<br>".join(f"`{item}`" for item in entry["dependencies"]) or "none"
+        blockers = "<br>".join(entry["blockers"]) or "none"
+        plan = f"`{entry['plan']}`" if entry.get("plan") else "complete"
+        lines.append(f"| `{entry['id']}` | {entry['state']} | {entry['phase']} | {entry['risk']} | {dependencies} | {plan} | {entry['review']} | {len(entry['evidence'])} | {blockers} |")
+    lines.append("")
+    return "\n".join(lines)
+
+
+# Complexity: time O(s + e + g), Omega(s), tight Theta(s + e + g) for
+# subsystems s, evidence e, and gaps g; auxiliary space O(s + e + g).
+def render_coverage(workflow: dict[str, Any]) -> str:
+    lines = [
+        "# Bifrost global coverage map\n",
+        "Generated from `workflow.toml`; do not edit by hand.\n",
+        "This records governance and system-evidence posture. It does not claim runtime coverage where artifacts do not exist.\n",
+        "| Subsystem | Owner | Risk | Required harness | Evidence | Known gaps | Plan | Next increment |",
+        "| --- | --- | --- | --- | --- | --- | --- | --- |",
+    ]
+    for entry in workflow["coverage_subsystems"]:
+        harness = "<br>".join(f"`{item}`" for item in entry["required_harness"])
+        gaps = "<br>".join(entry["known_gaps"]) or "none"
+        plan = f"`{entry['plan']}`" if entry.get("plan") else "complete"
+        lines.append(f"| `{entry['id']}` | {entry['owner']} | {entry['risk']} | {harness} | {len(entry['evidence'])} | {gaps} | {plan} | {entry['next_increment']} |")
+    lines.append("")
+    return "\n".join(lines)
+
+
 # Complexity: time O(n), Omega(n), tight Theta(n) in rendered bytes n;
 # auxiliary space O(n); writes are atomic per file via pathlib replacement is
 # not guaranteed, so generation is documentation-only and Git retains rollback.
-def render_views(registry: dict[str, Any], phase0: dict[str, Any], alpha: dict[str, Any], check: bool, findings: Findings) -> None:
+def render_views(registry: dict[str, Any], phase0: dict[str, Any], alpha: dict[str, Any], workflow: dict[str, Any], check: bool, findings: Findings) -> None:
     views = {
         ROOT / "docs/REQUIREMENTS.md": render_requirements(registry),
         ROOT / "docs/PHASE0.md": render_phase0(phase0),
         ROOT / "docs/ALPHA.md": render_alpha(alpha),
+        ROOT / "docs/WORKFLOW.md": render_workflow(workflow),
+        ROOT / "workflow/COVERAGE.md": render_coverage(workflow),
     }
     for path, expected in views.items():
         if check:
@@ -956,10 +1112,10 @@ def run_validation(check_generated: bool = True) -> Findings:
         validate_test_lab(findings)
         validate_repository_boundary(findings)
         validate_ci(findings)
-        validate_workflow(findings)
+        workflow = validate_workflow(findings)
         validate_changelog(findings)
         if check_generated:
-            render_views(registry, phase0, alpha, True, findings)
+            render_views(registry, phase0, alpha, workflow, True, findings)
     except (OSError, KeyError, TypeError, ValueError, tomllib.TOMLDecodeError) as error:
         findings.add(f"validator could not complete: {error}")
     return findings
@@ -980,12 +1136,13 @@ def main(argv: list[str] | None = None) -> int:
         registry = validate_requirements(findings)
         phase0 = load_toml("governance/phase0.toml")
         alpha = load_toml("governance/alpha.toml")
+        workflow = load_toml("workflow.toml")
         if findings.errors:
             for error in findings.errors:
                 print(f"ERROR: {error}", file=sys.stderr)
             return 1
-        render_views(registry, phase0, alpha, False, findings)
-        print("rendered docs/REQUIREMENTS.md, docs/PHASE0.md, and docs/ALPHA.md")
+        render_views(registry, phase0, alpha, workflow, False, findings)
+        print("rendered requirements, Phase 0, alpha, workflow, and coverage views")
         return 0
 
     findings = run_validation(check_generated=True)

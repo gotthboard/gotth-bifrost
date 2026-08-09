@@ -1,6 +1,6 @@
 # Data-plane layers v1 workflow
 
-Status: completed
+Canonical state, dependencies, blockers, review, and evidence are defined only in root `workflow.toml`.
 
 This feature defines Layer-2 and Layer-3 switch behavior plus Layer-3 routing
 and Layer-4-aware router policy without collapsing component authority or

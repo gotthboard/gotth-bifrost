@@ -1,6 +1,6 @@
 # Switching domain v1 workflow
 
-Status: completed
+Canonical state, dependencies, blockers, review, and evidence are defined only in root `workflow.toml`.
 
 This feature makes managed Layer-2 switching a first-class Bifrost product
 domain while retaining distinct network, routing, and firewall authorities.

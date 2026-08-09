@@ -1,6 +1,6 @@
 # Optional Kubernetes-managed HA
 
-Status: completed
+Canonical state, dependencies, blockers, review, and evidence are defined only in root `workflow.toml`.
 
 This feature defines dedicated Kubernetes/K3s controller deployment as an
 optional Bifrost management HA profile. It supports one honestly non-HA

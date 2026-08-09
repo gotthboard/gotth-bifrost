@@ -2,6 +2,48 @@
 
 ## Unreleased
 
+### 2026-08-09 02:49 CDT — Make workflow state and remaining work executable
+
+Affected files:
+
+- `README.md`
+- `workflow.toml`
+- `workflow/`
+- `docs/WORKFLOW.md`
+- `tools/governance.py`
+- `tools/tests/test_governance.py`
+
+Explanation:
+
+Replace duplicated prose status with one checked feature registry in
+`workflow.toml`. Enforce one active feature, acyclic and completed
+dependencies, revision-bound completion evidence, independent review records,
+canonical feature paths, explicit blockers, checked unfinished-work plans, and
+global high-risk coverage ownership. Generate workflow and coverage dashboards
+from that registry. Add bounded review and decomposition packets for the active
+routing/switching contract, Alpine appliance ISO, and Linux learning alpha.
+These plans name exact ownership, dependency order, handoffs, supported and
+denied alpha behavior, and effect gates without fabricating reviews, component
+artifacts, Phase 0 grades, or release admission.
+
+Verification completed locally:
+
+- `python3 tools/governance.py render --check`
+- `python3 tools/governance.py validate`
+- `python3 -m unittest discover -s tools/tests -v` (37 tests)
+- `python3 -m py_compile tools/governance.py tools/tests/test_governance.py`
+- `git diff --check`
+
+Risks / non-goals:
+
+- The routing/switching workflow remains active until two independent reviews
+  pass over one immutable revision and verification evidence is bound.
+- Alpine inputs, installer artifacts, alpha dependencies, Phase 0 A/A+ grades,
+  and release compositions remain blocked and unclaimed.
+- No runtime code, component repository, artifact, commit, push, release,
+  deployment, disk mutation, host-network mutation, or production action is
+  performed.
+
 ### 2026-08-09 01:54–02:30 CDT — Add a bounded Linux learning-alpha path
 
 Affected files:
