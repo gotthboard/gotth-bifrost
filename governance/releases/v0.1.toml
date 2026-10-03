@@ -61,6 +61,7 @@ deferred = [
   "gotth-media",
   "gotth-search",
   "gotth-extension-markdown",
+  "gotth-caddy",
 ]
 
 [[composition]]

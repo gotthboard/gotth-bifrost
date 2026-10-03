@@ -1188,6 +1188,27 @@ evidence_hashes = []
 status = "planned"
 admission = "not_admitted"
 
+[[components]]
+id = "gotth-caddy"
+kind = "shared-candidate"
+responsibility = "Design-only optional Caddy UI/management and router-hosted edge ingress; not the native BFW proxy or an admitted runtime."
+repository = "https://git.dannyhunn.com/gotthboard/gotth-caddy.git"
+observed_revision = ""
+revision = ""
+artifact_digests = []
+api_version = "unselected"
+schema_version = "unselected"
+ui_version = "unselected"
+dependencies = []
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 0
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
 [[external_dependencies]]
 id = "rpc-plugin-system"
 repository = "https://git.dannyhunn.com/agents/rpc-plugin-system.git"

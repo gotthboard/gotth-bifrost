@@ -54,6 +54,15 @@ filesystem and execution providers remain authoritative. The existing native
 Go reverse-proxy and GoKA decisions are also unchanged: adopting GOTTH Stack
 does not make Caddy or Keepalived part of those Bifrost components.
 
+## Router edge-service host
+
+In addition to consuming shared libraries, Bifrost is intended to run selected
+GOTTH services on the router. [EDGE-SERVICES.md](EDGE-SERVICES.md) defines the
+optional local/off-box hosting, resource and recovery boundary and the planned
+`gotth-caddy` UI/service. Caddy is a separately admitted workload; it does not
+replace `bfw-reverse-proxy`, own network policy, or share a listener without
+explicit admission. Libraries and placeholders are not runnable services.
+
 ## Control and data planes
 
 The native operating-system networking stack is the data plane. Bifrost's

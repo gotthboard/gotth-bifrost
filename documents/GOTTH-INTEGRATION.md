@@ -7,6 +7,10 @@ or dependency admission**. Bifrost remains a governance-only meta repository.
 The runtime adoption feature is planned in `workflow.toml`; the existing
 active feature and all alpha/Phase 0 decisions remain unchanged.
 
+The complementary [edge-service hosting contract](EDGE-SERVICES.md) defines
+BFW-PRD-235 through BFW-PRD-240: runnable GOTTH services on router hardware,
+not just shared code reuse. Libraries remain distinct from hosted products.
+
 ## Identity, source and compatibility
 
 - Product: Bifrost; GOTTH display name: **GOTTH Bifrost**.
@@ -49,6 +53,7 @@ required appliance composition simply by appearing here.
 | [gotth-media](https://github.com/gotthboard/gotth-media) | Placeholder | Optional future upload/object mechanics. Packet-capture authorization, quotas, retention and redaction remain Bifrost-specific. |
 | [gotth-search](https://github.com/gotthboard/gotth-search) | Placeholder | Optional future search mechanics; access must be enforced before counts/results expose data. |
 | [gotth-extension-markdown](https://github.com/gotthboard/gotth-extension-markdown) | Design only, no renderer/container | Optional future help/operator content: one Markdown/Mermaid/math extension. Host validates output and content access; local recovery never depends on it. |
+| [gotth-caddy](https://github.com/gotthboard/gotth-caddy) | Design only, no UI/runtime | Optional Caddy UI/management and hosted edge ingress; single-writer, listener, credential and resource admission required. Not the native bfw-reverse-proxy. |
 
 Other GOTTH products are not automatic dependencies. Reuse is driven by a
 concrete consumer contract, not by importing the entire family. Existing Go

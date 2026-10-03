@@ -249,6 +249,22 @@ allowed_effects = ["read_only", "local_write"]
 acceptance = ["Each selected GOTTH dependency is integrated in its consumer repository with authority, outage, platform, upgrade/rollback and independent evidence.", "No family naming or placeholder is represented as runtime, supervisor, release or safety admission."]
 plan = "workflow/features/gotth-foundation-adoption/PLAN.md"
 
+[[features]]
+id = "router-edge-services"
+title = "Router-hosted GOTTH services and optional Caddy UI"
+state = "planned"
+phase = "design"
+risk = "high"
+path = "workflow/features/router-edge-services"
+requirements = ["BFW-PRD-235", "BFW-PRD-236", "BFW-PRD-237", "BFW-PRD-238", "BFW-PRD-239", "BFW-PRD-240"]
+dependencies = ["gotth-foundation-adoption"]
+review = "pending"
+evidence = []
+blockers = ["Exact hosting profile, resource isolation and Caddy credential custody unadmitted.", "Caddy UI, scoped Stack integration and router-hosting consumer not implemented.", "Existing alpha and Phase 0 gates remain open."]
+allowed_effects = ["read_only", "local_write"]
+acceptance = ["Selected services run under scoped lifecycle, listener, resource and credential contracts with independently proven router continuity.", "Caddy UI and single-writer hosting are verified without replacing native BFW proxy authority or claiming placeholder runtime support."]
+plan = "workflow/features/router-edge-services/PLAN.md"
+
 [[coverage_subsystems]]
 id = "meta-governance"
 owner = "meta"

@@ -239,3 +239,9 @@ Generated from `governance/requirements.toml`; do not edit by hand.
 | BFW-PRD-232 | `meta` | defined | none | not_admitted |
 | BFW-PRD-233 | `meta` | defined | none | not_admitted |
 | BFW-PRD-234 | `meta` | defined | none | not_admitted |
+| BFW-PRD-235 | `meta` | defined | none | not_admitted |
+| BFW-PRD-236 | `meta` | defined | none | not_admitted |
+| BFW-PRD-237 | `meta` | defined | none | not_admitted |
+| BFW-PRD-238 | `meta` | defined | none | not_admitted |
+| BFW-PRD-239 | `meta` | defined | none | not_admitted |
+| BFW-PRD-240 | `meta` | defined | none | not_admitted |

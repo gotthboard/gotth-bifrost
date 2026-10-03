@@ -1016,6 +1016,17 @@ count.
   complete. Every implemented slice requires its own contract-derived tests,
   independent review and applicable runtime/performance evidence.
 
+## Router-hosted GOTTH edge services
+
+See [EDGE-SERVICES.md](EDGE-SERVICES.md) for the placement and authority contract.
+
+- **BFW-PRD-235:** Bifrost shall support optional deployment of selected executable GOTTH products and extensions on router hardware, with off-box alternatives. Distinguish runnable services from imported libraries and placeholders; no whole-family installation or mandatory database/container/identity dependency for forwarding is implied.
+- **BFW-PRD-236:** Every hosted service shall declare and prove exact platform/artifact/dependency support, scoped lifecycle/host/network/secret authority, persistent data, resource quotas, reserved router headroom and upgrade/rollback. Reject unsupported placement and preserve the existing supervisor/provider boundaries.
+- **BFW-PRD-237:** The optional gotth-caddy service shall provide scoped Caddy UI/API for domains, routes, approved upstreams, TLS metadata, health/logs and validate/preview/confirm/apply/verify/rollback workflows. It shall manage real Caddy as a separate hosted service, not replace the native bfw-reverse-proxy engine.
+- **BFW-PRD-238:** Each Caddy instance and listener shall have one admitted writer and owner. Stack-managed and standalone modes shall not compete. Enforce tenant/hostname/target grants, private Admin API, backend isolation, SSRF/rebinding denial, verified upstream TLS and explicit certificate ownership.
+- **BFW-PRD-239:** Hosted service, controller, database or identity failure and resource exhaustion shall not defeat packet forwarding, last-known-good network policy, commit-confirmed rollback or console recovery. Verify persistent serving state and unknown-outcome reconciliation; disclose certificate expiry and web-proxy failure limits.
+- **BFW-PRD-240:** Admit hosted services individually with immutable inputs, contract-derived tests, resource/performance and independent evidence. Caddy key/ACME custody must satisfy the keyring contract before router admission. Keep all existing alpha/Phase 0 and release gates unchanged.
+
 ## Initial requirements
 
 - **BFW-PRD-001:** Bifrost shall compile one canonical policy model into

@@ -104,6 +104,13 @@ are reused through versioned dependencies in their consuming component repos,
 not copied into this meta repository. Empty component revision/artifact fields
 continue to mean unadmitted, including for GOTTH entries.
 
+## Router-hosted service implementation
+
+[EDGE-SERVICES.md](EDGE-SERVICES.md) defines BFW-PRD-235 through BFW-PRD-240.
+Follow its profile -> scoped placement -> Caddy read-only/one-route -> credential
+and resource admission -> other services sequence. Implementation remains in
+separate component repositories. No new runtime feature is activated here.
+
 ## Required design work before beta or stable admission
 
 The Linux learning alpha may implement only the narrower surface named above.
@@ -727,3 +734,9 @@ slices and cannot cross the specific `BFW-ALPHA-0` effect gate that applies.
 | BFW-PRD-232 | No-JS server-rendered management, progressive-enhancement parity, scoped Stack API and absence of direct privileged mutations |
 | BFW-PRD-233 | Remote service/database/identity loss with retained forwarding, commit-confirmed rollback and console recovery; bounded retry/cancellation tests |
 | BFW-PRD-234 | Placeholder-versus-implementation checks, immutable consumer evidence and unchanged alpha/Phase 0 gates; independent review |
+| BFW-PRD-235 | Local/off-box profile, runnable-service/library distinction and unsupported-placement tests |
+| BFW-PRD-236 | Artifact/lifecycle/host/secret scopes, quotas, headroom, saturation and rollback tests |
+| BFW-PRD-237 | Caddy UI no-JS/API parity, approved route preview/apply/verify/rollback and native-proxy separation |
+| BFW-PRD-238 | Single-writer fencing, ownership/revocation, listener conflict, SSRF/rebinding/header/TLS and Admin API denial tests |
+| BFW-PRD-239 | Service/dependency outage, restart persistence, unknown outcome, expiry and packet/console recovery tests |
+| BFW-PRD-240 | Keyring/Caddy custody, immutable profile/resource/performance evidence and unchanged release/safety gates |

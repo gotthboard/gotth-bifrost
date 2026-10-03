@@ -63,6 +63,19 @@ network semantics, local recovery, credential custody and native data plane.
 No shared web service, PostgreSQL server, identity provider or GOTTH Stack
 instance becomes a prerequisite for established packet forwarding.
 
+## Run GOTTH services at the edge
+
+The goal also includes **hosting selected GOTTH services on the router**, not
+only building Bifrost with shared libraries. [Edge-service architecture](documents/EDGE-SERVICES.md)
+defines opt-in workloads, resource isolation, local or approved LAN backends,
+and forwarding/recovery independence. Not every GOTTH repository is a service.
+
+[gotth-caddy](https://github.com/gotthboard/gotth-caddy) is the planned Caddy
+UI/management service for domains, proxy routes, upstreams, TLS status and safe
+apply/rollback. Caddy remains a separate optional workload with explicit
+listener ownership, not a replacement for the native Bifrost proxy. These are
+design contracts; no router-hosted runtime or Caddy UI is implemented yet.
+
 ## Current governance status
 
 - [Workflow status](docs/WORKFLOW.md) — generated from canonical

@@ -2,9 +2,33 @@
 
 ## Unreleased
 
-### 2026-10-02 20:05 CDT — Adopt the GOTTH family and shared building blocks
+### 2026-10-02 20:35 CDT — Define router-hosted services and GOTTH Caddy
 
 Commit: current commit; hash assigned by Git after commit
+
+Affected files: README.md; documents/PRD.md, ARCHITECTURE.md,
+IMPLEMENTATION-SPEC.md, GOTTH-INTEGRATION.md and EDGE-SERVICES.md;
+governance/requirements.toml, components.toml and releases/v0.1.toml;
+workflow.toml and workflow/features/router-edge-services; generated
+requirements/workflow/coverage views; this changelog.
+
+Add BFW-PRD-235–240 and a planned feature for selected GOTTH services running on
+the router. Separate imported libraries, hosted applications and Caddy serving.
+Add design-only gotth-caddy as deferred/unadmitted; require resource headroom,
+listener/writer ownership, credential compatibility and outage/recovery proof.
+Preserve native BFW proxy ownership and all active/safety/release states.
+
+Verification: governance validator/render consistency, existing governance
+regressions, requirement/link/diff checks and independent design reviews before
+publication. These do not prove a running Caddy UI or service placement.
+
+Non-goals: no runtime, deployment, install, network change or release promotion.
+Performance review is N/A for non-executable documentation; future hosting
+requires measured resource and packet-forwarding evidence.
+
+### 2026-10-02 20:05 CDT — Adopt the GOTTH family and shared building blocks
+
+Commit: 147459334edb0fd910e20673c7a7b8ba1448f90d
 
 Affected files: README, LICENSE, SECURITY.md; documents/PRD.md,
 documents/ARCHITECTURE.md, documents/IMPLEMENTATION-SPEC.md,
