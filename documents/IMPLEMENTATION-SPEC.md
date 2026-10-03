@@ -83,7 +83,8 @@ stable, production, or cross-platform admission before Phase 0 passes.
 
 ## Bootstrap slice
 
-1. Create the private `danny/Bifrost` repository and `main` branch.
+1. Maintain private `gotthboard/gotth-bifrost` on Forgejo and `main`, preserving
+   the original `danny/Bifrost` history; mirror approved public source to GitHub.
 2. Establish it as the product meta repository with no product Go module.
 3. Record product, component, architecture, safety, and recovery boundaries.
 4. Define planned component/dependency ownership and pinning rules.
@@ -92,6 +93,16 @@ stable, production, or cross-platform admission before Phase 0 passes.
 All future public CLI commands, package/configuration keys, protocol labels,
 and compatibility identifiers use the lowercase `bfw` namespace. ADR-0002
 settles `bfw`, `bfwd`, and `bfw-web` as the public executable role names.
+
+## GOTTH implementation adoption
+
+Follow [GOTTH-INTEGRATION.md](GOTTH-INTEGRATION.md) and the ordered
+[adoption plan](../workflow/features/gotth-foundation-adoption/PLAN.md).
+This records BFW-PRD-229 through BFW-PRD-234; it does not activate the planned
+runtime feature or relax the preceding alpha/Phase 0 gates. Shared repositories
+are reused through versioned dependencies in their consuming component repos,
+not copied into this meta repository. Empty component revision/artifact fields
+continue to mean unadmitted, including for GOTTH entries.
 
 ## Required design work before beta or stable admission
 
@@ -710,3 +721,9 @@ slices and cannot cross the specific `BFW-ALPHA-0` effect gate that applies.
 | BFW-PRD-226 | `src.conf`/kernel/package manifest closure, required capability retention, private-repository signature, and manual-deletion drift tests |
 | BFW-PRD-227 | read-only system, dual-slot activation, durable-state separation, boot confirmation, migration, rollback, and recovery tests |
 | BFW-PRD-228 | independent FreeBSD build/install/update/recovery plus PF/routing/bridge/CARP/FRR/native-state/packet and cross-platform non-inheritance tests |
+| BFW-PRD-229 | Repository identity, preserved history and BFW namespaces; canonical/private versus public-mirror parity and private-reporting checks |
+| BFW-PRD-230 | Source-backed reuse matrix, exact dependency/license/API selection, consumer compatibility and upgrade/rollback evidence |
+| BFW-PRD-231 | Single-supervisor lifecycle mapping, keyring/filesystem/exec boundaries, stale-generation and unauthorized-effect denial tests |
+| BFW-PRD-232 | No-JS server-rendered management, progressive-enhancement parity, scoped Stack API and absence of direct privileged mutations |
+| BFW-PRD-233 | Remote service/database/identity loss with retained forwarding, commit-confirmed rollback and console recovery; bounded retry/cancellation tests |
+| BFW-PRD-234 | Placeholder-versus-implementation checks, immutable consumer evidence and unchanged alpha/Phase 0 gates; independent review |

@@ -235,3 +235,9 @@ id_policy = "Contiguous BFW-PRD-000 through the highest defined identifier."
 "BFW-PRD-226" = { owner = "bfw-installer", status = "defined", blocking_dependencies = ["bfw-core", "bfw-platform-freebsd", "bfw-logging"], verification_commands = [], evidence = [], admission = "not_admitted" }
 "BFW-PRD-227" = { owner = "bfw-updater", status = "defined", blocking_dependencies = ["bfw-installer", "bfw-backup", "bfw-platform-freebsd", "BFW-PRD-089"], verification_commands = [], evidence = [], admission = "not_admitted" }
 "BFW-PRD-228" = { owner = "meta", status = "defined", blocking_dependencies = ["bfw-installer", "bfw-updater", "bfw-backup", "bfw-platform-freebsd", "BFW-PRD-090"], verification_commands = [], evidence = [], admission = "not_admitted" }
+"BFW-PRD-229" = { owner = "meta", status = "defined", blocking_dependencies = [], verification_commands = [], evidence = [], admission = "not_admitted" }
+"BFW-PRD-230" = { owner = "meta", status = "defined", blocking_dependencies = [], verification_commands = [], evidence = [], admission = "not_admitted" }
+"BFW-PRD-231" = { owner = "meta", status = "defined", blocking_dependencies = [], verification_commands = [], evidence = [], admission = "not_admitted" }
+"BFW-PRD-232" = { owner = "meta", status = "defined", blocking_dependencies = [], verification_commands = [], evidence = [], admission = "not_admitted" }
+"BFW-PRD-233" = { owner = "meta", status = "defined", blocking_dependencies = [], verification_commands = [], evidence = [], admission = "not_admitted" }
+"BFW-PRD-234" = { owner = "meta", status = "defined", blocking_dependencies = [], verification_commands = [], evidence = [], admission = "not_admitted" }

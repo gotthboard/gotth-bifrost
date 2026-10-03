@@ -105,3 +105,20 @@ record:
 
 Git submodules may represent exact source revisions, but the machine-readable
 release composition is authoritative for packaged artifacts and compatibility.
+
+## GOTTH reuse candidates
+
+The [GOTTH adoption matrix](../documents/GOTTH-INTEGRATION.md) maps shared
+GOTTH projects to intended consumers and actual upstream availability. Their
+`shared-candidate` records in `governance/components.toml` are planning entries,
+not new required runtime components. `observed_revision` is a source-inspection
+snapshot only; it is deliberately separate from the empty admitted `revision`,
+artifact, rollback and evidence fields. The standard validator checks record
+structure and admission honesty, not upstream API existence or that optional
+field's freshness. Refresh source observations before selecting an integration.
+
+Consumer dependency edges and release membership are added only when the
+concrete integration is selected and verified. The existing four external
+substrates and both alpha/Phase 0 gates are unchanged. Future Bifrost-specific
+repositories use the `gotth-bifrost-*` family without renaming `bfw-*` protocol
+component IDs. No component repository is created by this catalog update.

@@ -1,8 +1,18 @@
-# Bifrost (BFW)
+# GOTTH Bifrost (BFW)
 
 **Bifrost**, with the firewall shorthand **BFW**, is a planned open-source,
 cross-platform network firewall, managed-switch, and routing platform written in Go, in the same
 broad product category as OPNsense.
+
+Bifrost is now a **GOTTH product**, developed in `gotthboard/gotth-bifrost`.
+The private [Forgejo repository](https://git.dannyhunn.com/gotthboard/gotth-bifrost)
+is canonical; [GitHub](https://github.com/gotthboard/gotth-bifrost) is its public
+one-way mirror and [bug tracker](https://github.com/gotthboard/gotth-bifrost/issues).
+Report vulnerabilities privately using [SECURITY.md](SECURITY.md).
+
+**This repository still contains design and governance, not a usable appliance.**
+The [GOTTH adoption contract](documents/GOTTH-INTEGRATION.md) defines how shared
+GOTTH code will be used to build Bifrost. No runtime integration is claimed.
 
 The goal is a security-first appliance that combines deterministic packet and
 policy control with a clear API, auditable configuration, safe upgrades, and a
@@ -27,12 +37,31 @@ profiles of one product, not separate editions or forks.
 - Full product name: **Bifrost**
 - Canonical firewall shorthand: **BFW** (Bifrost Firewall)
 - Lowercase command, package, configuration, and protocol namespace: `bfw`
-- Repository name: `Bifrost`
+- GOTTH family/display name: **GOTTH Bifrost**
+- Repository name: `gotth-bifrost` (formerly `danny/Bifrost`)
 
 The shorthand `BFW` identifies Bifrost's firewall product and is not the formal
 full name, a separate component, or an edition. Future public interfaces must
 use `bfw` consistently and must not
 introduce competing `bfr`, `bif`, or ambiguous `bifrost` shorthand namespaces.
+Repository branding does not rename `bfw`, `bfwd`, `bfw-web`, `BFW-PRD-*`,
+schema identifiers, or the canonical workflow project key `Bifrost`.
+
+## Build on GOTTH
+
+Prefer the existing GOTTH implementations for identity (`gotth-oidc`, optional
+`gotth-authentik` and `gotth-scim`), jobs, portability, webhooks, release and
+infrastructure tooling. Evaluate `gotth-extensions` for its shared package and
+capability contracts, not as a replacement for `rpc-plugin-system` supervision.
+Use Go/templ, HTMX and Tailwind for the independent management UI, following
+GOTTH conventions; `gotth-sdk` is a planned shared surface, not an available UI
+library today. Optional Stack integration is a client of Bifrost's core API.
+
+The adoption matrix records existing code versus placeholders, proposed
+consumers, version/admission work and failure boundaries. Bifrost retains its
+network semantics, local recovery, credential custody and native data plane.
+No shared web service, PostgreSQL server, identity provider or GOTTH Stack
+instance becomes a prerequisite for established packet forwarding.
 
 ## Current governance status
 
@@ -441,3 +470,8 @@ safety, recovery, process, sandbox, resource-bound, or audit contracts.
 - production use before recovery, upgrade, and fail-closed behavior are proven
 - loading arbitrary plugin HTML or JavaScript into the trusted web shell
 - placing Bifrost runtime or plugin implementation in this meta repository
+
+## License
+
+MIT; see [LICENSE](LICENSE). Shared dependencies and third-party appliance
+inputs retain their own licenses and require composition-level notice review.

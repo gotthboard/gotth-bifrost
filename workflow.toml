@@ -233,6 +233,22 @@ blockers = ["active routing/switching workflow", "shared installer contract and 
 allowed_effects = ["read_only", "local_write"]
 acceptance = ["Exact FreeBSD source/object sets, build toolchain, inventory schema, tailoring policy, recovery environment, packages, firmware, boot artifacts, installer, ISO, and live-media hardware-matrix identities are immutable.", "Offline inventory, deterministic machine build planning, exact kernel/module/firmware/package closure, generic recovery boot, exact-disk confirmation, interruption, dual-slot rebuild/rollback, and independent PF/routing/bridge/CARP/FRR packet and native-state verification are decomposed into owned work.", "The generic live installer produces a machine-tailored installed system; only separately distributed prebuilt hardware-specific media and appliance SKUs remain outside this feature."]
 
+[[features]]
+id = "gotth-foundation-adoption"
+title = "GOTTH shared-foundation consumer integration"
+state = "planned"
+phase = "design"
+risk = "high"
+path = "workflow/features/gotth-foundation-adoption"
+requirements = ["BFW-PRD-229", "BFW-PRD-230", "BFW-PRD-231", "BFW-PRD-232", "BFW-PRD-233", "BFW-PRD-234"]
+dependencies = ["routing-switching-protocol-suites-v1"]
+review = "pending"
+evidence = []
+blockers = ["No Bifrost consumer component or immutable shared-dependency admission exists.", "Required existing design and alpha/Phase 0 gates remain open."]
+allowed_effects = ["read_only", "local_write"]
+acceptance = ["Each selected GOTTH dependency is integrated in its consumer repository with authority, outage, platform, upgrade/rollback and independent evidence.", "No family naming or placeholder is represented as runtime, supervisor, release or safety admission."]
+plan = "workflow/features/gotth-foundation-adoption/PLAN.md"
+
 [[coverage_subsystems]]
 id = "meta-governance"
 owner = "meta"
@@ -297,3 +313,14 @@ evidence = []
 known_gaps = ["v0.1 remains a design-only profile.", "No component artifacts or admitted composition exist."]
 plan = "workflow/RELEASE-COMPOSITION-PLAN.md"
 next_increment = "Create an immutable alpha composition only after component artifacts and BFW-ALPHA-0 evidence exist."
+
+[[coverage_subsystems]]
+id = "gotth-shared-foundation"
+owner = "meta,bfw-identity,bfw-web"
+risk = "high"
+scope = ["documents/GOTTH-INTEGRATION.md", "governance/components.toml", "workflow/features/gotth-foundation-adoption"]
+required_harness = ["consumer-compatibility", "authority-negative", "outage-recovery", "platform", "upgrade-rollback", "independent-review"]
+evidence = []
+known_gaps = ["Shared candidates are observed upstream code or placeholders, not Bifrost-admitted dependencies.", "No runtime consumer, integration tests or release composition pins are supplied by this repository migration."]
+plan = "workflow/features/gotth-foundation-adoption/PLAN.md"
+next_increment = "Activate a bounded eligible consumer slice, starting with bfw-identity and gotth-oidc, after required design dependencies."

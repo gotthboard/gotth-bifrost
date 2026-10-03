@@ -233,3 +233,9 @@ Generated from `governance/requirements.toml`; do not edit by hand.
 | BFW-PRD-226 | `bfw-installer` | defined | `bfw-core`, `bfw-platform-freebsd`, `bfw-logging` | not_admitted |
 | BFW-PRD-227 | `bfw-updater` | defined | `bfw-installer`, `bfw-backup`, `bfw-platform-freebsd`, `BFW-PRD-089` | not_admitted |
 | BFW-PRD-228 | `meta` | defined | `bfw-installer`, `bfw-updater`, `bfw-backup`, `bfw-platform-freebsd`, `BFW-PRD-090` | not_admitted |
+| BFW-PRD-229 | `meta` | defined | none | not_admitted |
+| BFW-PRD-230 | `meta` | defined | none | not_admitted |
+| BFW-PRD-231 | `meta` | defined | none | not_admitted |
+| BFW-PRD-232 | `meta` | defined | none | not_admitted |
+| BFW-PRD-233 | `meta` | defined | none | not_admitted |
+| BFW-PRD-234 | `meta` | defined | none | not_admitted |

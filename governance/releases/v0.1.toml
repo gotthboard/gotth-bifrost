@@ -44,6 +44,23 @@ deferred = [
   "bfw-ipsec", "bfw-openvpn", "bfw-qos", "bfw-multiwan", "bfw-cellular",
   "bfw-ids", "bfw-fabric", "bfw-kubernetes-controller", "bfw-dns-filter", "bfw-threat-intel", "bfw-captive-portal",
   "bfw-radius", "bfw-upnp", "bfw-support", "bfw-notifications",
+  # Reuse candidates are unselected; inclusion requires concrete consumer admission.
+  "gotth-oidc",
+  "gotth-authentik",
+  "gotth-scim",
+  "gotth-extensions",
+  "gotth-jobs",
+  "gotth-webhooks",
+  "gotth-portability",
+  "gotth-release",
+  "gotth-infrastructure",
+  "gotth-pg-migrate",
+  "gotth-stack",
+  "gotth-sdk",
+  "gotth-notify",
+  "gotth-media",
+  "gotth-search",
+  "gotth-extension-markdown",
 ]
 
 [[composition]]

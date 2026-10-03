@@ -13,7 +13,7 @@ those names as one compatibility contract.
 
 ## Meta-repository boundary
 
-`danny/Bifrost` is the product meta repository. It owns:
+`gotthboard/gotth-bifrost` is the product meta repository. It owns:
 
 - the canonical PRD, architecture, and implementation/release plan
 - the component and external-dependency map
@@ -32,6 +32,27 @@ identity and pins, alpha and Phase 0 status, release profiles, and lab
 state. Versioned shared envelope schemas live under `schemas/v1/`. Prose
 remains authoritative for normative product intent, but the validator requires
 matching IDs and rejects contradictory governance state.
+
+## GOTTH shared-building-block boundary
+
+Bifrost is branded **GOTTH Bifrost** in the GOTTH product family. The stable
+`bfw` executable/configuration/schema namespace and `Bifrost` workflow key
+remain unchanged. [GOTTH-INTEGRATION.md](GOTTH-INTEGRATION.md) is the adoption
+contract for BFW-PRD-229 through BFW-PRD-234 and the shared dependency matrix.
+
+Shared GOTTH mechanisms live behind the existing Bifrost boundaries:
+`bfw-identity` consumes OIDC validation; the core owns authorization and opaque
+sessions; `bfw-web` is a Go/templ + HTMX + Tailwind client; optional Stack
+integration calls the same admitted core API. Shared jobs, webhook and release
+mechanisms never independently admit network effects or manufacture rollback.
+GOTTH source reuse is not evidence that an upstream runtime is already fit for
+Bifrost's appliance, platform, privilege or failure model.
+
+`gotth-extensions` supplies candidate shared contracts, not an alternate
+supervisor. The following `rpc-plugin-system` architecture and the keyring,
+filesystem and execution providers remain authoritative. The existing native
+Go reverse-proxy and GoKA decisions are also unchanged: adopting GOTTH Stack
+does not make Caddy or Keepalived part of those Bifrost components.
 
 ## Control and data planes
 

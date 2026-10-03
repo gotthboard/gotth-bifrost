@@ -15,11 +15,13 @@ count.
 - **BFW-PRD-000:** The full product name shall be **Bifrost**, its canonical
   firewall shorthand shall be **BFW** (Bifrost Firewall), and its lowercase
   public command, package, configuration, and protocol namespace shall be
-  `bfw`. The repository remains named `Bifrost`.
+  `bfw`. Its GOTTH family/display name is **GOTTH Bifrost** and its repository
+  is `gotthboard/gotth-bifrost`; existing interface and requirement identifiers
+  do not change with repository branding.
 
 ## Repository role
 
-- **BFW-PRD-035:** `danny/Bifrost` shall be the Bifrost meta repository. It
+- **BFW-PRD-035:** `gotthboard/gotth-bifrost` shall be the Bifrost meta repository. It
   shall own canonical product requirements, architecture, implementation and
   release coordination, component/dependency mapping, compatibility contracts,
   release composition, and system-level verification evidence—not product
@@ -974,6 +976,46 @@ count.
   across every supported hardware row. Linux evidence shall not admit FreeBSD
   or imply cross-platform parity.
 
+## GOTTH family and shared implementation
+
+- **BFW-PRD-229:** Bifrost shall be a GOTTH-family product. The private Forgejo
+  `gotthboard/gotth-bifrost` repository shall be canonical, with a public
+  one-way GitHub mirror, GitHub bug reporting and private vulnerability
+  reporting. Preserve historical Git ancestry and stable BFW identities;
+  moving the repository shall not imply a runtime release or rename protocol,
+  command, configuration, schema or requirement identifiers.
+- **BFW-PRD-230:** Bifrost implementation shall reuse suitable shared GOTTH
+  libraries and contracts before building product-local duplicates. Each
+  selected dependency shall have an explicit consumer, authority boundary,
+  immutable version, license review, compatibility tests, upgrade/rollback
+  consequences and Bifrost-specific admission. Missing shared functionality
+  shall be implemented upstream or recorded as a scoped Bifrost adapter, not
+  assumed to exist because a repository name exists.
+- **BFW-PRD-231:** Shared identity, SDK, extension, job and notification code
+  shall not acquire Bifrost configuration, network-policy, secret-custody or
+  privileged-effect authority. `rpc-plugin-system` remains the executable
+  supervisor; `agent-keyring`, `agent-filesystem` and `agent-exec` retain their
+  existing authorities and alpha/Phase 0 gates. A GOTTH package or container
+  contract shall not silently replace that substrate or admit a second writer.
+- **BFW-PRD-232:** `bfw-web` shall use the GOTTH Go/templ, HTMX and Tailwind
+  presentation approach with usable server-rendered core workflows and bounded
+  progressive enhancement. Shared UI assets require real versioned interfaces
+  and independent host validation. `gotth-stack` integration shall be optional,
+  authenticated and scoped to the same core API; Stack shall not directly
+  program packets, read credentials or become Bifrost's configuration owner.
+- **BFW-PRD-233:** Local forwarding, last-known-good policy, commit-confirmed
+  rollback and console recovery shall not depend on a remote GOTTH service,
+  identity provider, shared database, package catalog or renderer being
+  reachable. Management integrations shall define bounded outage, cancellation,
+  retry, redaction and stale-authority behavior; absent dependencies shall not
+  silently widen access or weaken packet-policy enforcement.
+- **BFW-PRD-234:** The adoption plan shall distinguish inspected upstream
+  source from a Bifrost-admitted dependency and placeholders from executable
+  implementations. Shared-project reuse shall not mark the alpha safety gate,
+  Phase 0, platform support, workflow implementation or release composition
+  complete. Every implemented slice requires its own contract-derived tests,
+  independent review and applicable runtime/performance evidence.
+
 ## Initial requirements
 
 - **BFW-PRD-001:** Bifrost shall compile one canonical policy model into
@@ -1101,7 +1143,7 @@ count.
 
 ## Bootstrap acceptance criteria
 
-- Private `danny/Bifrost` repository exists on Forgejo with default branch
+- Private `gotthboard/gotth-bifrost` repository exists on Forgejo with default branch
   `main`.
 - README states the cross-platform Go/native-engine architecture boundary,
   plugin model, governance-only meta-repository status, and absence of product

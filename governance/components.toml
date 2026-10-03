@@ -850,6 +850,344 @@ evidence_hashes = []
 status = "planned"
 admission = "not_admitted"
 
+# GOTTH reuse candidates: upstream observations are NOT Bifrost dependency pins.
+
+[[components]]
+id = "gotth-oidc"
+kind = "shared-candidate"
+responsibility = "Candidate shared OIDC protocol implementation for bfw-identity; core role/session and keyring authorities retained."
+repository = "https://git.dannyhunn.com/gotthboard/gotth-oidc.git"
+observed_revision = "4c22b248b2e7f03c28051aaf3105a0d769690f73"
+revision = ""
+artifact_digests = []
+api_version = "unselected"
+schema_version = "unselected"
+ui_version = "none"
+dependencies = []
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 0
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "gotth-authentik"
+kind = "shared-candidate"
+responsibility = "Optional provider configuration and validation tools; generic OIDC and local recovery retained."
+repository = "https://git.dannyhunn.com/gotthboard/gotth-authentik.git"
+observed_revision = "77c811c18fe3c107f6f3e97ce3f9a3850a685300"
+revision = ""
+artifact_digests = []
+api_version = "unselected"
+schema_version = "unselected"
+ui_version = "none"
+dependencies = []
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 0
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "gotth-scim"
+kind = "shared-candidate"
+responsibility = "Optional provisioning adapter; consumer-owned durable store, identity/revocation policy and authorization required."
+repository = "https://git.dannyhunn.com/gotthboard/gotth-scim.git"
+observed_revision = "11989aefa11d0fa11226313b6dffc3a4a0077fa5"
+revision = ""
+artifact_digests = []
+api_version = "unselected"
+schema_version = "unselected"
+ui_version = "none"
+dependencies = []
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 0
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "gotth-extensions"
+kind = "shared-candidate"
+responsibility = "Candidate shared manifest/capability/negotiation mechanisms; not a replacement supervisor or invocation bus."
+repository = "https://git.dannyhunn.com/gotthboard/gotth-extensions.git"
+observed_revision = "dfa3d975369c436ffdee98e5f6468eb2be268c54"
+revision = ""
+artifact_digests = []
+api_version = "unselected"
+schema_version = "unselected"
+ui_version = "none"
+dependencies = []
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 0
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "gotth-jobs"
+kind = "shared-candidate"
+responsibility = "Optional PostgreSQL 17 controller jobs; no forwarding or native fast-failover dependency."
+repository = "https://git.dannyhunn.com/gotthboard/gotth-jobs.git"
+observed_revision = "1c7b229f24e61a65c477408282aed74602dd3cab"
+revision = ""
+artifact_digests = []
+api_version = "unselected"
+schema_version = "unselected"
+ui_version = "none"
+dependencies = []
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 0
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "gotth-webhooks"
+kind = "shared-candidate"
+responsibility = "Optional authorized public HTTPS port-443 outbound events; not private-LAN or inbound delivery."
+repository = "https://git.dannyhunn.com/gotthboard/gotth-webhooks.git"
+observed_revision = "9c955c7784e1bcc47ac58f97652ec82945491f5f"
+revision = ""
+artifact_digests = []
+api_version = "unselected"
+schema_version = "unselected"
+ui_version = "none"
+dependencies = []
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 0
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "gotth-portability"
+kind = "shared-candidate"
+responsibility = "Candidate bounded export/import mechanics; product schema, redaction, authentication and restore authority retained."
+repository = "https://git.dannyhunn.com/gotthboard/gotth-portability.git"
+observed_revision = "09bbc69dcdce57e0da4104977ea7fae54faaa917"
+revision = ""
+artifact_digests = []
+api_version = "unselected"
+schema_version = "unselected"
+ui_version = "none"
+dependencies = []
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 0
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "gotth-release"
+kind = "shared-candidate"
+responsibility = "Candidate deterministic archive and revision/version mechanics; not installer, signing or update authority."
+repository = "https://git.dannyhunn.com/gotthboard/gotth-release.git"
+observed_revision = "43e64e693a6fa3d0c1b045d6730fefa1ca767998"
+revision = ""
+artifact_digests = []
+api_version = "unselected"
+schema_version = "unselected"
+ui_version = "none"
+dependencies = []
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 0
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "gotth-infrastructure"
+kind = "shared-candidate"
+responsibility = "Optional nonprivileged management-service container contracts; not privileged appliance deployment."
+repository = "https://git.dannyhunn.com/gotthboard/gotth-infrastructure.git"
+observed_revision = "9abafdb2cf6c93f1cd823e91b0e66ca84555664a"
+revision = ""
+artifact_digests = []
+api_version = "unselected"
+schema_version = "unselected"
+ui_version = "none"
+dependencies = []
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 0
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "gotth-pg-migrate"
+kind = "shared-candidate"
+responsibility = "Optional PostgreSQL 17 management-service migration mechanism; no appliance database mandate."
+repository = "https://git.dannyhunn.com/gotthboard/gotth-pg-migrate.git"
+observed_revision = "bafb20b5aee66222fb7dd0d6abe7ee970cdb7878"
+revision = ""
+artifact_digests = []
+api_version = "unselected"
+schema_version = "unselected"
+ui_version = "none"
+dependencies = []
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 0
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "gotth-stack"
+kind = "shared-candidate"
+responsibility = "Optional future scoped Bifrost core-API client integration; current planning/journal foundation is not an apply implementation."
+repository = "https://git.dannyhunn.com/gotthboard/gotth-stack.git"
+observed_revision = "fc86ba250a6690e8e2f0f392c4be7ef9b233fb9d"
+revision = ""
+artifact_digests = []
+api_version = "unselected"
+schema_version = "unselected"
+ui_version = "none"
+dependencies = []
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 0
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "gotth-sdk"
+kind = "shared-candidate"
+responsibility = "Placeholder for future shared client/UI contracts; no importable library and no BFW SDK replacement."
+repository = "https://git.dannyhunn.com/gotthboard/gotth-sdk.git"
+observed_revision = "4b2d7c37bae3f18dafd6130f3846fc527fe01285"
+revision = ""
+artifact_digests = []
+api_version = "unselected"
+schema_version = "unselected"
+ui_version = "none"
+dependencies = []
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 0
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "gotth-notify"
+kind = "shared-candidate"
+responsibility = "Placeholder for future notification mechanics; no current dispatcher."
+repository = "https://git.dannyhunn.com/gotthboard/gotth-notify.git"
+observed_revision = "58821133ee2c438f34a217de0f237e68e30a587e"
+revision = ""
+artifact_digests = []
+api_version = "unselected"
+schema_version = "unselected"
+ui_version = "none"
+dependencies = []
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 0
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "gotth-media"
+kind = "shared-candidate"
+responsibility = "Placeholder for optional future object/upload mechanics; not a packet-capture policy authority."
+repository = "https://git.dannyhunn.com/gotthboard/gotth-media.git"
+observed_revision = "33024ad3cf57c53cded0aa89a0289906b4522163"
+revision = ""
+artifact_digests = []
+api_version = "unselected"
+schema_version = "unselected"
+ui_version = "none"
+dependencies = []
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 0
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "gotth-search"
+kind = "shared-candidate"
+responsibility = "Placeholder for optional future authorized search mechanics; no current search runtime."
+repository = "https://git.dannyhunn.com/gotthboard/gotth-search.git"
+observed_revision = "a448b78f5dac5472297ba67909c29972adcbc28f"
+revision = ""
+artifact_digests = []
+api_version = "unselected"
+schema_version = "unselected"
+ui_version = "none"
+dependencies = []
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 0
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
+[[components]]
+id = "gotth-extension-markdown"
+kind = "shared-candidate"
+responsibility = "Design-only optional Markdown/Mermaid/math rendering; not a current renderer or recovery dependency."
+repository = "https://git.dannyhunn.com/gotthboard/gotth-extension-markdown.git"
+observed_revision = "165cd8499be9e11c55303886cb6c8beb40d63743"
+revision = ""
+artifact_digests = []
+api_version = "unselected"
+schema_version = "unselected"
+ui_version = "none"
+dependencies = []
+conflicts = []
+platforms = []
+platform_status = "unassessed"
+migration_order = 0
+rollback_mate = ""
+evidence_hashes = []
+status = "planned"
+admission = "not_admitted"
+
 [[external_dependencies]]
 id = "rpc-plugin-system"
 repository = "https://git.dannyhunn.com/agents/rpc-plugin-system.git"

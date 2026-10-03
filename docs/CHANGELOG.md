@@ -2,6 +2,38 @@
 
 ## Unreleased
 
+### 2026-10-02 20:05 CDT — Adopt the GOTTH family and shared building blocks
+
+Commit: current commit; hash assigned by Git after commit
+
+Affected files: README, LICENSE, SECURITY.md; documents/PRD.md,
+documents/ARCHITECTURE.md, documents/IMPLEMENTATION-SPEC.md,
+documents/GOTTH-INTEGRATION.md; components/README.md; governance/components.toml,
+governance/requirements.toml, governance/releases/v0.1.toml; workflow.toml and the planned
+workflow/features/gotth-foundation-adoption; regenerated docs/REQUIREMENTS.md,
+docs/WORKFLOW.md and workflow/COVERAGE.md; this changelog.
+
+- Adopt `gotthboard/gotth-bifrost`, preserving original Git ancestry, the
+  Bifrost product identity, `bfw` interfaces and existing evidence.
+- Define shared GOTTH implementation reuse with concrete consumer boundaries,
+  source observations, upstream limitations, optional controller services and
+  honest placeholder states; add BFW-PRD-229 through BFW-PRD-234 and trace rows.
+- Add a planned implementation decomposition, not an activated runtime feature.
+- Establish the GOTTH MIT license and GitHub bug/private security-reporting
+  convention; Forgejo remains private and canonical with a public mirror.
+
+Verification: existing governance validation, generated-view consistency,
+41 governance regression tests, new-document link/trace and source-state
+inspection, independent reviews and pre-publication history screening. Exact
+publication parity is verified separately at delivery, not asserted by this
+source commit.
+
+Non-goals: no product/runtime code, dependency installation, native-network
+change, installer, release tag, deployment, substrate replacement or completed
+GOTTH runtime integration. Existing active workflow, alpha and Phase 0 safety
+states are preserved; performance review is N/A for this documentation-only
+product change (the governance tooling itself is unchanged).
+
 ### 2026-08-09 16:41 CDT — Reconcile release and installer governance
 
 - Add `alpha` to the admitted release schema and require independent
@@ -187,7 +219,7 @@ Risks / non-goals:
 
 ### 2026-08-08 12:39–14:01 CDT — Build and Judge the executable Bifrost governance tree
 
-Commit: current commit; hash assigned by Git after commit
+Commit: 52787510131e0ed96c8fdd253916ffdcea87a78f
 
 Affected files:
 
